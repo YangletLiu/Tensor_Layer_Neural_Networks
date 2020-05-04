@@ -4,13 +4,8 @@ from scipy.linalg import solve
 import tensorly as tl
 import scipy as spy
 
+#n denotes the number of rows in a square matrix
 def homo_encryption(original_tensor,key_Matrix,n):
-    #初始化张量
-    # tensor_1 = tl.tensor(np.arange(27).reshape(3, 3, 3).astype('float32'))
-    # print(tensor_1)
-    #加密矩阵
-    # key_matrix = tl.tensor(np.arange(1,10).reshape(3, 3).astype('float32'))
-    # print(key_matrix)
 
     encrypted_tensor = []
     for k in range(original_tensor.shape[0]):
@@ -44,22 +39,29 @@ def homo_decryption(encrypted_Tensor,key_Matrix,n):
     return decrypted_tensor
 
 if __name__ == '__main__':
+    #initialize the original tensor
+    #create three random sparse factors
     factor_1 = tl.tensor(spy.sparse.rand(300, 5, 0.1, 'coo', dtype='float64').todense())
     factor_2 = tl.tensor(spy.sparse.rand(300, 5, 0.1, 'coo', dtype='float64').todense())
     factor_3 = tl.tensor(spy.sparse.rand(300, 5, 0.1, 'coo', dtype='float64').todense())
 
+    #the kruskal product of three factors(the original tensor)
     factors_original = [factor_1, factor_2, factor_3]
     weight_original = np.array([1, 1, 1, 1, 1], dtype='float64')
     original_tensor = tl.kruskal_to_tensor([weight_original, factors_original])
 
+    #key_matrix used as the encryption&decryption key
     key_matrix = tl.tensor(np.random.random(90000).reshape(300, 300).astype('float64'))
 
+    #homo_encryption
     encrypted_tensor = homo_encryption(original_tensor, key_matrix, 300)
 
+    #cp_decomposition
     cp_rank = 5
     factors,is_converge = TensorAlgebra.parafac(encrypted_tensor, cp_rank,n_iter_max=3000,init='svd', tol=10e-15)
     cp_reconstruction = TensorAlgebra.kruskal_to_tensor(factors)
 
+    #homo_decryption
     decrypted_tensor = homo_decryption(cp_reconstruction, key_matrix, 300)
 
     # loss
