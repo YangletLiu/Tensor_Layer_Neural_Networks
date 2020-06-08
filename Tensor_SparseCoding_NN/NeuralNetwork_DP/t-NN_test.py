@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
 import time
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
-
+ 
 
 def torch_tensor_Bcirc(tensor, l, m, n):
     tensor_blocks = torch.split(tensor, split_size_or_sections=1, dim=0)
@@ -39,11 +40,46 @@ def torch_tensor_product(tensorA, tensorB):
         print('Shape Error')
 
 
-def Softmax_F(out):
-    pass
+def tubal_function(lateral_slice):
+    l, m, n = lateral_slice.shape
 
+    ls_freq = np.fft.fft(lateral_slice, n=None, axis=0)
 
-batch_size = 64
+    lateral_slices = []
+    for i in range(l):
+        fft_sum = np.sum([np.exp(i) for i in ls_freq[i, :, 0]])
+        fft_temp = np.exp(ls_freq[i, :, 0]) / fft_sum
+        lateral_slices.append(fft_temp.reshape(1, m, 1))
+
+    ultra_ls = np.vstack(lateral_slices)
+
+    ls_spatial = np.fft.ifft(ultra_ls, n=None, axis=0)
+
+    return np.sum(ls_spatial.real, axis=0)
+
+def scalar_tubal_function(out):
+    tensor_out = out.detach().numpy()
+    l,m,n = tensor_out.shape
+
+    lateral_slices = [tensor_out[:,:,i] for i in range(n)]
+
+    pro_vec = []
+    for i in lateral_slices:
+        pro_vec.append(tubal_function(i.reshape(l,m,1)))
+
+    ultra_matrix = np.hstack(pro_vec)
+    ultra_matrix = Variable(torch.from_numpy(ultra_matrix),requires_grad=True)
+
+    return ultra_matrix
+
+def raw_img(img,batch_size,n):
+    img_raw = img.reshape(batch_size,n*n)
+    single_img = torch.split(img_raw,split_size_or_sections=1,dim=0)
+    single_img_T = [torch.transpose(i.reshape(n,n,1),0,1) for i in single_img]
+    ultra_img = torch.cat(single_img_T,dim=2)
+    return ultra_img
+
+batch_size = 32
 lr_rate = 1e-3
 epochs_num = 100
 
@@ -66,8 +102,10 @@ class tNN(nn.Module):
         use the nn.Parameter() and 'requires_grad = True' 
         to customize parameters which are needed to optimize
         """
-        self.W = nn.Parameter(torch.randn((28, 28, 28), requires_grad=True, dtype=torch.float))
-        self.B = nn.Parameter(torch.randn((28, 28, 1), requires_grad=True, dtype=torch.float))
+        self.W_1 = nn.Parameter(torch.randn((28, 32, 28), requires_grad=True, dtype=torch.float))
+        self.B_1 = nn.Parameter(torch.randn((28, 32, 1), requires_grad=True, dtype=torch.float))
+        self.W_2 = nn.Parameter(torch.randn((28, 10, 32), requires_grad=True, dtype=torch.float))
+        self.B_2 = nn.Parameter(torch.randn((28, 10, 1), requires_grad=True, dtype=torch.float))
 
     def forward(self, x):
         """
@@ -77,16 +115,17 @@ class tNN(nn.Module):
         :return: this demo defines an one-layer networks,
                     whose output is processed by one-time tensor-product and activation
         """
-        x = torch_tensor_product(self.W, x) + self.B
+        x = torch_tensor_product(self.W_1, x) + self.B_1
+        x = F.relu(x)
+        x = torch_tensor_product(self.W_2,x) + self.B_2
         x = F.relu(x)
         return x
 
 
 module = tNN()
-
-use_gpu = torch.cuda.is_available()
-if use_gpu:
-    module = module.cuda()
+# use_gpu = torch.cuda.is_available()
+# if use_gpu:
+#     module = module.cuda()
 
 Loss_function = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(module.parameters(), lr=lr_rate)
@@ -94,7 +133,7 @@ optimizer = torch.optim.SGD(module.parameters(), lr=lr_rate)
 loss_after_epoch = []
 acc_after_epoch = []
 
-# begain train
+#begain train
 for epoch in range(epochs_num):
     print('*' * 10)
     print(f'epoch {epoch + 1}')
@@ -102,25 +141,31 @@ for epoch in range(epochs_num):
     running_loss = 0.0
     running_acc = 0.0
 
+    loss_epoch = []
     module.train()
     for i, data in enumerate(train_loader, 1):
         # load every batch img datasets
         img, label = data
-        img = img.view(28, 28, 64)
+        img = raw_img(img,32,28)
 
-        if use_gpu:
-            img = img.cuda()
-            label = label.cuda()
+
+        # if use_gpu:
+        #     img = img.cuda()
+        #     label = label.cuda()
 
         # forward
         out = module(img)
 
         # softmax function
-        out = Softmax_F(out)
+        out = torch.transpose(scalar_tubal_function(out),1,0)
+        print(out)
         loss = Loss_function(out, label)
+        # print(loss)
         running_loss += loss.item()
-        _, pred = torch.max(out, 1)
-        running_acc += (pred == label).float().mean()
+        # out = torch.max(out,0)[1]
+        # print(out)
+        # pred = out
+        # running_acc += (pred == label).float().mean()
 
         # backward
         optimizer.zero_grad()
@@ -130,35 +175,36 @@ for epoch in range(epochs_num):
         if i % 500 == 0:
             print(f'[{epoch + 1}/{epochs_num}] Loss:{running_loss / i:.6f} Acc:{running_acc / i:.6f}')
     print(f'Finish {epoch + 1} epoch, Loss:{running_loss / i:.6f}, Acc:{running_acc / i:.6f}')
+    loss_epoch.append(running_loss)
 
     # model evaluate
-    module.eval()
-    eval_loss = 0.0
-    eval_acc = 0.0
+    # module.eval()
+    # eval_loss = 0.0
+    # eval_acc = 0.0
 
-    for data in test_loader:
-        img, label = data
-        img = img.view(28, 28, batch_size)
-        if use_gpu:
-            img = img.cuda()
-            label = label.cuda()
-        with torch.no_grad():
-            out = module(img)
-            out = Softmax_F(out)
-            loss = Loss_function(out, label)
-        eval_loss += loss.item()
-        _, pred = torch.max(out, 1)
-        eval_acc += (pred == label).float().mean()
-    print(f'Test Loss: {eval_loss / len(test_loader):.6f}, Acc: {eval_acc / len(test_loader):.6f}')
-    print(f'Time:{(time.time() - since):.1f} s')
-    loss_after_epoch.append(eval_loss)
-    acc_after_epoch.append(eval_acc)
+    # for data in test_loader:
+    #     img, label = data
+    #     img = img.view(28, 28, batch_size)
+    #     if use_gpu:
+    #         img = img.cuda()
+    #         label = label.cuda()
+    #     with torch.no_grad():
+    #         out = module(img)
+    #         out = Softmax_F(out)
+    #         loss = Loss_function(out, label)
+    #     eval_loss += loss.item()
+    #     _, pred = torch.max(out, 1)
+    #     eval_acc += (pred == label).float().mean()
+    # print(f'Test Loss: {eval_loss / len(test_loader):.6f}, Acc: {eval_acc / len(test_loader):.6f}')
+    # print(f'Time:{(time.time() - since):.1f} s')
+    # loss_after_epoch.append(eval_loss)
+    # acc_after_epoch.append(eval_acc)
 
-# save the model
+#save the model
 torch.save(module.state_dict(), './NeuralNetwork.pth')
 
 fig = plt.figure(figsize=(20, 10))
-plt.plot(np.arange(len(loss_after_epoch)), loss_after_epoch, label='Loss')
-plt.plot(np.arange(len(acc_after_epoch)), acc_after_epoch, label='Acc')
+plt.plot(np.arange(len(loss_epoch)), loss_after_epoch, label='Loss')
+# plt.plot(np.arange(len(acc_after_epoch)), acc_after_epoch, label='Acc')
 plt.legend()
 plt.show()
