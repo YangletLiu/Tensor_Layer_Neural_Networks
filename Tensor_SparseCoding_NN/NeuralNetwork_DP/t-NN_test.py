@@ -1,13 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 import time
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
- 
+import torch_dct as dct
 
 def torch_tensor_Bcirc(tensor, l, m, n):
     tensor_blocks = torch.split(tensor, split_size_or_sections=1, dim=0)
@@ -40,48 +39,49 @@ def torch_tensor_product(tensorA, tensorB):
         print('Shape Error')
 
 
-def tubal_function(lateral_slice):
+def h_func_dct(lateral_slice):
     l, m, n = lateral_slice.shape
 
-    ls_freq = np.fft.fft(lateral_slice, n=None, axis=0)
+    dct_slice = dct.dct(lateral_slice)
 
-    lateral_slices = []
-    for i in range(l):
-        fft_sum = np.sum([np.exp(i) for i in ls_freq[i, :, 0]])
-        fft_temp = np.exp(ls_freq[i, :, 0]) / fft_sum
-        lateral_slices.append(fft_temp.reshape(1, m, 1))
+    tubes = [dct_slice[i, :, 0] for i in range(l)]
 
-    ultra_ls = np.vstack(lateral_slices)
+    h_tubes = []
+    for tube in tubes:
+        tube_sum = torch.sum(torch.exp(tube))
+        h_tubes.append(torch.exp(tube) / tube_sum)
 
-    ls_spatial = np.fft.ifft(ultra_ls, n=None, axis=0)
+    res_slice = torch.stack(h_tubes, dim=0).reshape(l, m, n)
 
-    return np.sum(ls_spatial.real, axis=0)
+    idct_a = dct.idct(res_slice)
 
-def scalar_tubal_function(out):
-    tensor_out = out.detach().numpy()
-    l,m,n = tensor_out.shape
+    return torch.sum(idct_a, dim=0)
 
-    lateral_slices = [tensor_out[:,:,i] for i in range(n)]
 
-    pro_vec = []
-    for i in lateral_slices:
-        pro_vec.append(tubal_function(i.reshape(l,m,1)))
+def scalar_tubal_func(output_tensor):
+    l, m, n = output_tensor.shape
 
-    ultra_matrix = np.hstack(pro_vec)
-    ultra_matrix = Variable(torch.from_numpy(ultra_matrix),requires_grad=True)
+    lateral_slices = [output_tensor[:, :, i].reshape(l, m, 1) for i in range(n)]
 
-    return ultra_matrix
+    h_slice = []
+    for slice in lateral_slices:
+        h_slice.append(h_func_dct(slice))
 
-def raw_img(img,batch_size,n):
-    img_raw = img.reshape(batch_size,n*n)
-    single_img = torch.split(img_raw,split_size_or_sections=1,dim=0)
-    single_img_T = [torch.transpose(i.reshape(n,n,1),0,1) for i in single_img]
-    ultra_img = torch.cat(single_img_T,dim=2)
+    pro_matrix = torch.stack(h_slice, dim=2)
+    return pro_matrix.reshape(m, n)
+
+
+def raw_img(img, batch_size, n):
+    img_raw = img.reshape(batch_size, n * n)
+    single_img = torch.split(img_raw, split_size_or_sections=1, dim=0)
+    single_img_T = [torch.transpose(i.reshape(n, n, 1), 0, 1) for i in single_img]
+    ultra_img = torch.cat(single_img_T, dim=2)
     return ultra_img
 
+
 batch_size = 32
-lr_rate = 1e-3
-epochs_num = 100
+lr_rate = 1e-2
+epochs_num = 50
 
 # download MNIST
 train_datset = datasets.FashionMNIST(
@@ -117,7 +117,7 @@ class tNN(nn.Module):
         """
         x = torch_tensor_product(self.W_1, x) + self.B_1
         x = F.relu(x)
-        x = torch_tensor_product(self.W_2,x) + self.B_2
+        x = torch_tensor_product(self.W_2, x) + self.B_2
         x = F.relu(x)
         return x
 
@@ -127,13 +127,14 @@ module = tNN()
 # if use_gpu:
 #     module = module.cuda()
 
+
 Loss_function = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(module.parameters(), lr=lr_rate)
 
 loss_after_epoch = []
 acc_after_epoch = []
 
-#begain train
+# begain train
 for epoch in range(epochs_num):
     print('*' * 10)
     print(f'epoch {epoch + 1}')
@@ -144,67 +145,55 @@ for epoch in range(epochs_num):
     loss_epoch = []
     module.train()
     for i, data in enumerate(train_loader, 1):
-        # load every batch img datasets
         img, label = data
-        img = raw_img(img,32,28)
-
-
-        # if use_gpu:
-        #     img = img.cuda()
-        #     label = label.cuda()
+        img = raw_img(img, img.size(0), 28)
+        # print(img.shape)
 
         # forward
-        out = module(img)
+        out = module(img) / 100
 
         # softmax function
-        out = torch.transpose(scalar_tubal_function(out),1,0)
-        print(out)
+        out = torch.transpose(scalar_tubal_func(out), 0, 1)
         loss = Loss_function(out, label)
-        # print(loss)
         running_loss += loss.item()
-        # out = torch.max(out,0)[1]
-        # print(out)
-        # pred = out
-        # running_acc += (pred == label).float().mean()
+        _, pred = torch.max(out, 1)
+        running_acc += (pred == label).float().mean()
 
         # backward
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        if i % 500 == 0:
+        if i % 100 == 0:
             print(f'[{epoch + 1}/{epochs_num}] Loss:{running_loss / i:.6f} Acc:{running_acc / i:.6f}')
     print(f'Finish {epoch + 1} epoch, Loss:{running_loss / i:.6f}, Acc:{running_acc / i:.6f}')
     loss_epoch.append(running_loss)
 
-    # model evaluate
-    # module.eval()
-    # eval_loss = 0.0
-    # eval_acc = 0.0
+    module.eval()
+    eval_loss = 0.0
+    eval_acc = 0.0
 
-    # for data in test_loader:
-    #     img, label = data
-    #     img = img.view(28, 28, batch_size)
-    #     if use_gpu:
-    #         img = img.cuda()
-    #         label = label.cuda()
-    #     with torch.no_grad():
-    #         out = module(img)
-    #         out = Softmax_F(out)
-    #         loss = Loss_function(out, label)
-    #     eval_loss += loss.item()
-    #     _, pred = torch.max(out, 1)
-    #     eval_acc += (pred == label).float().mean()
-    # print(f'Test Loss: {eval_loss / len(test_loader):.6f}, Acc: {eval_acc / len(test_loader):.6f}')
-    # print(f'Time:{(time.time() - since):.1f} s')
-    # loss_after_epoch.append(eval_loss)
-    # acc_after_epoch.append(eval_acc)
+    for data in test_loader:
+        img, label = data
+        img = raw_img(img, img.size(0), 28)
 
-#save the model
-torch.save(module.state_dict(), './NeuralNetwork.pth')
+        with torch.no_grad():
+            out = module(img) / 100
+            out = torch.transpose(scalar_tubal_func(out), 0, 1)
+            loss = Loss_function(out, label)
+        eval_loss += loss.item()
+        _, pred = torch.max(out, 1)
+        eval_acc += (pred == label).float().mean()
+    print(f'Test Loss: {eval_loss / len(test_loader):.6f}, Acc: {eval_acc / len(test_loader):.6f}')
+    print(f'Time:{(time.time() - since):.1f} s')
+    loss_after_epoch.append(eval_loss)
+    acc_after_epoch.append(eval_acc)
 
+# save the model
+# torch.save(module.state_dict(), './NeuralNetwork.pth')
+#
 fig = plt.figure(figsize=(20, 10))
-plt.plot(np.arange(len(loss_epoch)), loss_after_epoch, label='Loss')
-# plt.plot(np.arange(len(acc_after_epoch)), acc_after_epoch, label='Acc')
+plt.plot(np.arange(len(loss_after_epoch)), loss_after_epoch, label='Loss')
+plt.plot(np.arange(len(acc_after_epoch)), acc_after_epoch, label='Acc')
 plt.legend()
 plt.show()
