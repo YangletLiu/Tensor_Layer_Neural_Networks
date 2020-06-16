@@ -2,11 +2,91 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import time
+import os
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import numpy as np
 import matplotlib.pyplot as plt
-import torch_dct as dct
+
+os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] = '4'
+
+def dct(x, norm=None):
+    """
+    Discrete Cosine Transform, Type II (a.k.a. the DCT)
+
+    For the meaning of the parameter `norm`, see:
+    https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.fftpack.dct.html
+
+    :param x: the input signal
+    :param norm: the normalization, None or 'ortho'
+    :return: the DCT-II of the signal over the last dimension
+    """
+    x_shape = x.shape
+    N = x_shape[-1]
+    x = x.contiguous().view(-1, N)
+
+    v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1)
+
+    Vc = torch.rfft(v, 1, onesided=False)
+
+    k = (- torch.arange(N, dtype=x.dtype)[None, :] * np.pi / (2 * N)).cuda()
+    W_r = torch.cos(k)
+    W_i = torch.sin(k)
+
+    V = Vc[:, :, 0] * W_r - Vc[:, :, 1] * W_i
+
+    if norm == 'ortho':
+        V[:, 0] /= np.sqrt(N) * 2
+        V[:, 1:] /= np.sqrt(N / 2) * 2
+
+    V = 2 * V.view(*x_shape)
+
+    return V
+
+
+def idct(X, norm=None):
+    """
+    The inverse to DCT-II, which is a scaled Discrete Cosine Transform, Type III
+
+    Our definition of idct is that idct(dct(x)) == x
+
+    For the meaning of the parameter `norm`, see:
+    https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.fftpack.dct.html
+
+    :param X: the input signal
+    :param norm: the normalization, None or 'ortho'
+    :return: the inverse DCT-II of the signal over the last dimension
+    """
+
+    x_shape = X.shape
+    N = x_shape[-1]
+
+    X_v = X.contiguous().view(-1, x_shape[-1]) / 2
+
+    if norm == 'ortho':
+        X_v[:, 0] *= np.sqrt(N) * 2
+        X_v[:, 1:] *= np.sqrt(N / 2) * 2
+
+    k = (torch.arange(x_shape[-1], dtype=X.dtype)[None, :] * np.pi / (2 * N)).cuda()
+    W_r = torch.cos(k)
+    W_i = torch.sin(k)
+
+    V_t_r = X_v
+    V_t_i = torch.cat([X_v[:, :1] * 0, -X_v.flip([1])[:, :-1]], dim=1)
+
+    V_r = V_t_r * W_r - V_t_i * W_i
+    V_i = V_t_r * W_i + V_t_i * W_r
+
+    V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
+
+    v = torch.irfft(V, 1, onesided=False)
+    x = v.new_zeros(v.shape)
+    x[:, ::2] += v[:, :N - (N // 2)]
+    x[:, 1::2] += v.flip([1])[:, :N // 2]
+
+    return x.view(*x_shape)
+
 
 def torch_tensor_Bcirc(tensor, l, m, n):
     tensor_blocks = torch.split(tensor, split_size_or_sections=1, dim=0)
@@ -42,7 +122,7 @@ def torch_tensor_product(tensorA, tensorB):
 def h_func_dct(lateral_slice):
     l, m, n = lateral_slice.shape
 
-    dct_slice = dct.dct(lateral_slice)
+    dct_slice = dct(lateral_slice)
 
     tubes = [dct_slice[i, :, 0] for i in range(l)]
 
@@ -53,7 +133,7 @@ def h_func_dct(lateral_slice):
 
     res_slice = torch.stack(h_tubes, dim=0).reshape(l, m, n)
 
-    idct_a = dct.idct(res_slice)
+    idct_a = idct(res_slice)
 
     return torch.sum(idct_a, dim=0)
 
@@ -79,9 +159,9 @@ def raw_img(img, batch_size, n):
     return ultra_img
 
 
-batch_size = 32
+batch_size = 128
 lr_rate = 1e-2
-epochs_num = 50
+epochs_num = 200
 
 # download MNIST
 train_datset = datasets.FashionMNIST(
@@ -102,10 +182,14 @@ class tNN(nn.Module):
         use the nn.Parameter() and 'requires_grad = True' 
         to customize parameters which are needed to optimize
         """
-        self.W_1 = nn.Parameter(torch.randn((28, 32, 28), requires_grad=True, dtype=torch.float))
-        self.B_1 = nn.Parameter(torch.randn((28, 32, 1), requires_grad=True, dtype=torch.float))
-        self.W_2 = nn.Parameter(torch.randn((28, 10, 32), requires_grad=True, dtype=torch.float))
-        self.B_2 = nn.Parameter(torch.randn((28, 10, 1), requires_grad=True, dtype=torch.float))
+        self.W_1 = nn.Parameter(torch.randn((28, 128, 28), requires_grad=True, dtype=torch.float))
+        self.B_1 = nn.Parameter(torch.randn((28, 128, 1), requires_grad=True, dtype=torch.float))
+        self.W_2 = nn.Parameter(torch.randn((28, 64, 128), requires_grad=True, dtype=torch.float))
+        self.B_2 = nn.Parameter(torch.randn((28, 64, 1), requires_grad=True, dtype=torch.float))
+        self.W_3 = nn.Parameter(torch.randn((28, 100, 64), requires_grad=True, dtype=torch.float))
+        self.B_3 = nn.Parameter(torch.randn((28, 100, 1), requires_grad=True, dtype=torch.float))
+        self.W_4 = nn.Parameter(torch.randn((28, 10, 100), requires_grad=True, dtype=torch.float))
+        self.B_4 = nn.Parameter(torch.randn((28, 10, 1), requires_grad=True, dtype=torch.float))
 
     def forward(self, x):
         """
@@ -119,13 +203,17 @@ class tNN(nn.Module):
         x = F.relu(x)
         x = torch_tensor_product(self.W_2, x) + self.B_2
         x = F.relu(x)
+        x = torch_tensor_product(self.W_3, x) + self.B_3
+        x = F.relu(x)
+        x = torch_tensor_product(self.W_4, x) + self.B_4
+        x = F.relu(x)
         return x
 
 
 module = tNN()
-# use_gpu = torch.cuda.is_available()
-# if use_gpu:
-#     module = module.cuda()
+use_gpu = torch.cuda.is_available()
+if use_gpu:
+    module = module.cuda()
 
 
 Loss_function = nn.CrossEntropyLoss()
@@ -147,10 +235,13 @@ for epoch in range(epochs_num):
     for i, data in enumerate(train_loader, 1):
         img, label = data
         img = raw_img(img, img.size(0), 28)
-        # print(img.shape)
+        if use_gpu:
+            img = img.cuda()
+            label = label.cuda()
 
         # forward
-        out = module(img) / 100
+        out = module(img)/100000
+        
 
         # softmax function
         out = torch.transpose(scalar_tubal_func(out), 0, 1)
@@ -177,8 +268,12 @@ for epoch in range(epochs_num):
         img, label = data
         img = raw_img(img, img.size(0), 28)
 
+        if use_gpu:
+            img = img.cuda()
+            label = label.cuda()
+
         with torch.no_grad():
-            out = module(img) / 100
+            out = module(img) / 100000
             out = torch.transpose(scalar_tubal_func(out), 0, 1)
             loss = Loss_function(out, label)
         eval_loss += loss.item()
@@ -186,14 +281,25 @@ for epoch in range(epochs_num):
         eval_acc += (pred == label).float().mean()
     print(f'Test Loss: {eval_loss / len(test_loader):.6f}, Acc: {eval_acc / len(test_loader):.6f}')
     print(f'Time:{(time.time() - since):.1f} s')
-    loss_after_epoch.append(eval_loss)
-    acc_after_epoch.append(eval_acc)
+    loss_after_epoch.append(eval_loss / len(test_loader))
+    acc_after_epoch.append((eval_acc / len(test_loader))*100)
 
 # save the model
-# torch.save(module.state_dict(), './NeuralNetwork.pth')
-#
-fig = plt.figure(figsize=(20, 10))
-plt.plot(np.arange(len(loss_after_epoch)), loss_after_epoch, label='Loss')
-plt.plot(np.arange(len(acc_after_epoch)), acc_after_epoch, label='Acc')
+torch.save(module.state_dict(), './NeuralNetwork.pth')
+
+fig = plt.figure(1)
+sub1 = plt.subplot(1,2,1)
+plt.sca(sub1)
+plt.plot(np.arange(len(loss_after_epoch)),loss_after_epoch,color='red',label='Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend()
+
+sub2 = plt.subplot(1,2,2)
+plt.sca(sub2)
+plt.plot(np.arange(len(acc_after_epoch)),acc_after_epoch,color='blue',label='Acc')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy(%)')
+
 plt.legend()
 plt.show()
