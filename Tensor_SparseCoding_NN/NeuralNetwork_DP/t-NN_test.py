@@ -9,8 +9,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '4'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+
+# dct and idct
 def dct(x, norm=None):
     """
     Discrete Cosine Transform, Type II (a.k.a. the DCT)
@@ -88,6 +90,7 @@ def idct(X, norm=None):
     return x.view(*x_shape)
 
 
+# circulant convolution part
 def torch_tensor_Bcirc(tensor, l, m, n):
     tensor_blocks = torch.split(tensor, split_size_or_sections=1, dim=0)
     tensor_blocks = list(tensor_blocks)
@@ -119,6 +122,7 @@ def torch_tensor_product(tensorA, tensorB):
         print('Shape Error')
 
 
+# Loss function
 def h_func_dct(lateral_slice):
     l, m, n = lateral_slice.shape
 
@@ -151,6 +155,7 @@ def scalar_tubal_func(output_tensor):
     return pro_matrix.reshape(m, n)
 
 
+# process raw
 def raw_img(img, batch_size, n):
     img_raw = img.reshape(batch_size, n * n)
     single_img = torch.split(img_raw, split_size_or_sections=1, dim=0)
@@ -159,16 +164,22 @@ def raw_img(img, batch_size, n):
     return ultra_img
 
 
-batch_size = 128
-lr_rate = 1e-2
+batch_size = 100
+lr_rate = 0.1
 epochs_num = 200
 
 # download MNIST
 train_datset = datasets.FashionMNIST(
-    root='../datasets', train=True, transform=transforms.ToTensor(), download=True)
+    root='../datasets', train=True, transform=transforms.Compose(
+        [transforms.ToTensor(),
+         transforms.Normalize((0.1307,), (0.3081,))]
+    ), download=True)
 
 test_dataset = datasets.FashionMNIST(
-    root='../datasets', train=False, transform=transforms.ToTensor(), download=False)
+    root='../datasets', train=False, transform=transforms.Compose(
+        [transforms.ToTensor(),
+         transforms.Normalize((0.1307,), (0.3081,))]
+    ), download=False)
 
 # define dataset loader
 train_loader = DataLoader(train_datset, batch_size=batch_size, shuffle=True)
@@ -182,14 +193,18 @@ class tNN(nn.Module):
         use the nn.Parameter() and 'requires_grad = True' 
         to customize parameters which are needed to optimize
         """
-        self.W_1 = nn.Parameter(torch.randn((28, 128, 28), requires_grad=True, dtype=torch.float))
-        self.B_1 = nn.Parameter(torch.randn((28, 128, 1), requires_grad=True, dtype=torch.float))
-        self.W_2 = nn.Parameter(torch.randn((28, 64, 128), requires_grad=True, dtype=torch.float))
-        self.B_2 = nn.Parameter(torch.randn((28, 64, 1), requires_grad=True, dtype=torch.float))
-        self.W_3 = nn.Parameter(torch.randn((28, 100, 64), requires_grad=True, dtype=torch.float))
-        self.B_3 = nn.Parameter(torch.randn((28, 100, 1), requires_grad=True, dtype=torch.float))
-        self.W_4 = nn.Parameter(torch.randn((28, 10, 100), requires_grad=True, dtype=torch.float))
-        self.B_4 = nn.Parameter(torch.randn((28, 10, 1), requires_grad=True, dtype=torch.float))
+        self.W_1 = nn.Parameter(torch.randn((28, 100, 28), requires_grad=True, dtype=torch.float))
+        self.B_1 = nn.Parameter(torch.randn((28, 100, 1), requires_grad=True, dtype=torch.float))
+        self.W_2 = nn.Parameter(torch.randn((28, 300, 100), requires_grad=True, dtype=torch.float))
+        self.B_2 = nn.Parameter(torch.randn((28, 300, 1), requires_grad=True, dtype=torch.float))
+        self.W_3 = nn.Parameter(torch.randn((28, 200, 300), requires_grad=True, dtype=torch.float))
+        self.B_3 = nn.Parameter(torch.randn((28, 200, 1), requires_grad=True, dtype=torch.float))
+        self.W_4 = nn.Parameter(torch.randn((28, 120, 200), requires_grad=True, dtype=torch.float))
+        self.B_4 = nn.Parameter(torch.randn((28, 120, 1), requires_grad=True, dtype=torch.float))
+        self.W_5 = nn.Parameter(torch.randn((28, 60, 120), requires_grad=True, dtype=torch.float))
+        self.B_5 = nn.Parameter(torch.randn((28, 60, 1), requires_grad=True, dtype=torch.float))
+        self.W_6 = nn.Parameter(torch.randn((28, 10, 60), requires_grad=True, dtype=torch.float))
+        self.B_6 = nn.Parameter(torch.randn((28, 10, 1), requires_grad=True, dtype=torch.float))
 
     def forward(self, x):
         """
@@ -207,6 +222,10 @@ class tNN(nn.Module):
         x = F.relu(x)
         x = torch_tensor_product(self.W_4, x) + self.B_4
         x = F.relu(x)
+        x = torch_tensor_product(self.W_5, x) + self.B_5
+        x = F.relu(x)
+        x = torch_tensor_product(self.W_6, x) + self.B_6
+        x = F.relu(x)
         return x
 
 
@@ -214,7 +233,6 @@ module = tNN()
 use_gpu = torch.cuda.is_available()
 if use_gpu:
     module = module.cuda()
-
 
 Loss_function = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(module.parameters(), lr=lr_rate)
@@ -240,8 +258,8 @@ for epoch in range(epochs_num):
             label = label.cuda()
 
         # forward
-        out = module(img)/100000
-        
+        out = module(img)
+        # print(out)
 
         # softmax function
         out = torch.transpose(scalar_tubal_func(out), 0, 1)
@@ -273,7 +291,7 @@ for epoch in range(epochs_num):
             label = label.cuda()
 
         with torch.no_grad():
-            out = module(img) / 100000
+            out = module(img) / 1e9
             out = torch.transpose(scalar_tubal_func(out), 0, 1)
             loss = Loss_function(out, label)
         eval_loss += loss.item()
@@ -282,24 +300,30 @@ for epoch in range(epochs_num):
     print(f'Test Loss: {eval_loss / len(test_loader):.6f}, Acc: {eval_acc / len(test_loader):.6f}')
     print(f'Time:{(time.time() - since):.1f} s')
     loss_after_epoch.append(eval_loss / len(test_loader))
-    acc_after_epoch.append((eval_acc / len(test_loader))*100)
+    acc_after_epoch.append((eval_acc / len(test_loader)) * 100)
+
+    if np.isnan(eval_loss):
+        break
 
 # save the model
-torch.save(module.state_dict(), './NeuralNetwork.pth')
+torch.save(module.state_dict(), './NeuralNetwork—3.pth')
 
+#draw picture
 fig = plt.figure(1)
-sub1 = plt.subplot(1,2,1)
+sub1 = plt.subplot(1, 2, 1)
 plt.sca(sub1)
-plt.plot(np.arange(len(loss_after_epoch)),loss_after_epoch,color='red',label='Loss')
+plt.plot(np.arange(len(loss_after_epoch)), loss_after_epoch, color='red', label='Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend()
 
-sub2 = plt.subplot(1,2,2)
+sub2 = plt.subplot(1, 2, 2)
 plt.sca(sub2)
-plt.plot(np.arange(len(acc_after_epoch)),acc_after_epoch,color='blue',label='Acc')
+plt.plot(np.arange(len(acc_after_epoch)), acc_after_epoch, color='blue', label='Acc')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy(%)')
 
 plt.legend()
 plt.show()
+
+plt.savefig('./tnn_test3.jpg')
