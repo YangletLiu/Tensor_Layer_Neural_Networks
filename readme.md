@@ -3,7 +3,6 @@
 This github is mainly composed of the following two parts:
 
 1.Code for a tensor mining method using cp_decomposition and homomorphic encryption,which applies to 3D-tensor genetics dataset.
-
 2.
 
 ## File directory
