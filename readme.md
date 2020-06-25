@@ -8,7 +8,6 @@ This github is mainly composed of the following two parts:
 
 ## File directory
 >Homomorphic_CP
->>homo_test.py----------homomorphic encryption example(the size of test tensor is [300,300,300])
-
->>TensorAlgebra.py--------an improved cp_decomposition method
+>> homo_test.py----------homomorphic encryption example(the size of test tensor is [300,300,300])
+>> TensorAlgebra.py--------an improved cp_decomposition method
 
