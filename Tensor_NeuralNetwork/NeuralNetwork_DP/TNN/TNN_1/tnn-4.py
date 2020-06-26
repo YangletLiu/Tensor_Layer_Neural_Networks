@@ -172,17 +172,17 @@ lr_rate = 0.1
 epochs_num = 100
 
 # download MNIST
-train_datset = datasets.FashionMNIST(
+train_datset = datasets.MNIST(
     root='../datasets', train=True, transform=transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((0.1307,), (0.3081,))]
     ), download=True)
 
-test_dataset = datasets.FashionMNIST(
+test_dataset = datasets.MNIST(
     root='../datasets', train=False, transform=transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((0.1307,), (0.3081,))]
-    ), download=False)
+    ), download=True)
 
 # define dataset loader
 train_loader = DataLoader(train_datset, batch_size=batch_size, shuffle=True)
@@ -199,11 +199,11 @@ class tNN(nn.Module):
         """
         self.W_1 = nn.Parameter(torch.randn((28, 28, 28), requires_grad=True, dtype=torch.float))
         self.B_1 = nn.Parameter(torch.randn((28, 28, 1), requires_grad=True, dtype=torch.float))
-        self.W_2 = nn.Parameter(torch.randn((28, 28, 28), requires_grad=True, dtype=torch.float))
-        self.B_2 = nn.Parameter(torch.randn((28, 28, 1), requires_grad=True, dtype=torch.float))
-        self.W_3 = nn.Parameter(torch.randn((28, 28, 28), requires_grad=True, dtype=torch.float))
-        self.B_3 = nn.Parameter(torch.randn((28, 28, 1), requires_grad=True, dtype=torch.float))
-        self.W_4 = nn.Parameter(torch.randn((28, 10, 28), requires_grad=True, dtype=torch.float))
+        self.W_2 = nn.Parameter(torch.randn((28, 100, 28), requires_grad=True, dtype=torch.float))
+        self.B_2 = nn.Parameter(torch.randn((28, 100, 1), requires_grad=True, dtype=torch.float))
+        self.W_3 = nn.Parameter(torch.randn((28, 50, 100), requires_grad=True, dtype=torch.float))
+        self.B_3 = nn.Parameter(torch.randn((28, 50, 1), requires_grad=True, dtype=torch.float))
+        self.W_4 = nn.Parameter(torch.randn((28, 10, 50), requires_grad=True, dtype=torch.float))
         self.B_4 = nn.Parameter(torch.randn((28, 10, 1), requires_grad=True, dtype=torch.float))
 
     def forward(self, x):
@@ -249,6 +249,7 @@ for epoch in range(epochs_num):
     for i, data in enumerate(train_loader, 1):
         img, label = data
         img = raw_img(img, img.size(0), 28)
+
         if use_gpu:
             img = img.cuda()
             label = label.cuda()
