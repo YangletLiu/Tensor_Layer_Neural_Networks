@@ -15,6 +15,8 @@ This github is mainly composed of the following two parts:
 
   Tensor_NeuralNetwork
   
-    NeuralNetwork_DP
+    Tensor_NeuralNetwork
+    
+      Neuralnetwork_DP
     
       
