@@ -1,6 +1,6 @@
 ##  File structure
-    tnn-4.py    -------------- 4-layer tensor neuralnetwork
-    tnn-8.py    -------------- 8-layer tensor neuralnetwork
+*   tnn-4.py    -------------- 4-layer tensor neuralnetwork
+*   tnn-8.py    -------------- 8-layer tensor neuralnetwork
 
 ##  The key parts of the code done by us:
 
