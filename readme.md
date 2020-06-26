@@ -7,16 +7,20 @@ This github is mainly composed of the following two parts:
 2.Code for tensor neural network, including traditional matrix type and 3D-tensor ones.
 
 ## File directory
-  Homomorphic_CP
+> Homomorphic_CP
   
-    homo_test.py----------homomorphic encryption example(the size of test tensor is [300,300,300])
+>>  homo_test.py  ----------homomorphic encryption example(the size of test tensor is [300,300,300])
 
-    TensorAlgebra.py--------an improved cp_decomposition method
+>>  TensorAlgebra.py  --------an improved cp_decomposition method
 
-  Tensor_NeuralNetwork
+> Tensor_NeuralNetwork
   
-    Tensor_NeuralNetwork
+>>  Tensor_NeuralNetwork
     
-      Neuralnetwork_DP
+>>> Neuralnetwork_DP  ----------main file including matrix and tensor neuralnetwork code
+
+>>>>  TNN   -------------3D-tensor type neuralnetwork
+
+>>>>  MNN   -------------matrix type neuralnetwork
     
       
