@@ -1,4 +1,4 @@
-##  File structure
+##  Main Code File directory
 * tnn-4.py  
   4-layer tensor neuralnetwork.We take this `tnn-4.py` as example and provide a detailed introduction of the code.<br>
   Besides,the running results of this on `test_datasets` has been presented in the end.
