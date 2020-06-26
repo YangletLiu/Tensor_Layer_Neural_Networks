@@ -1,7 +1,7 @@
 # Tensor-NeuralNetowrk 
 
 ##  File structure
-> Neuralnetwork_DP
+> NeuralNetwork_DP
 >> TNN -----------------code for tensor neuralnetwork and test result
 >>>  TNN_1 -------------tensor neuralnetwork implemented by circulant convolution in time domain
 >>>> tnn-4.py  ---------4-layer tensor neuralnetwork <br>
