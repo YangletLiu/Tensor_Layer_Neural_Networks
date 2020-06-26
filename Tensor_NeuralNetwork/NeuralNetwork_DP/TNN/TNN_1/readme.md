@@ -6,7 +6,7 @@
 * tnn-8.py   
   8-layer tensor neuralnetwork.We haven't completed this neuralnetwork yet,so this file still needs to be updated.
 
-##  The key parts of the code done by us:
+##  The key parts of the code:
 
 * DCT and IDCT transforms:
 ```python
