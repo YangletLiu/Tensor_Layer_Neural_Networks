@@ -7,7 +7,7 @@
 >>> tnn-8.py  ---------8-layer tensor neuralnetwork <br>
 
 >>  TNN_2 -------------tensor neuralnetwork implemented by DCT transform in DCT domain (not finished yet)
-> MNN -----------------code for matrix neuralnetwork and test result
+> MNN -----------------code for matrix neuralnetwork and test result  <br>
 >>  mnn-4.py  ---------4-layer matrix neuralnetwork <br>
 >>  mnn-8.py  ---------8-layer matrix neuralnetwork <br>
 
