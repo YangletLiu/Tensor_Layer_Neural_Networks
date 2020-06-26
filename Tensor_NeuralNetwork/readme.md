@@ -1,4 +1,15 @@
-#Tensor_ SparseCoding_NN
+# Tensor-NeuralNetowrk 
 
+##  File structure
+> TNN -----------------code for tensor neuralnetwork and test result
+>>  TNN_1 -------------tensor neuralnetwork implemented by circulant convolution in time domain
+>>> tnn-4.py  ---------4-layer tensor neuralnetwork 
+>>> tnn-8.py  ---------8-layer tensor neuralnetwork
+>>  TNN_2 -------------tensor neuralnetwork implemented by DCT transform in DCT domain (not finished yet)
+> MNN -----------------code for matrix neuralnetwork and test result
+>>  mnn-4.py  ---------4-layer matrix neuralnetwork
+>>  mnn-8.py  ---------8-layer matrix neuralnetwork
+
+##  Research Process
 The file tensor_product.py includes three functions and an example of the back-propagation.
 
