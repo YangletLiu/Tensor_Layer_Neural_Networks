@@ -1,10 +1,10 @@
 ##  File structure
-*tnn-4.py
-    4-layer tensor neuralnetwork.We take this `tnn-4.py` as example and provide a detailed introduction of the code.
-    Besides,the running results of this has been presented in the end.
+* tnn-4.py
+  4-layer tensor neuralnetwork.We take this `tnn-4.py` as example and provide a detailed introduction of the code.<br>
+  Besides,the running results of this on `test_datasets` has been presented in the end.
     
-*tnn-8.py   
-    8-layer tensor neuralnetwork
+* tnn-8.py   
+  8-layer tensor neuralnetwork.We haven't completed this neuralnetwork yet,so this file still needs to be updated.
 
 ##  The key parts of the code done by us:
 
