@@ -15,7 +15,7 @@
 >>  mnn-8.py  ---------8-layer matrix neuralnetwork <br>
 
 ##  Research Process
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/edit/master/Tensor_NeuralNetwork/ResearchProcess1.jpg)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/Tensor_NeuralNetwork/ResearchProcess1.jpg)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/edit/master/Tensor_NeuralNetwork/ResearchProcess2.jpg)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/Tensor_NeuralNetwork/ResearchProcess2.jpg)
 
