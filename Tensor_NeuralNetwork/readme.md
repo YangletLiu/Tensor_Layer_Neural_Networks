@@ -11,9 +11,14 @@
 >>>> dct-tnn-4.py  ---------4-layer tensor neuralnetwork <br>
 >>>> dct-tnn-8.py  ---------8-layer tensor neuralnetwork <br>
 
->> MNN -----------------code for matrix neuralnetwork and test result
->>>  mnn-4.py  ---------4-layer matrix neuralnetwork <br>
->>>  mnn-8.py  ---------8-layer matrix neuralnetwork <br>
+>> Matrix-fullyConnected -----------------code for matrix fully connetcted neuralnetwork and test result
+>>>  matrix-fullyconnected.py ------------4-layer matrix fully connected network
+
+>> Autoencoder
+>>> autoencoder_test.py ------------8-layer autoencoder neuralnetwork(including 4-layer encoder and 4-layer decoder)
+
+>> CNN
+>>> cnn-2.py  ----------2-layer convolutional neuralnetwork
 
 ##  Research Process
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/ResearchProcess1.jpg)
