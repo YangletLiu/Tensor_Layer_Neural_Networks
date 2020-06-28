@@ -47,5 +47,7 @@ class CNN(nn.Module):
 ##  Result
 ### Explanation of Result
 As dipicted in the result graph, we can see a clear grow tendency of the `Loss` line with epoch.<br>
+
 Cause the network performances extraordinarily well after the first training epoch(test accuracy up to 98% after the first epoch)
+
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/CNN/cnn_res.png)
