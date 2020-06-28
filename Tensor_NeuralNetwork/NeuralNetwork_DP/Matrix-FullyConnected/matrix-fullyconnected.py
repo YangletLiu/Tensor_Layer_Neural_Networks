@@ -13,17 +13,17 @@ learning_rate = 1e-1
 num_epochs = 100
 
 # download MNIST
-train_datset = datasets.FashionMNIST(
+train_datset = datasets.MNIST(
     root='../datasets', train=True, transform=transforms.ToTensor(), download=True
 )
 
-test_dataset = datasets.FashionMNIST(
+test_dataset = datasets.MNIST(
     root='../datasets', train=False, transform=transforms.ToTensor(), download=False
 )
 
 # define dataset loader
 train_loader = DataLoader(train_datset, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
 
 # define NN model
@@ -63,7 +63,7 @@ class neuralNetwork(nn.Module):
 
 
 # define NN model
-model = neuralNetwork(28 * 28, 784, 784, 784, 10)
+model = neuralNetwork(28 * 28, 300, 200, 100, 10)
 
 # test if GPU is available
 use_gpu = torch.cuda.is_available()
@@ -124,7 +124,7 @@ for epoch in range(num_epochs):
     eval_loss = 0.0
     eval_acc = 0.0
 
-    for data in test_loader:
+    for j, data in enumerate(test_loader,1):
         img, label = data
         img = img.view(img.size(0), -1)
         if use_gpu:
@@ -136,10 +136,10 @@ for epoch in range(num_epochs):
         eval_loss += loss.item()
         _, pred = torch.max(out, 1)
         eval_acc += (pred == label).float().mean()
-    print(f'Test Loss: {eval_loss / len(test_loader):.6f}, Acc: {eval_acc / len(test_loader):.6f}')
+    print(f'Test Loss: {eval_loss / j:.6f}, Acc: {eval_acc / j:.6f}')
     print(f'Time:{(time.time() - since):.1f} s')
-    loss_after_epoch.append(eval_loss / len(test_loader))
-    acc_after_epoch.append((eval_acc / len(test_loader)) * 100)
+    loss_after_epoch.append(eval_loss / j)
+    acc_after_epoch.append((eval_acc / j) * 100)
 
 # save the model
 torch.save(model.state_dict(), './mNeuralNetwork-1.pth')
@@ -161,4 +161,4 @@ plt.ylabel('Accuracy(%)')
 plt.legend()
 plt.show()
 
-plt.savefig('./nntest-3.jpg')
+plt.savefig('./nntest-5.jpg')
