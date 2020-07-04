@@ -117,8 +117,8 @@ epochs_num = 100
 Then run `python tnn-4.py` to run the code and get the results.
 
 ##  Results(constantly updating)
-* 4-layer tensor neuralnetwork with 100,300,150,60 dimensions respectively:(2020.6.22)
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/TNN/TNN_1/tnn_test.jpg)
+* 4-layer tensor neuralnetwork (2020.7.2)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/TNN/TNN_1/test1_tnn4.jpg)
 
-* 6-layer tensor neuralnetwork with 100,200,300,150,100,50 dimensions respectively:(2020.6.24)
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/TNN/TNN_1/tnn_test2.jpg)
+* 8-layer tensor neuralnetwork (2020.7.3)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/TNN/TNN_1/test2_tnn8.jpg)
