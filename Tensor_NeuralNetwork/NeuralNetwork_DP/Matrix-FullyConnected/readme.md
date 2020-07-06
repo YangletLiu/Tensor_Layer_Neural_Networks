@@ -41,4 +41,16 @@ class neuralNetwork(nn.Module):
 ```
 
 ##  Result
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/matrix-fully_res.png)
+
+
+* 4-layer matrix neuralnetwork (2020.7.6)
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/mnn4_Loss.png)
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/mnn4_Acc.png)
+
+* 8-layer matrix neuralnetwork (2020.7.6)
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/mnn8_Loss.png)
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/mnn8_Acc.png)
