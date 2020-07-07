@@ -14,7 +14,7 @@ This github is mainly composed of the following two parts:
 > Tensor_NeuralNetwork
 >>  Tensor_NeuralNetwork 
 >>> Neuralnetwork_DP  ----------main file including matrix and tensor neuralnetwork code
->>>>  TNN   -------------3D-tensor type neuralnetwork <br>
+>>>>  TNN   -------------------------------3D-tensor type neuralnetwork <br>
 >>>>  Matrix-FullyConnected   -------------matrix fully connected neuralnetwork <br>
 >>>>  Autoencoder   ----------------------simple matrix type test <br>
 >>>>  DCT-TNN   --------------------------initial dct transform verification <br>
