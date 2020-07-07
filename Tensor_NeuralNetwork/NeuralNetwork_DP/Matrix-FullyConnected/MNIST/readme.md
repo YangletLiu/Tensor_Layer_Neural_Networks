@@ -41,12 +41,15 @@ class neuralNetwork(nn.Module):
 ```
 
 ##  Result
+
 * 4-layer matrix neuralnetwork(7.4)
+
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/MNIST/mnn4_Loss.png)
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/MNIST/mnn4_Acc.png)
 
 * 8-layer matrix neuralnetwork(7.3)
+
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/MNIST/mnn8_Loss.png)
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/Matrix-FullyConnected/MNIST/mnn8_Acc.png)
