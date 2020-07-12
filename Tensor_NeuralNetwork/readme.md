@@ -46,4 +46,7 @@ For this project, i have divided the process into two parts:first to reproduce, 
 ## Tensor Neural Network with t-procuct based on Bcirc
 Tensor network based on bcirc performs well on MNIST and FashionMNIST,with the ultimate test accuracy of 97% and 98%,and reduces the parameters to be optimized during the process.However,compared with traditional matrix fully connected network,the tensor type shows a slightly lower speed of contraction.As for loss,the two type network do not differ from each other significantly.  
 ### Experiments
-![]()
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/TNN/MNIST/MNIST-Loss.png)
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/TNN/MNIST/MNIST-Acc.png)
