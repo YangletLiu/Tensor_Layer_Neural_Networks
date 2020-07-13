@@ -56,7 +56,7 @@ def forward(self, x):
    dct_x = torch.transpose(dct(torch.transpose(x, 0, 2)), 0, 2)     # do the DCT transform along the third dimension
    
    frontal_slices = []
-   for i in range(dct_x.shape[0]):                                  # do the fraontal-slice-wise matrix multipication
+   for i in range(dct_x.shape[0]):                                  # do the fraontal-slice-wise matrix multiplication
       layer_slice_1 = torch.mm(self.W_1[i, :, :],dct_x[i, :, :]) + self.B_1[i, :, :]
       F.relu(layer_slice_1)
       layer_slice_2 = torch.mm(self.W_2[i, :, :],layer_slice_1) + self.B_2[i, :, :]
