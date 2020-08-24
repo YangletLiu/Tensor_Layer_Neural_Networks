@@ -87,9 +87,9 @@ Integrating the convolutional layers and fully connected layers yields a better 
 I have trained the four types network and compared the results on MNIST and CIFAR-10.Besides,the simple autoencoder and convolutional neuralnetwork testing results are also included on the bottom. 
 ***
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/TNN/MNIST/MNIST-Loss.png)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/MNIST_loss.png)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/TNN/MNIST/MNIST-Acc.png)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/MNIST_acc.png)
 
 From the test result graph,we can see that the Tensor network based on bcirc performs well on MNIST and FashionMNIST and reduces the parameters during the process,with the ultimate test accuracy of 97% and 98%.However,compared with traditional matrix fully connected network,the tensor type shows a slightly lower speed of contraction.As for loss,the two type network do not differ from each other significantly.  
 ***
