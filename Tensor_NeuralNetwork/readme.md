@@ -98,8 +98,8 @@ From the test result graph,we can see that the Tensor network based on bcirc per
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/cifar10_acc.PNG)
 
-From the test result, we can find that 
-
+From the test result, we can find that the TNN does not work as well as the matrix one regarding to the accuracy.However,there is an obvious flaw in both mnn-4 and mnn-8 that the loss line meets a regular climb as it decreaces to a lowest value.What i should mention is that, in reference to the paper(stable TNN...),the two TNNs achieve a stable test accuracy of about 47% as the paper does despite that they do not perform as well as the MNN with a final test accuracy of about 57%.
+***
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/CNN/cnn_res.png)
 
