@@ -86,6 +86,7 @@ Integrating the convolutional layers and fully connected layers yields a better 
 ## Experiments
 I have trained the four types network and compared the results on MNIST and CIFAR-10.Besides,the simple autoencoder and convolutional neuralnetwork testing results are also included on the bottom. 
 ***
+### Experiments conducted on MNIST(2020-06-05)
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/MNIST_loss.png)
 
@@ -93,6 +94,7 @@ I have trained the four types network and compared the results on MNIST and CIFA
 
 From the test result graph,we can see that the Tensor network based on bcirc performs well on MNIST and FashionMNIST and reduces the parameters during the process,with the ultimate test accuracy of 97% and 98%.However,compared with traditional matrix fully connected network,the tensor type shows a slightly lower speed of contraction.As for loss,the two type network do not differ from each other significantly.  
 ***
+### Experiments conducted on CIFAR(2020-07-31)
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/cifar10_loss.PNG)
 
@@ -101,8 +103,13 @@ From the test result graph,we can see that the Tensor network based on bcirc per
 From the test result, we can find that the TNN does not work as well as the matrix one regarding to the accuracy.However,there is an obvious flaw in both mnn-4 and mnn-8 that the loss line meets a regular climb as it decreaces to a lowest value.What i should mention is that, in reference to the paper(stable TNN...),the two TNNs achieve a stable test accuracy of about 47% as the paper does despite that they do not perform as well as the MNN with a final test accuracy of about 57%.
 ***
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/NeuralNetwork_DP/CNN/cnn_res.png)
+### Experiments conducted on MNIST(2020-09-06)
 
-From this graph,we can see that the convolutional layers promote the constraction speed and the accuracy of our original network,but it is obvious that the loss line meets a gradual increase with the epoch.This maybe caused by ultra-big `learning rate`,i will decrease this parameter to find a nearly optimal one.
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/tnn4_mnist_acc.PNG)
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/tnn4_mnist_loss.PNG)
+
+The results above are gathered from the latest modified TNN-4,which has implemented the similar parameters-initiation method as the 'nn.Linear' does.Besides,the learning rate was reseted as '0.01' instead of '0.1',which has been the key part that contributes to the outstanding performance.
 ***
+
 
