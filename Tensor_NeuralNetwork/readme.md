@@ -103,13 +103,18 @@ From the test result graph,we can see that the Tensor network based on bcirc per
 From the test result, we can find that the TNN does not work as well as the matrix one regarding to the accuracy.However,there is an obvious flaw in both mnn-4 and mnn-8 that the loss line meets a regular climb as it decreaces to a lowest value.What i should mention is that, in reference to the paper(stable TNN...),the two TNNs achieve a stable test accuracy of about 47% as the paper does despite that they do not perform as well as the MNN with a final test accuracy of about 57%.
 ***
 
-### Experiments conducted on MNIST(2020-09-06)
+### Experiments conducted on MNIST(2020-09-08)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/tnn4_mnist_acc.png)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/tnn4_mnist_acc_9_8.png)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/tnn4_mnist_loss.png)
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/compare_acc.png)
+
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/log_scale_acc.png)
 
 The results above are gathered from the latest modified TNN-4,which has implemented the similar parameters-initiation method as the 'nn.Linear' does.Besides,the learning rate was reseted as '0.01' instead of '0.1',which has been the key part that contributes to the outstanding performance.
 ***
+
 
 
