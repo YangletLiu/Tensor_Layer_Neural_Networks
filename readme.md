@@ -1,4 +1,4 @@
-# Tensor Layer for Neural Network s
+# Tensor Layer for Neural Networks
 
 This github is mainly for tensor neural network, including traditional matrix layer and tensor layer
 
