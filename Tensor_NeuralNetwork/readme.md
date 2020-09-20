@@ -109,6 +109,10 @@ From the test result, we can find that the TNN does not work as well as the matr
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/log_scale_acc.png)
 
+### Experiments conducted on CIFAR-10(2020-09-19)
+
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/tnn4_cifar_acc.png)
+
 The results above are gathered from the latest modified TNN-4,which has implemented the similar parameters-initiation method as the 'nn.Linear' does.Besides,the learning rate was reseted as '0.01' instead of '0.1',which has been the key part that contributes to the outstanding performance.
 ***
 
