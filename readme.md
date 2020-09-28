@@ -109,7 +109,7 @@ From the test result, we can find that the TNN does not work as well as the matr
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/log_scale_acc.png)
 
-### Experiments conducted on CIFAR-10(2020-09-19)
+### Experiments conducted on CIFAR-10(2020-09-29)
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/tnn4_cifar_acc.png)
 
