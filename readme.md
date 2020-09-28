@@ -88,7 +88,7 @@ I have trained the four types network and compared the results on MNIST and CIFA
 ***
 ### Experiments conducted on MNIST(2020-06-05)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/MNIST_loss.png)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/MNIST_loss.png)
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/MNIST_acc.png)
 
