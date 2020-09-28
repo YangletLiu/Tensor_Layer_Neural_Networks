@@ -90,28 +90,28 @@ I have trained the four types network and compared the results on MNIST and CIFA
 
 ![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/MNIST_loss.png)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/MNIST_acc.png)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/MNIST_acc.png)
 
 From the test result graph,we can see that the Tensor network based on bcirc performs well on MNIST and FashionMNIST and reduces the parameters during the process,with the ultimate test accuracy of 97% and 98%.However,compared with traditional matrix fully connected network,the tensor type shows a slightly lower speed of contraction.As for loss,the two type network do not differ from each other significantly.  
 ***
 ### Experiments conducted on CIFAR(2020-07-31)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/cifar10_loss.PNG)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/cifar10_loss.PNG)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/cifar10_acc.PNG)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/cifar10_acc.PNG)
 
 From the test result, we can find that the TNN does not work as well as the matrix one regarding to the accuracy.However,there is an obvious flaw in both mnn-4 and mnn-8 that the loss line meets a regular climb as it decreaces to a lowest value.What i should mention is that, in reference to the paper(stable TNN...),the two TNNs achieve a stable test accuracy of about 47% as the paper does despite that they do not perform as well as the MNN with a final test accuracy of about 57%.
 ***
 
 ### Experiments conducted on MNIST(2020-09-08)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/tnn4_mnist_acc_9_8.png)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/tnn4_mnist_acc_9_8.png)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/log_scale_acc.png)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/log_scale_acc.png)
 
 ### Experiments conducted on CIFAR-10(2020-09-19)
 
-![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/Tensor_NeuralNetwork/tnn4_cifar_acc.png)
+![](https://github.com/hust512/Homomorphic_CP_Tensor_Dcomposition/raw/master/tnn4_cifar_acc.png)
 
 The results above are gathered from the latest modified TNN-4,which has implemented the similar parameters-initiation method as the 'nn.Linear' does.Besides,the learning rate was reseted as '0.01' instead of '0.1',which has been the key part that contributes to the outstanding performance.
 ***
