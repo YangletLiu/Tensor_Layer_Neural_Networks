@@ -1,8 +1,8 @@
-# Matrix-FullyConnected NeuralNetwork
-  In this part, we create a `4-layer linear fully-connected network`(300,200,100,10)
+# Matrix-based: Fully Connected Neural Network
+  A `4-layer linear fully-connected network`(300,200,100,10)
 
 ##  Network structure
-* Define the neuralnetwork module
+* Define the neural network module
 ```python
 class neuralNetwork(nn.Module):
     
