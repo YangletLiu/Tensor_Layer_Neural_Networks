@@ -1,5 +1,5 @@
 # Spectral Tensor Neural Netowrks with Parallel Implementations
-1. A tensor neural network with parallel implementation. On FashionMNIST, MNIST and CIFAR-10 datasets.  
+1. A spectral tensor neural network with parallel implementation. On MNIST, FashionMNIST and CIFAR-10 datasets.  
 
 2. To verify the performance, we compare with several neural networks, including `matrix-fully-connected`,`autoencoder` and `CNN`   
 
@@ -41,7 +41,7 @@ Take `TNN\tnn.py` as example:
   * 'tnn.jpg' : displays the `accuracy` and `loss` after every epoch for train and test process respectively.
  
 ##  Method
-For this project, i have divided the process into two parts:first to reproduce, or improve if possible, the results of the paper `stable tnn`;and second to develop a more efficient and stable tensor network modified by `parallel channel speedup` on the basis of the former one.So far,i have completed most codes of the first part and got some results consequently.For the following second part which i am working on, i apply `DCT`(dct) transform on the input layer to get the `frontal slices parallel channel`and then depend on `multinuclear GPU`(including but not limited to `torch.multiprocessing`,`threading` and `concurrent.futures`) to speed up the  train process.On the output layer,i apply the `inverse DCT`(idct) to get the results back to time domain, calculate the loss,do the back-propagation and optimize the model.
+For this project, we have divided the process into two parts: first to reproduce, or improve if possible, the results of the paper `stable tnn`;and second to develop a more efficient and stable tensor network modified by `parallel channel speedup` on the basis of the former one.So far,i have completed most codes of the first part and got some results consequently.For the following second part which i am working on, i apply `DCT`(dct) transform on the input layer to get the `frontal slices parallel channel`and then depend on `multinuclear GPU`(including but not limited to `torch.multiprocessing`,`threading` and `concurrent.futures`) to speed up the  train process.On the output layer,i apply the `inverse DCT`(idct) to get the results back to time domain, calculate the loss,do the back-propagation and optimize the model.
 
 ## Tensor Neural Network with t-procuct based on Bcirc
 This tNN works fine on FashionMNIST and MNIST,but not that well on CIFAR-10.When i began the first test,it is discouraged to find that the loss after every epoch contains considerable `nan` values so that the backward process is obstructed.Fortunately,i found these `nan` values were caused by overstack because of the ultra-big numbers,i.e the output tensor of the network.The problem was then addressed by reducing the elements of the output tensor to a limited range(0 to 5 is preferred through my test) and my resolvement was to simply do the `division` on the output(the divisor for 4-lay network is 1e6 and 1e10 for 8-layer) 
