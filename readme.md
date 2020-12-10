@@ -1,7 +1,7 @@
-# Tensor_Neural_Netowrk_for_Parallel_Channel_Speedup
-1.Aim at developing a tensor neuralnetwork speeded by parallel channel.Train from FashionMNIST,MNIST and CIFAR-10 datasets.  
+# Spectral Tensor Neural Netowrks with Parallel Implementations
+1. A tensor neural network with parallel implementation. On FashionMNIST, MNIST and CIFAR-10 datasets.  
 
-2.In order to evaluate our model's performance, we display several different network,including `matrix-fully-connected`,`autoencoder` and `CNN`   
+2. To verify the performance, we compare with several neural networks, including `matrix-fully-connected`,`autoencoder` and `CNN`   
 
 ##  File structure
 > NeuralNetwork_DP
