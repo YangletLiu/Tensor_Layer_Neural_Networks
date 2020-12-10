@@ -108,10 +108,10 @@ optimizer = torch.optim.SGD(module.parameters(), lr=lr_rate)
 ```
 
 ##  Running Tips
-You can first set the three main super parameters: batch_size,learning_rate and epoch_numbers :
+You can first set the three main super parameters: batch_size, learning_rate and epoch_numbers :
 ```python 
 batch_size = 100
 lr_rate = 0.1
 epochs_num = 100
 ```
-Then run `python tnn-4.py` to run the code and get the results.
+Then run `python tnn-4.py` to get the results.
