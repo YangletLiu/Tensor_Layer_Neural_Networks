@@ -1,5 +1,6 @@
 # Autoencoder
-  In this part, our autoencoder is composed of a 4-layer encoder and accordingly 4-layer decoder.
+
+  An autoencoder with: a 4-layer encoder, and correpondinlgy a 4-layer decoder.
 
 ##  Network structure
 * define the encoder and decoder layers:<br>
