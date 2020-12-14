@@ -3,7 +3,7 @@
 
 2. To verify the performance, we compare with several neural networks, including `matrix-fully-connected`,`autoencoder` and `CNN`  
 
-We also test and compare with other tensor approaches in the repository [link](https://github.com/hust512/Tensor_Layer_for_Deep_Neural_Network_Compression/tree/master/transform_based_network)
+We also test and compare with other tensor approaches in the repository [link](https://github.com/hust512/Tensor_Layer_for_Deep_Neural_Network_Compression/tree/master/transform_based_network).
 
 ##  File structure
 > NeuralNetwork_DP
