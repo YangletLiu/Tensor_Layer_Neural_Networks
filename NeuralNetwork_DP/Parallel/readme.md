@@ -1,7 +1,8 @@
-## new_tnn.py
+## Main Code File directory 
+* new_tnn.py
 test the mnist dataset
 
-## new_tnn_cifar.py and new_tnn_cifar_3channel.py
+* new_tnn_cifar.py and new_tnn_cifar_3channel.py
 test the cifar10 dataset, new_tnn_cifar.py test the one channels
 new_tnn_cifar_3channel.py test the RGB channels and separate training.
 
@@ -50,3 +51,5 @@ for epoch in range(epochs_num):
         
         pbar_train.update(i)
 ```
+## Running Tips
+run `python xxxxx.py` to run the code and get the results.
