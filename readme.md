@@ -1,4 +1,4 @@
-# Spectral Tensor Neural Netowrks with Parallel Implementations
+# Spectral Tensor Neural Netowrks and its Parallel Implementations
 1. A spectral tensor neural network with parallel implementation. On MNIST, FashionMNIST and CIFAR-10 datasets.  
 
 2. To verify the performance, we compare with several neural networks, including `matrix-fully-connected`,`autoencoder` and `CNN`  
