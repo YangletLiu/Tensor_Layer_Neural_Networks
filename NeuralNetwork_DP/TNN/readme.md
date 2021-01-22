@@ -1,6 +1,7 @@
 ##  Main Code File directory
 * tnn-4.py  
-  4-layer tensor neural network. We take this `tnn-4.py` as example and provide a detailed introduction of the code.<br>
+
+  A 4-layer tensor neural network. Take `tnn-4.py` as example, we provide a detailed introduction of the code.<br>
   Besides, the running results of this on `test_datasets` has been presented in the end.
     
 * tnn-8.py   
