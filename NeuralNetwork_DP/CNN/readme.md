@@ -1,5 +1,5 @@
 # Convolutional NeuralNetwork
-  We use `2-convolutional-layer` network to classify the MNIST dataset.
+  We use `tensor convolutional-layer` network to classify the MNIST dataset.
 
 ##  NeuralNetwork structure
 * Define the neuralnetwork module
