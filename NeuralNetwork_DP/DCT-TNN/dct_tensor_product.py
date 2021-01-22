@@ -1,3 +1,5 @@
+# dct in the beginning and idct at the end
+
 import torch
 import numpy as np
 import torch_dct.dct as dct
