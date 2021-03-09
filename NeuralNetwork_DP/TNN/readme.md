@@ -2,10 +2,10 @@
 * tnn-4.py  
 
   A 4-layer tensor neural network. Take `tnn-4.py` as example, we provide a detailed introduction of the code.<br>
-  Besides, the running results of this on `test_datasets` has been presented in the end.
+  The results on `test_datasets` are presented in the end.
     
 * tnn-8.py   
-  8-layer tensor neural network. 
+  A 8-layer tensor neural network. 
 
 ##  The key parts of the code:
 
