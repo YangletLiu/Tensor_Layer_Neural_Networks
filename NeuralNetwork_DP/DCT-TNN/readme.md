@@ -1,6 +1,6 @@
 # DCT Tensor NeuralNetwork 
 
-* Key codes sample: DCT and IDCT transforms
+* Key code snippet: DCT and IDCT transforms
 
 ```python
     def dct_tensor_product(tensorA, tensorB):
