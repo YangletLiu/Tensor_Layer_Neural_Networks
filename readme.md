@@ -5,7 +5,7 @@ On MNIST, FashionMNIST and CIFAR-10 datasets.
 
 2. To verify the performance, we compare with several neural networks, including `fully-connected layer`, and `Convolutional neural networks (CNN)`.  
 
-We also test and compare with other tensor approaches in the repository [link](https://github.com/hust512/Tensor_Layer_for_Deep_Neural_Network_Compression/tree/master/transform_based_network).
+One can test and compare with other tensor approaches in [link](https://github.com/hust512/Tensor_Layer_for_Deep_Neural_Network_Compression/tree/master/transform_based_network).
 
 ##  File structure
 > NeuralNetwork_DP
