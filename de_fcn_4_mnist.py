@@ -37,103 +37,105 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle
 num_test = len(testset)
 
 ########################### 2. define model ##################################
-class CNN8MNIST(nn.Module):
-    def __init__(self):
-        super(CNN8MNIST,self).__init__()
+class FC4Net(nn.Module):
+    def __init__(self, in_dim, n_hidden_1, n_hidden_2, n_hidden_3, out_dim):
+        super(FC4Net, self).__init__()
+        # layer1
+        self.layer1 = nn.Sequential(
+            nn.Linear(in_dim, n_hidden_1),
+            nn.ReLU(True)
+        )
+        self.layer2 = nn.Sequential(
+            nn.Linear(n_hidden_1, n_hidden_2),
+            nn.ReLU(True)
+        )
+        self.layer3 = nn.Sequential(
+            nn.Linear(n_hidden_2, n_hidden_3),
+            nn.ReLU(True)
+        )
+        self.layer4 = nn.Sequential(
+            nn.Linear(n_hidden_3, out_dim),
+        )
 
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=1,
-                out_channels=16,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(True),
-        )
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=16,
-                out_channels=32,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(True),
-        )
-        self.conv3 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(True),
-        )
-        self.conv4 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(True),
-            nn.MaxPool2d(kernel_size=2)
-        )
-        self.conv5 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=128,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(True),
-        )
-        self.conv6 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=128,
-                out_channels=256,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(True),
-        )
-        self.conv7 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=256,
-                out_channels=256,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(True),
-            nn.MaxPool2d(kernel_size=2)
-        )
-        self.pred = nn.Linear(16*28*28,10)
-
-    def forward(self,x):
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.conv5(x)
-        x = self.conv6(x)
-        x = self.conv7(x)
-        x = x.view(x.size(0),-1)
-        x = self.pred(x)
+    # forward
+    def forward(self, x):
+        x = x.view(x.size(0), -1)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
         return x
 
 ######################## 3. build model functions #################
+def weight_init(m):
+    if isinstance(m,nn.Linear):
+        # nn.init.kaiming_normal_(m.weight,mode='fan_out',nonlinearity='relu')
+        nn.init.xavier_normal_(m.weight)
+
+
+def low_rank_matrix_decompose_FC_layer(layer, r):
+    print("'low rank matrix' decompose one FC layer")
+    # y = Wx + b ==>  y = W1(W2x) + b
+    lj, lj_1 = layer.weight.data.shape
+
+    D = nn.Linear(in_features=lj_1,
+                   out_features=r,
+                   bias=False)
+    C = nn.Linear(in_features=r,
+                   out_features=lj,
+                   bias=True)
+
+    C.weight.data = torch.randn(lj, r) * torch.sqrt(torch.tensor(2 / (lj + r)))
+    D.weight.data = torch.randn(r, lj_1) * torch.sqrt(torch.tensor(2 / (r + lj_1)))
+    C.bias.data = torch.randn(lj, ) * torch.sqrt(torch.tensor(2 / (lj + 1)))
+
+    new_layers = [D, C]
+    return nn.Sequential(*new_layers)
+
+
+def low_rank_matrix_decompose_nested_FC_layer(layer):
+    modules = layer._modules
+    for key in modules.keys():
+        l = modules[key]
+        if isinstance(l, nn.Sequential):
+            modules[key] = low_rank_matrix_decompose_nested_FC_layer(l)
+        elif isinstance(l, nn.Linear):
+            fc_layer = l
+            sp = fc_layer.weight.data.numpy().shape
+            # rank = min(max(sp)//8, min(sp))
+            rank = 8
+            modules[key] = low_rank_matrix_decompose_FC_layer(fc_layer, rank)
+    return layer
+
+
+# decomposition
+def decompose_FC(model, mode):
+    model.eval()
+    model.cpu()
+    layers = model._modules # model.features._modules  # model._modules
+    cnt = 1
+    for i, key in enumerate(layers.keys()):
+        if isinstance(layers[key], torch.nn.modules.Linear):
+            fc_layer = layers[key]
+            sp = fc_layer.weight.data.numpy().shape
+            rank = 8
+            if rank == min(sp):
+                continue
+            if mode == "low_rank_matrix":
+                layers[key] = low_rank_matrix_decompose_FC_layer(fc_layer, rank)
+        elif isinstance(layers[key], nn.Sequential):
+            if mode == "low_rank_matrix":
+                layers[key] = low_rank_matrix_decompose_nested_FC_layer(layers[key])
+    return model
+
 
 # build model
-def build(decomp=False):
+def build(decomp=True):
     print('==> Building model..')
-    full_net = CNN8MNIST()
+    full_net = FC4Net(784, 784, 784, 784, 10)
     # print(full_net)
+    if decomp:
+        full_net = decompose_FC(full_net, mode="low_rank_matrix")
     # full_net.apply(weight_init)
     full_net = full_net.to(device)
     print('==> Done')
@@ -142,11 +144,23 @@ def build(decomp=False):
 
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
-lr0 = 0.01
+lr0 = 0.001
 std = 0.01
 
 def query_lr(epoch):
     lr = lr0
+    return lr
+    lr *= 0.8 ** epoch
+    lr = max(lr, 0.0003)
+    return lr
+    if epoch >= 25:
+        lr *= 0.5 ** 3
+    elif epoch >= 20:
+        lr *= 0.5 ** 2
+    elif epoch >= 10:
+        lr *= 0.5 ** 1
+    else:
+        lr *= 0.2 ** 0
     return lr
 
 
@@ -246,7 +260,7 @@ def train(num_epochs, net):
 
 def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
-    with open('cnn_8_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open('de_fcn_4_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
         f_csv.writerow(['Test Loss:'])
         f_csv.writerows(enumerate(test_loss,1))
@@ -261,7 +275,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     fig = plt.figure(1)
     sub1 = plt.subplot(1, 2, 1)
     plt.sca(sub1)
-    plt.title('CNN-8 Loss on MNIST ')
+    plt.title('de FCN-4 Loss on MNIST ')
     plt.plot(np.arange(len(test_loss)), test_loss, color='red', label='TestLoss',linestyle='-')
     plt.plot(np.arange(len(train_loss)), train_loss, color='blue', label='TrainLoss',linestyle='--')
     plt.xlabel('Epoch')
@@ -270,7 +284,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
     sub2 = plt.subplot(1, 2, 2)
     plt.sca(sub2)
-    plt.title('CNN-8 Accuracy on MNIST ')
+    plt.title('de FCN-4 Accuracy on MNIST ')
     plt.plot(np.arange(len(test_acc)), test_acc, color='green', label='TestAcc',linestyle='-')
     plt.plot(np.arange(len(train_acc)), train_acc, color='orange', label='TrainAcc',linestyle='--')
     plt.xlabel('Epoch')
@@ -279,11 +293,11 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     plt.legend()
     plt.show()
 
-    plt.savefig('./cnn_8_mnist.jpg')
+    plt.savefig('./de_fcn_4_mnist.jpg')
 
 
 if __name__ == "__main__":
-    net = build(decomp=False)
+    net = build(decomp=True)
     print(net)
     train_loss, train_acc, test_loss, test_acc = train(100, net)
     save_record_and_draw(train_loss, train_acc, test_loss, test_acc)

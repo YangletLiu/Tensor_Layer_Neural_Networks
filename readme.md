@@ -1,4 +1,22 @@
 # Spectral Tensor Neural Netowrks and its Parallel Implementations
+
+## MNIST Task
+|Network|Network structure|Test accuraccy|#Epoch|Learning rate|Initialization metod|Optimizer
+|-|-|-|-|-|-|-|
+|4-layer FC|[784, 784, 784, 784, 10]|98.40%|100|0.01|random|SGD with 0.9 momentum
+|8-layer FC|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.56%|100|0.01|random|SGD with 0.9 momentum
+|4-layer FC (decomposed)|[784, 8, 784, 8, 784, 8, 784, 8, 10]|95.62%|100|0.01|low rank matrix decomposition initialization|SGD with 0.9 momentum
+|8-layer FC (decomposed)|[784, 8, 784, 8, 784, 8, 784, 8, 784, 8, 784, 8, 784, 8, 784, 8, 10]| **not test yet**|100|0.01|low rank matrix decomposition initialization|SGD with 0.9 momentum
+
+## CIFAR 10 Task
+|Network|Network structure|Test accuraccy|#Epoch|Learning rate|Initialization method|Optimizer
+|-|-|-|-|-|-|-|
+|4-layer FC|[3072, 4096, 2048, 1024, 10]|56.32%|100|1e-4|random|Adam
+|8-layer FC|[3072, 4096, 4096, 2048, 2048, 1024, 1024, 512, 10]|56.61%|100|1e-3|random|Adam
+|4-layer FC (decomposed)|[3072, 8, 4096, 8, 2048, 8, 1024, 8, 10]|**not test yet**|
+|8-layer FC (decomposed)|[3072, 8, 4096, 8, 4096, 8, 2048, 8, 2048, 8, 1024, 8, 1024, 8, 512, 8, 10]|**not test yet**|
+
+
 1. A spectral tensor neural network with parallel/distributed implementation. 
 
 On MNIST, FashionMNIST and CIFAR-10 datasets.  
@@ -8,6 +26,12 @@ On MNIST, FashionMNIST and CIFAR-10 datasets.
 One can test and compare with other tensor approaches in [link](https://github.com/hust512/Tensor_Layer_for_Deep_Neural_Network_Compression/tree/master/transform_based_network).
 
 ##  File structure
+> fcn_4_mnist.py <br>
+> fcn_8_mnist.py <br>
+> de_fcn_4_mnist.py <br>
+> fcn_4_cifar10.py <br>
+> fcn_8_cifar10.py <br>
+
 > NeuralNetwork_DP
 >> TNN -----------------code for tensor neuralnetwork and test result
 >>> tnn-4.py  ---------4-layer tensor neuralnetwork <br>
@@ -16,15 +40,10 @@ One can test and compare with other tensor approaches in [link](https://github.c
 >>  DCT-TNN -------------tensor neuralnetwork implemented by DCT transform in DCT domain (not finished yet)
 >>> dct-tnn-4.py  ---------4-layer tensor neuralnetwork <br>
 
->> Matrix-fullyConnected -----------------code for matrix fully connetcted neuralnetwork and test result
->>>  mnn_4.py ------------4-layer matrix fully connected network <br>
->>>  mnn_8.py ------------8-layer matrix fully connected network <br>
 
 >> Autoencoder
 >>> autoencoder_test.py ------------8-layer autoencoder neuralnetwork(including 4-layer encoder and 4-layer decoder)
 
->> CNN
->>> cnn-2.py  ----------2-layer convolutional neuralnetwork
 
 ## Usage
 Take `TNN\tnn.py` as example:  

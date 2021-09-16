@@ -1,3 +1,4 @@
+######################### 0. import packages #############################
 import time
 import torch
 import torch.nn.functional as F
@@ -11,201 +12,235 @@ import os
 import sys
 
 
-def cnn_4():
-    # os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-    # define super params
-    batch_size = 128
-    learning_rate = 2e-3
-    num_epochs = 40
+########################## 1. load data ####################################
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
-    # download MNIST
-    train_datset = datasets.MNIST(
-        root='../datasets', train=True,
-        transform=transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))]
-        ), download=True
-    )
+transform_train = transforms.Compose([
+                                  transforms.ToTensor(),
+                                  transforms.Normalize(
+                                      (0.1307,), (0.3081,))
+                              ])
 
-    test_dataset = datasets.MNIST(
-        root='../datasets', train=False, transform=transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))]
-        ), download=False
-    )
+transform_test = transforms.Compose([
+                                  transforms.ToTensor(),
+                                  transforms.Normalize(
+                                      (0.1307,), (0.3081,))
+                              ])
 
-    # define dataset loader
-    train_loader = DataLoader(train_datset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+batch_size = 64
+trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
+num_train = len(trainset)
 
-    # define NN model
-    class CNN(nn.Module):
-        def __init__(self):
-            super(CNN,self).__init__()
+testset = datasets.MNIST(root='../datasets', train=False, download=True, transform=transform_test)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True)
+num_test = len(testset)
 
-            self.conv1 = nn.Sequential(
-                nn.Conv2d(
-                    in_channels=1,
-                    out_channels=16,
-                    kernel_size=3,
-                    stride=1,
-                    padding=1
-                ),
-                nn.ReLU(),
-            )
-            self.conv2 = nn.Sequential(
-                nn.Conv2d(
-                    in_channels=16,
-                    out_channels=32,
-                    kernel_size=3,
-                    stride=1,
-                    padding=1
-                ),
-                nn.ReLU(),
-            )
-            self.conv3 = nn.Sequential(
-                nn.Conv2d(
-                    in_channels=32,
-                    out_channels=32,
-                    kernel_size=3,
-                    stride=1,
-                    padding=1
-                ),
-                nn.ReLU(),
-            )
-            self.pred = nn.Linear(32*28*28,10)
+########################### 2. define model ##################################
+class CNN4MNIST(nn.Module):
+    def __init__(self):
+        super(CNN4MNIST,self).__init__()
 
-        def forward(self,x):
-            x = self.conv1(x)
-            x = self.conv2(x)
-            x = self.conv3(x)
-            x = x.view(x.size(0),-1)
-            x = self.pred(x)
-            return x
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=1,
+                out_channels=16,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2)
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=16,
+                out_channels=32,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2)
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=32,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2)
+        )
+        self.pred = nn.Linear(32*3*3,10)
 
+    def forward(self,x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = x.view(x.size(0),-1)
+        x = self.pred(x)
+        return x
 
-    # define NN model
-    model = CNN()
+######################## 3. build model functions #################
 
-    # test if GPU is available
-    use_gpu = torch.cuda.is_available()
-    if use_gpu:
-        model = model.cuda()
-
-    # define loss and optimizer
-    # CrossEntropyLoss Function
-    criterion = nn.CrossEntropyLoss()
-    # SGD
-    # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
-    test_loss_epoch = []
-    test_acc_epoch = []
-    train_loss_epoch = []
-    train_acc_epoch = []
-
-    # begain train
-    for epoch in range(num_epochs):
-        print('\n=> Training Epoch #%d' %(epoch+1))
-        since = time.time()
-        running_loss = 0.0
-        running_acc = 0.0
-
-        model.train()
-        for i, data in enumerate(train_loader, 1):
-            # load every single train sample img
-            img, label = data
-            # img = img.view(img.size(0), -1)
-            # print(img.size(0))
+# build model
+def build(decomp=False):
+    print('==> Building model..')
+    full_net = CNN4MNIST()
+    # print(full_net)
+    # full_net.apply(weight_init)
+    full_net = full_net.to(device)
+    print('==> Done')
+    return full_net
 
 
-            if use_gpu:
-                img = img.cuda()
-                label = label.cuda()
+########################### 4. train and test functions #########################
+criterion = nn.CrossEntropyLoss().to(device)
+lr0 = 0.01
+std = 0.01
 
-            # forward
-            out = model(img)
-            # print(out.shape)
-            loss = criterion(out, label)
+def query_lr(epoch):
+    lr = lr0
+    return lr
 
-            running_loss += loss.item()
-            _, pred = torch.max(out, 1)
-            # print(pred)
-            running_acc += (pred == label).float().mean()
-            # print(running_acc)
 
-            # backward
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+def set_lr(optimizer, epoch):
+    current_lr = query_lr(epoch)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = current_lr
+    return current_lr
 
-            sys.stdout.write('\r')
-            sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%     '
-                    %(epoch, num_epochs, i,
-                        (len(train_datset)//batch_size)+1, loss.item(), 100.* running_acc / i))
-            sys.stdout.flush()
 
-        print(f'\nFinish {epoch + 1} epoch, Avg Loss:{running_loss / i:.6f}, Acc:{100. * running_acc / i:.6f}%')
-        train_loss_epoch.append(running_loss / i)
-        train_acc_epoch.append((running_acc / i)*100)
+def test(epoch, net, best_acc, test_acc_list, test_loss_list):
+    net.eval()
+    net.training = False
+    test_loss = 0
+    correct = 0
+    total = 0
 
-        # model evaluate
-        model.eval()
-        eval_loss = 0.0
-        eval_acc = 0.0
+    with torch.no_grad():
+        for batch_idx, (inputs, targets) in enumerate(testloader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            outputs = net(inputs)
+            loss = criterion(outputs, targets)
 
-        for j, data in enumerate(test_loader, 1):
-            img, label = data
-            if use_gpu:
-                img = img.cuda()
-                label = label.cuda()
-            out = model(img)
-            loss = criterion(out, label)
-            eval_loss += loss.item()
-            _, pred = torch.max(out, 1)
-            eval_acc += (pred == label).float().mean()
-        print(f'Test Loss: {eval_loss / j:.6f}, Acc: {100. * eval_acc / j:.6f}%')
-        print(f'Time:{(time.time() - since):.1f} s')
-        test_loss_epoch.append(eval_loss / j)
-        test_acc_epoch.append((eval_acc / j) * 100)
+            test_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total += targets.size(0)
+            correct += predicted.eq(targets.data).cpu().sum()
 
-    return train_loss_epoch,train_acc_epoch,test_loss_epoch,test_acc_epoch
+        # Save checkpoint when best model
+        acc = 100.* correct / total
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch, loss.item(), acc))
 
-train_loss,train_acc,test_loss,test_acc = cnn_4()
+        if acc > best_acc:
+            best_acc = acc.item()
+        test_acc_list.append(acc)
+        test_loss_list.append(test_loss / num_test)
+    return best_acc
 
-# write csv
-with open('mnist_cnn_4_testloss.csv','w',newline='',encoding='utf-8') as f:
-    f_csv = csv.writer(f)
-    f_csv.writerow(['Test Loss:'])
-    f_csv.writerows(enumerate(test_loss,1))
-    f_csv.writerow(['Train Loss:'])
-    f_csv.writerows(enumerate(train_loss,1))
-    f_csv.writerow(['Test Acc:'])
-    f_csv.writerows(enumerate(test_acc,1))
-    f_csv.writerow(['Train Acc:'])
-    f_csv.writerows(enumerate(train_acc,1))
 
-# draw picture
-fig = plt.figure(1)
-sub1 = plt.subplot(1, 2, 1)
-plt.sca(sub1)
-plt.title('CNN-4 Loss on MNIST ')
-plt.plot(np.arange(len(test_loss)), test_loss, color='red', label='TestLoss',linestyle='-')
-plt.plot(np.arange(len(train_loss)), train_loss, color='blue', label='TrainLoss',linestyle='--')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.legend()
+# Training
+def train(num_epochs, net):
+    net = net.to(device)
+    train_acc_list, train_loss_list = [], []
+    test_acc_list, test_loss_list = [], []
+    best_acc = 0.
 
-sub2 = plt.subplot(1, 2, 2)
-plt.sca(sub2)
-plt.title('CNN-4 Accuracy on MNIST ')
-plt.plot(np.arange(len(test_acc)), test_acc, color='green', label='TestAcc',linestyle='-')
-plt.plot(np.arange(len(train_acc)), train_acc, color='orange', label='TrainAcc',linestyle='--')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy(%)')
+    original_time = time.asctime(time.localtime(time.time()))
+    start_time = time.time()
 
-plt.legend()
-plt.show()
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
+    current_lr = lr0
 
-plt.savefig('./mnist_cnn_4.jpg')
+    try:
+        for epoch in range(num_epochs):
+            net.train()
+            net.training = True
+            train_loss = 0
+            correct = 0
+            total = 0
+
+            current_lr = set_lr(optimizer, epoch)
+            print('\n=> Training Epoch #%d, LR=%.4f' %(epoch+1, current_lr))
+            for batch_idx, (inputs, targets) in enumerate(trainloader):
+                inputs, targets = inputs.to(device), targets.to(device) # GPU settings
+                optimizer.zero_grad()
+                outputs = net(inputs)               # Forward Propagation
+                loss = criterion(outputs, targets)  # Loss
+                loss.backward()  # Backward Propagation
+                optimizer.step() # Optimizer update
+
+                train_loss += loss.item()
+                _, predicted = torch.max(outputs.data, 1)
+                total += targets.size(0)
+                correct += predicted.eq(targets.data).cpu().sum()
+
+                sys.stdout.write('\r')
+                sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%   '
+                        %(epoch+1, num_epochs, batch_idx+1,
+                            (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total))
+                sys.stdout.flush()
+
+            # scheduler.step()
+            # current_lr = scheduler.get_last_lr()[0]  # query_lr(epoch)
+            best_acc = test(epoch, net, best_acc, test_acc_list, test_loss_list)
+            train_acc_list.append(100.*correct/total)
+            train_loss_list.append(train_loss / num_train)
+            now_time = time.time()
+            print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
+    except KeyboardInterrupt:
+        pass
+
+    print("\nBest training accuracy overall: %.3f%%"%(best_acc))
+
+    return train_loss_list, train_acc_list, test_loss_list, test_acc_list
+
+
+def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
+    # write csv
+    with open('cnn_4_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
+        f_csv = csv.writer(f)
+        f_csv.writerow(['Test Loss:'])
+        f_csv.writerows(enumerate(test_loss,1))
+        f_csv.writerow(['Train Loss:'])
+        f_csv.writerows(enumerate(train_loss,1))
+        f_csv.writerow(['Test Acc:'])
+        f_csv.writerows(enumerate(test_acc,1))
+        f_csv.writerow(['Train Acc:'])
+        f_csv.writerows(enumerate(train_acc,1))
+
+    # draw picture
+    fig = plt.figure(1)
+    sub1 = plt.subplot(1, 2, 1)
+    plt.sca(sub1)
+    plt.title('CNN-4 Loss on MNIST ')
+    plt.plot(np.arange(len(test_loss)), test_loss, color='red', label='TestLoss',linestyle='-')
+    plt.plot(np.arange(len(train_loss)), train_loss, color='blue', label='TrainLoss',linestyle='--')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    sub2 = plt.subplot(1, 2, 2)
+    plt.sca(sub2)
+    plt.title('CNN-4 Accuracy on MNIST ')
+    plt.plot(np.arange(len(test_acc)), test_acc, color='green', label='TestAcc',linestyle='-')
+    plt.plot(np.arange(len(train_acc)), train_acc, color='orange', label='TrainAcc',linestyle='--')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy(%)')
+
+    plt.legend()
+    plt.show()
+
+    plt.savefig('./cnn_4_mnist.jpg')
+
+
+if __name__ == "__main__":
+    net = build(decomp=False)
+    print(net)
+    train_loss, train_acc, test_loss, test_acc = train(100, net)
+    save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
