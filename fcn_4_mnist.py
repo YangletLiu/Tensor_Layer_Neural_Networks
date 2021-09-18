@@ -67,15 +67,9 @@ class FC4Net(nn.Module):
         return x
 
 ######################## 3. build model functions #################
-def weight_init(m):
-    if isinstance(m,nn.Linear):
-        # nn.init.kaiming_normal_(m.weight,mode='fan_out',nonlinearity='relu')
-        nn.init.xavier_normal_(m.weight)
-
-
 def low_rank_matrix_decompose_FC_layer(layer, r):
     print("'low rank matrix' decompose one FC layer")
-    # y = Wx + b ==>  y = W1(W2x) + b
+    # y = xW + b ==>  y = xDC + b
     lj, lj_1 = layer.weight.data.shape
 
     D = nn.Linear(in_features=lj_1,
@@ -93,7 +87,7 @@ def low_rank_matrix_decompose_FC_layer(layer, r):
     return nn.Sequential(*new_layers)
 
 
-def low_rank_matrix_decompose_nested_FC_layer(layer):
+def low_rank_matrix_decompose_nested_FC_layer(layer, rank=16):
     modules = layer._modules
     for key in modules.keys():
         l = modules[key]
@@ -102,24 +96,22 @@ def low_rank_matrix_decompose_nested_FC_layer(layer):
         elif isinstance(l, nn.Linear):
             fc_layer = l
             sp = fc_layer.weight.data.numpy().shape
-            # rank = min(max(sp)//8, min(sp))
-            rank = 8
+            if rank >= min(sp):
+                continue
             modules[key] = low_rank_matrix_decompose_FC_layer(fc_layer, rank)
     return layer
 
 
 # decomposition
-def decompose_FC(model, mode):
+def decompose_FC(model, mode, rank=16):
     model.eval()
     model.cpu()
-    layers = model._modules # model.features._modules  # model._modules
-    cnt = 1
+    layers = model._modules
     for i, key in enumerate(layers.keys()):
         if isinstance(layers[key], torch.nn.modules.Linear):
             fc_layer = layers[key]
             sp = fc_layer.weight.data.numpy().shape
-            rank = 8
-            if rank == min(sp):
+            if rank >= min(sp):
                 continue
             if mode == "low_rank_matrix":
                 layers[key] = low_rank_matrix_decompose_FC_layer(fc_layer, rank)
@@ -133,10 +125,8 @@ def decompose_FC(model, mode):
 def build(decomp=True):
     print('==> Building model..')
     full_net = FC4Net(784, 784, 784, 784, 10)
-    # print(full_net)
     if decomp:
         full_net = decompose_FC(full_net, mode="low_rank_matrix")
-    # full_net.apply(weight_init)
     full_net = full_net.to(device)
     print('==> Done')
     return full_net
@@ -145,22 +135,10 @@ def build(decomp=True):
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
 lr0 = 0.01
-std = 0.01
+
 
 def query_lr(epoch):
     lr = lr0
-    return lr
-    lr *= 0.8 ** epoch
-    lr = max(lr, 0.0003)
-    return lr
-    if epoch >= 25:
-        lr *= 0.5 ** 3
-    elif epoch >= 20:
-        lr *= 0.5 ** 2
-    elif epoch >= 10:
-        lr *= 0.5 ** 1
-    else:
-        lr *= 0.2 ** 0
     return lr
 
 
@@ -191,7 +169,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
 
         # Save checkpoint when best model
         acc = 100.* correct / total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch, loss.item(), acc))
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch + 1, loss.item(), acc))
 
         if acc > best_acc:
             best_acc = acc.item()
@@ -243,12 +221,11 @@ def train(num_epochs, net):
                             (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total))
                 sys.stdout.flush()
 
-            # scheduler.step()
-            # current_lr = scheduler.get_last_lr()[0]  # query_lr(epoch)
             best_acc = test(epoch, net, best_acc, test_acc_list, test_loss_list)
             train_acc_list.append(100.*correct/total)
             train_loss_list.append(train_loss / num_train)
             now_time = time.time()
+            print("| Best Acc: %.2f%% "%(best_acc))
             print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
     except KeyboardInterrupt:
         pass

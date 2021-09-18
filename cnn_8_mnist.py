@@ -143,7 +143,7 @@ def build(decomp=False):
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
 lr0 = 0.01
-std = 0.01
+
 
 def query_lr(epoch):
     lr = lr0
@@ -235,6 +235,7 @@ def train(num_epochs, net):
             train_acc_list.append(100.*correct/total)
             train_loss_list.append(train_loss / num_train)
             now_time = time.time()
+            print("| Best Acc: %.2f%% "%(best_acc))
             print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
     except KeyboardInterrupt:
         pass

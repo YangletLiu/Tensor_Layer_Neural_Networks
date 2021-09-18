@@ -88,12 +88,6 @@ class FC8Net(nn.Module):
 
 
 ######################## 3. build model functions #################
-def weight_init(m):
-    if isinstance(m,nn.Linear):
-        # nn.init.kaiming_normal_(m.weight,mode='fan_out',nonlinearity='relu')
-        nn.init.xavier_normal_(m.weight)
-
-
 def low_rank_matrix_decompose_FC_layer(layer, r):
     print("'low rank matrix' decompose one FC layer")
     # y = Wx + b ==>  y = W1(W2x) + b
@@ -154,10 +148,8 @@ def decompose_FC(model, mode):
 def build(decomp=True):
     print('==> Building model..')
     full_net = FC8Net(784, 784, 784, 784, 784, 784, 784, 784, 10)
-    # print(full_net)
     if decomp:
         full_net = decompose_FC(full_net, mode="low_rank_matrix")
-    # full_net.apply(weight_init)
     full_net = full_net.to(device)
     print('==> Done')
     return full_net
@@ -166,22 +158,10 @@ def build(decomp=True):
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
 lr0 = 0.01
-std = 0.01
+
 
 def query_lr(epoch):
     lr = lr0
-    return lr
-    lr *= 0.8 ** epoch
-    lr = max(lr, 0.0003)
-    return lr
-    if epoch >= 25:
-        lr *= 0.5 ** 3
-    elif epoch >= 20:
-        lr *= 0.5 ** 2
-    elif epoch >= 10:
-        lr *= 0.5 ** 1
-    else:
-        lr *= 0.2 ** 0
     return lr
 
 
@@ -264,12 +244,11 @@ def train(num_epochs, net):
                             (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total))
                 sys.stdout.flush()
 
-            # scheduler.step()
-            # current_lr = scheduler.get_last_lr()[0]  # query_lr(epoch)
             best_acc = test(epoch, net, best_acc, test_acc_list, test_loss_list)
             train_acc_list.append(100.*correct/total)
             train_loss_list.append(train_loss / num_train)
             now_time = time.time()
+            print("| Best Acc: %.2f%% "%(best_acc))
             print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
     except KeyboardInterrupt:
         pass
