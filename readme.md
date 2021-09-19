@@ -6,8 +6,10 @@
 |8-layer FC|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|100|0.01|64|random|SGD with 0.9 momentum
 |4-layer FC (decomposed)|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80% |100|0.05|64|low rank matrix decomposition initialization|SGD with 0.9 momentum
 |8-layer FC (decomposed)|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86% |100|0.001|64|low rank matrix decomposition initialization|SGD with 0.9 momentum
-|4-layer tNN **(still running)**| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.9%|7/100|0.01|100|random|SGD with 0.9 momentum
-|8-layer tNN **(still running)**| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|86.80%|3/100|0.01|100|random|SGD with 0.9 momentum
+|4-layer tNN **(still running)**| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%|34/100|0.1|100|random|SGD with 0.9 momentum
+|4-layer tNN **(in reference)**| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|<98.0%|300|0.1|100|not mentioned|SGD with 0.9 momentum
+|8-layer tNN **(still running)**| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%|30/100|0.1|100|random|SGD with 0.9 momentum
+|8-layer tNN **(in reference)**| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|~98%|300|0.1|100|not mentioned|SGD with 0.9 momentum
 
 ## CIFAR 10 Task
 |Network|Network structure|Test accuracy|#Epoch|Learning rate|Batch size|Initialization method|Optimizer

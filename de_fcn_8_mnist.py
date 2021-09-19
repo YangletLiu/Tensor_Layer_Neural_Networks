@@ -186,14 +186,14 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
             test_loss += loss.item()
             _, predicted = torch.max(outputs.data, 1)
             total += targets.size(0)
-            correct += predicted.eq(targets.data).cpu().sum()
+            correct += predicted.eq(targets.data).cpu().sum().item()
 
         # Save checkpoint when best model
         acc = 100.* correct / total
         print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch + 1, loss.item(), acc))
 
         if acc > best_acc:
-            best_acc = acc.item()
+            best_acc = acc
         test_acc_list.append(acc)
         test_loss_list.append(test_loss / num_test)
     return best_acc
@@ -234,7 +234,7 @@ def train(num_epochs, net):
                 train_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
                 total += targets.size(0)
-                correct += predicted.eq(targets.data).cpu().sum()
+                correct += predicted.eq(targets.data).cpu().sum().item()
 
                 sys.stdout.write('\r')
                 sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%   '

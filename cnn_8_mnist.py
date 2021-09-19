@@ -180,7 +180,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
         print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch, loss.item(), acc))
 
         if acc > best_acc:
-            best_acc = acc.item()
+            best_acc = acc
         test_acc_list.append(acc)
         test_loss_list.append(test_loss / num_test)
     return best_acc
