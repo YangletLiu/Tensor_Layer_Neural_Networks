@@ -27,7 +27,7 @@ transform_test = transforms.Compose([
                                       (0.1307,), (0.3081,))
                               ])
 
-batch_size = 64
+batch_size = 128
 trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 num_train = len(trainset)
@@ -134,7 +134,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
 
         # Save checkpoint when best model
         acc = 100.* correct / total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch, loss.item(), acc))
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch+1, loss.item(), acc))
 
         if acc > best_acc:
             best_acc = acc

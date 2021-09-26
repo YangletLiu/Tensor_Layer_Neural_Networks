@@ -45,14 +45,15 @@ class tNN4MNIST(nn.Module):
         use the nn.Parameter() and 'requires_grad = True' 
         to customize parameters which are needed to optimize
         """
-        self.W_1 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_1 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_2 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_2 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_3 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_3 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_4 = nn.Parameter(torch.randn(28, 10, 28))
-        self.B_4 = nn.Parameter(torch.randn(28, 10, 1))
+        std = 1
+        self.W_1 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_1 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_2 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_2 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_3 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_3 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_4 = nn.Parameter(torch.randn(28, 10, 28) * std)
+        self.B_4 = nn.Parameter(torch.randn(28, 10, 1) * std)
         # self.reset_parameters()
 
     def forward(self, x):
@@ -63,7 +64,6 @@ class tNN4MNIST(nn.Module):
         :return: this demo defines an one-layer networks,
                     whose output is processed by one-time tensor-product and activation
         """
-
         x = torch_tensor_product(self.W_1, x) + self.B_1
         x = F.relu(x)
         x = torch_tensor_product(self.W_2, x) + self.B_2
@@ -94,7 +94,20 @@ class tNN4MNIST(nn.Module):
         bound = 1 / np.sqrt(fan_in)
         init.uniform_(self.B_4, -bound, bound)
 
+        # std = 0.0001
+        # init.kaiming_normal_(self.W_1)
+        # init.kaiming_normal_(self.B_1)
 
+        # init.kaiming_normal_(self.W_2)
+        # init.kaiming_normal_(self.B_2)
+
+        # init.kaiming_normal_(self.W_3)
+        # init.kaiming_normal_(self.B_3)
+
+        # init.kaiming_normal_(self.W_4)
+        # init.kaiming_normal_(self.B_4)
+        # print(self.W_1)
+        # print(self.B_1)
 # dct at the beginning and idct at the end
 
 def dct(x, norm=None):
@@ -114,8 +127,10 @@ def dct(x, norm=None):
 
     v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1)
 
-    # Vc = torch.rfft(v, 1, onesided=False)
-    Vc = torch.view_as_real(torch.fft.fft(v))
+    if torch.__version__ > "1.7.1":
+        Vc = torch.view_as_real(torch.fft.fft(v))
+    else:
+        Vc = torch.rfft(v, 1, onesided=False)
 
     k = (- torch.arange(N, dtype=x.dtype)[None, :] * np.pi / (2 * N)).to(device)
     W_r = torch.cos(k)
@@ -167,8 +182,11 @@ def idct(X, norm=None):
 
     V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
 
-    # v = torch.irfft(V, 1, onesided=False)
-    v = torch.fft.ifft(torch.view_as_complex(V)).real
+    if torch.__version__ > "1.7.1":
+        v = torch.fft.ifft(torch.view_as_complex(V)).real
+    else:
+        v = torch.irfft(V, 1, onesided=False)
+
     x = v.new_zeros(v.shape)
     x[:, ::2] += v[:, :N - (N // 2)]
     x[:, 1::2] += v.flip([1])[:, :N // 2]
@@ -178,31 +196,19 @@ def idct(X, norm=None):
 
 # circulant convolution part
 def torch_tensor_Bcirc(tensor, l, m, n):
-    tensor_blocks = torch.split(tensor, split_size_or_sections=1, dim=0)
-    tensor_blocks = list(tensor_blocks)
-    tensor_blocks.reverse()
-
-    circ_slices = []
+    bcirc_A = []
     for i in range(l):
-        tensor_blocks.insert(0, tensor_blocks.pop())
-        for j in tensor_blocks:
-            circ_slices.append(j.reshape(m, n))
-
-    circ = []
-    for i in range(l):
-        circ.append(torch.cat(circ_slices[l * i:l * i + l], dim=1))
-    ulti_circ = torch.cat(circ).reshape(l * m, l * n)
-
-    return ulti_circ
+        bcirc_A.append(torch.roll(tensor, shifts=i, dims=0))
+    return torch.cat(bcirc_A, dim=2).reshape(l * m, l * n)
 
 
 def torch_tensor_product(tensorA, tensorB):
     a_l, a_m, a_n = tensorA.shape
-    b_l, b_n, b_p = tensorB.shape
+    b_l, b_n, b_p = tensorB.shape  # (28, 28, batch_size)
 
     if a_l == b_l and a_n == b_n:
-        circA = torch_tensor_Bcirc(tensorA, a_l, a_m, a_n)
-        circB = torch_tensor_Bcirc(tensorB, b_l, b_n, b_p)
+        circA = torch_tensor_Bcirc(tensorA, a_l, a_m, a_n)  # shape: (a_l * a_m, a_n * a_m)
+        circB = torch_tensor_Bcirc(tensorB, b_l, b_n, b_p)  # shape: (b_l * b_n, b_p * b_n)
         return torch.mm(circA, circB[:, 0:b_p]).reshape(a_l, a_m, b_p)
     else:
         print('Shape Error')
@@ -216,10 +222,13 @@ def h_func_dct(lateral_slice):
 
     tubes = [dct_slice[i, :, 0] for i in range(l)]
 
+
+    # todo: parallelism here, use tensor's batch operation
     h_tubes = []
     for tube in tubes:
         tube_sum = torch.sum(torch.exp(tube))
         h_tubes.append(torch.exp(tube) / tube_sum)
+    #######################################################
 
     res_slice = torch.stack(h_tubes, dim=0).reshape(l, m, n)
 
@@ -242,11 +251,12 @@ def scalar_tubal_func(output_tensor):
 
 
 # process raw
-def raw_img(img, batch_size, n):
-    img_raw = img.reshape(batch_size, n * n)
-    single_img = torch.split(img_raw, split_size_or_sections=1, dim=0)
-    single_img_T = [torch.transpose(i.reshape(n, n, 1), 0, 1) for i in single_img]
-    ultra_img = torch.cat(single_img_T, dim=2)
+def raw_img(img):
+    """
+        :param img: (batch_size, channel=1, n1, n2)
+        :return (n2, n1, batch_size)
+    """
+    ultra_img = torch.squeeze(img).permute([2, 1, 0])
     return ultra_img
 
 
@@ -263,7 +273,7 @@ def build(decomp=True):
 
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
-lr0 = 0.1
+lr0 = 0.01
 
 
 def query_lr(epoch):
@@ -286,7 +296,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
 
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
-            img = raw_img(img, batch_size, n=28)
+            img = raw_img(img)
             img, targets = img.to(device), targets.to(device)
 
             outputs = net(img) / 1e5
@@ -300,7 +310,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
 
         # Save checkpoint when best model
         acc = 100.* correct / total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch, loss.item(), acc))
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch+1, loss.item(), acc))
 
         if acc > best_acc:
             best_acc = acc
@@ -330,16 +340,17 @@ def train(num_epochs, net):
             correct = 0
             total = 0
 
-            current_lr = set_lr(optimizer, epoch)
+            # current_lr = set_lr(optimizer, epoch)  # comment this code if use fixed learning rate
             print('\n=> Training Epoch #%d, LR=%.4f' %(epoch+1, current_lr))
             for batch_idx, (img, targets) in enumerate(trainloader):
-                img = raw_img(img, batch_size, n=28)
                 img, targets = img.to(device), targets.to(device)
+                img = raw_img(img)
                 optimizer.zero_grad()
 
                 outputs = net(img) / 1e5
                 # softmax function
                 outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
+
                 loss = criterion(outputs, targets)
                 loss.backward()
                 optimizer.step()
@@ -413,5 +424,5 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 if __name__ == "__main__":
     net = build(decomp=False)
     print(net)
-    train_loss, train_acc, test_loss, test_acc = train(100, net)
+    train_loss, train_acc, test_loss, test_acc = train(300, net)
     save_record_and_draw(train_loss, train_acc, test_loss, test_acc)

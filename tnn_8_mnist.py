@@ -45,23 +45,24 @@ class tNN4MNIST(nn.Module):
         use the nn.Parameter() and 'requires_grad = True' 
         to customize parameters which are needed to optimize
         """
-        self.W_1 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_1 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_2 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_2 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_3 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_3 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_4 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_4 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_5 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_5 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_6 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_6 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_7 = nn.Parameter(torch.randn(28, 28, 28))
-        self.B_7 = nn.Parameter(torch.randn(28, 28, 1))
-        self.W_8 = nn.Parameter(torch.randn(28, 10, 28))
-        self.B_8 = nn.Parameter(torch.randn(28, 10, 1))
-        # self.reset_parameters()
+        std = 1
+        self.W_1 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_1 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_2 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_2 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_3 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_3 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_4 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_4 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_5 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_5 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_6 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_6 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_7 = nn.Parameter(torch.randn(28, 28, 28) * std)
+        self.B_7 = nn.Parameter(torch.randn(28, 28, 1) * std)
+        self.W_8 = nn.Parameter(torch.randn(28, 10, 28) * std)
+        self.B_8 = nn.Parameter(torch.randn(28, 10, 1) * std)
+        self.reset_parameters()
 
     def forward(self, x):
         """
@@ -89,28 +90,31 @@ class tNN4MNIST(nn.Module):
         x = torch_tensor_product(self.W_8, x) + self.B_8
         return x
 
-    # def reset_parameters(self):
-    #     init.kaiming_uniform_(self.W_1, a=np.sqrt(5))
-    #     fan_in, _ = init._calculate_fan_in_and_fan_out(self.W_1)
-    #     bound = 1 / np.sqrt(fan_in)
-    #     init.uniform_(self.B_1, -bound, bound)
+    def reset_parameters(self):
+        # init.xavier_uniform_(self.W_1)
+        # init.xavier_uniform_(self.B_1)
 
-    #     init.kaiming_uniform_(self.W_2, a=np.sqrt(5))
-    #     fan_in, _ = init._calculate_fan_in_and_fan_out(self.W_2)
-    #     bound = 1 / np.sqrt(fan_in)
-    #     init.uniform_(self.B_2, -bound, bound)
+        # init.xavier_uniform_(self.W_2)
+        # init.xavier_uniform_(self.B_2)
 
-    #     init.kaiming_uniform_(self.W_3, a=np.sqrt(5))
-    #     fan_in, _ = init._calculate_fan_in_and_fan_out(self.W_3)
-    #     bound = 1 / np.sqrt(fan_in)
-    #     init.uniform_(self.B_3, -bound, bound)
+        # init.xavier_uniform_(self.W_3)
+        # init.xavier_uniform_(self.B_3)
 
-    #     init.kaiming_uniform_(self.W_4, a=np.sqrt(5))
-    #     fan_in, _ = init._calculate_fan_in_and_fan_out(self.W_4)
-    #     bound = 1 / np.sqrt(fan_in)
-    #     init.uniform_(self.B_4, -bound, bound)
+        # init.xavier_uniform_(self.W_4)
+        # init.xavier_uniform_(self.B_4)
 
+        # init.xavier_uniform_(self.W_5)
+        # init.xavier_uniform_(self.B_5)
 
+        # init.xavier_uniform_(self.W_6)
+        # init.xavier_uniform_(self.B_6)
+
+        # init.xavier_uniform_(self.W_7)
+        # init.xavier_uniform_(self.B_7)
+
+        # init.xavier_uniform_(self.W_8)
+        # init.xavier_uniform_(self.B_8)
+        pass
 # dct at the beginning and idct at the end
 
 def dct(x, norm=None):
@@ -130,8 +134,10 @@ def dct(x, norm=None):
 
     v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1)
 
-    # Vc = torch.rfft(v, 1, onesided=False)
-    Vc = torch.view_as_real(torch.fft.fft(v))
+    if torch.__version__ > "1.7.1":
+        Vc = torch.view_as_real(torch.fft.fft(v))
+    else:
+        Vc = torch.rfft(v, 1, onesided=False)
 
     k = (- torch.arange(N, dtype=x.dtype)[None, :] * np.pi / (2 * N)).to(device)
     W_r = torch.cos(k)
@@ -183,8 +189,11 @@ def idct(X, norm=None):
 
     V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
 
-    # v = torch.irfft(V, 1, onesided=False)
-    v = torch.fft.ifft(torch.view_as_complex(V)).real
+    if torch.__version__ > "1.7.1":
+        v = torch.fft.ifft(torch.view_as_complex(V)).real
+    else:
+        v = torch.irfft(V, 1, onesided=False)
+
     x = v.new_zeros(v.shape)
     x[:, ::2] += v[:, :N - (N // 2)]
     x[:, 1::2] += v.flip([1])[:, :N // 2]
@@ -279,7 +288,7 @@ def build(decomp=True):
 
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
-lr0 = 0.1
+lr0 = 0.01
 
 
 def query_lr(epoch):
@@ -296,7 +305,6 @@ def set_lr(optimizer, epoch):
 
 def test(epoch, net, best_acc, test_acc_list, test_loss_list):
     net.eval()
-    net.training = False
     test_loss = 0
     correct = 0
     total = 0
@@ -317,7 +325,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
 
         # Save checkpoint when best model
         acc = 100.* correct / total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch, loss.item(), acc))
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch+1, loss.item(), acc))
 
         if acc > best_acc:
             best_acc = acc
@@ -347,8 +355,8 @@ def train(num_epochs, net):
             correct = 0
             total = 0
 
-            current_lr = set_lr(optimizer, epoch)
-            print('\n=> Training Epoch #%d, LR=%.4f' %(epoch+1, current_lr))
+            # current_lr = set_lr(optimizer, epoch)  # comment this code if use fixed learning rate
+            print('\n=> Training Epoch #%d, LR=%.7f' %(epoch+1, current_lr))
             for batch_idx, (img, targets) in enumerate(trainloader):
                 img = raw_img(img, batch_size, n=28)
                 img, targets = img.to(device), targets.to(device)
@@ -391,7 +399,7 @@ def train(num_epochs, net):
 
 def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
-    with open('tnn_4_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open('tnn_8_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
         f_csv.writerow(['Test Loss:'])
         f_csv.writerows(enumerate(test_loss,1))
@@ -406,7 +414,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     fig = plt.figure(1)
     sub1 = plt.subplot(1, 2, 1)
     plt.sca(sub1)
-    plt.title('tNN-4 Loss on MNIST ')
+    plt.title('tNN-8 Loss on MNIST ')
     plt.plot(np.arange(len(test_loss)), test_loss, color='red', label='TestLoss',linestyle='-')
     plt.plot(np.arange(len(train_loss)), train_loss, color='blue', label='TrainLoss',linestyle='--')
     plt.xlabel('Epoch')
@@ -415,7 +423,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
     sub2 = plt.subplot(1, 2, 2)
     plt.sca(sub2)
-    plt.title('tNN-4 Accuracy on MNIST ')
+    plt.title('tNN-8 Accuracy on MNIST ')
     plt.plot(np.arange(len(test_acc)), test_acc, color='green', label='TestAcc',linestyle='-')
     plt.plot(np.arange(len(train_acc)), train_acc, color='orange', label='TrainAcc',linestyle='--')
     plt.xlabel('Epoch')
@@ -424,11 +432,11 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     plt.legend()
     plt.show()
 
-    plt.savefig('./tnn_4_mnist.jpg')
+    plt.savefig('./tnn_8_mnist.jpg')
 
 
 if __name__ == "__main__":
     net = build(decomp=False)
     print(net)
-    train_loss, train_acc, test_loss, test_acc = train(100, net)
+    train_loss, train_acc, test_loss, test_acc = train(300, net)
     save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
