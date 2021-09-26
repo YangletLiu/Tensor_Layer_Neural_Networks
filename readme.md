@@ -7,9 +7,9 @@
 |4-layer FC (decomposed)|de_fcn_4_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80% |100|0.05|64|xavier normal|SGD with 0.9 momentum
 |8-layer FC (decomposed)|de_fcn_8_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86% |100|0.001|64|xavier normal|SGD with 0.9 momentum
 |4-layer tNN |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%|100|0.1|100|random|SGD with 0.9 momentum
-|4-layer tNN **(in reference)**| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|<98.0%|300|0.1|100|not mentioned|SGD with 0.9 momentum
+|4-layer tNN **(in reference)**|-| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|<98.0%|300|0.1|100|not mentioned|SGD with 0.9 momentum
 |8-layer tNN |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%|100|0.1|100|random|SGD with 0.9 momentum
-|8-layer tNN **(in reference)**| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|~98%|300|0.1|100|not mentioned|SGD with 0.9 momentum
+|8-layer tNN **(in reference)**|-| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|~98%|300|0.1|100|not mentioned|SGD with 0.9 momentum
 
 ## CIFAR 10 Task
 |Network|File name|Network structure|Test accuracy|#Epoch|Learning rate|Batch size|Initialization method|Optimizer
@@ -18,7 +18,7 @@
 |8-layer FC|fcn_8_cifar10.py|[3072, 4096, 4096, 2048, 2048, 1024, 1024, 512, 10]|57.61%|100|0.001|64|random|SGD with 0.9 momentum
 |4-layer FC|de_fcn_4_cifar10.py (decomposed)|[3072, 16, 4096, 16, 2048, 16, 1024, 10]|46.75%(need to be tuned)|100|0.005|64|xavier normal|SGD with 0.9 momentum
 |8-layer FC (decomposed)|de_fcn_8_cifar10.py|[3072, 16, 4096, 16, 4096, 16, 20416, 16, 20416, 16, 1024, 16, 1024, 16, 512, 10]|44.90%(need to be tuned)|100|0.001|64|xavier normal|SGD with 0.9 momentum
-|8-layer CNN|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.70% | 300 | 0.01 | 128 | Random | SGD with 0.9 momentum
+|8-layer CNN|cnn_8_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.70% | 300 | 0.01 | 128 | Random | SGD with 0.9 momentum
 |3 8-layer dct CNNs|multi_cnn_8_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] x 3|[89.49%, 74.52%, 66.04%]|300|[0.001, 0.001, 0.001]|128|Random|SGD with 0.9 momentum
 
 ![avatar](./figs/mnist_acc.png)
