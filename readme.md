@@ -20,6 +20,7 @@
 |8-layer FC (decomposed)|[3072, 16, 4096, 16, 4096, 16, 20416, 16, 20416, 16, 1024, 16, 1024, 16, 512, 10]|44.90%(need to be tuned)|100|0.001|64|xavier normal|SGD with 0.9 momentum
 |8-layer CNN|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.70% | 300 | 0.01 | 128 | Random | SGD with 0.9 momentum
 |3 8-layer dct CNNs|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] x 3|[89.49%, 74.52%, 66.04%]|300|[0.001, 0.001, 0.001]|128|Random|SGD with 0.9 momentum
+
 ![avatar](./figs/mnist_acc.png)
 <!-- ![avatar](./figs/mnist_loss.png) -->
 ##  File structure
