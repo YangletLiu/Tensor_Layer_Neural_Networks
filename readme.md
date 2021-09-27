@@ -23,4 +23,5 @@
 |3 8-layer dct CNNs|multi_cnn_8_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] x 3|[89.49%, 74.52%, 66.04%]|300|[0.001, 0.001, 0.001]|128|Random|SGD with 0.9 momentum
 
 ![avatar](./figs/mnist_acc.png)
-<!-- ![avatar](./figs/mnist_loss.png) -->
+![avatar](./figs/mnist_loss.png)
+![avatar](./figs/multi_cnn_8_cifar10.png)
