@@ -234,7 +234,8 @@ def build(decomp=True):
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
 lr0 = [0.001, 0.001, 0.001]
-
+fusing_num = 4
+fusing_plan = [[0, 1], [1, 2], [0, 2], [0, 1, 2]]
 
 def query_lr(epoch):
     lr = lr0
@@ -246,6 +247,88 @@ def set_lr(optimizer, epoch):
     for param_group in optimizer.param_groups:
         param_group['lr'] = current_lr
     return current_lr
+
+
+def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_weight=None):
+    for net in nets:
+        net.eval()
+    test_loss = [0] * num_nets
+    correct = [0] * num_nets
+    total = [0] * num_nets
+    outputs = [0] * num_nets
+
+    fusing_test_loss = [0] * fusing_num
+    fusing_correct = [0] * fusing_num
+    fusing_total = [0] * fusing_num
+    fusing_outputs = [0] * fusing_num
+    if fusing_weight == None:
+        fusing_weight = [1. / fusing_num] * fusing_num
+
+    with torch.no_grad():
+        for batch_idx, (img, targets) in enumerate(testloader):
+            img, targets = img.to(device), targets.to(device)
+            img = dct(img.permute([0, 2, 3, 1])).permute([0, 3, 1, 2])
+
+            for i in range(num_nets):
+                outputs[i] = nets[i](img[:, i, :, :].unsqueeze(dim=1))
+                loss = criterion(outputs[i], targets)
+
+                test_loss[i] += loss.item()
+                _, predicted = torch.max(outputs[i].data, 1)
+                total[i] += targets.size(0)
+                correct[i] += predicted.eq(targets.data).cpu().sum().item()
+
+            #########################################
+            ########### Fusing 2 networks ###########
+            for plan_id in range(fusing_num):
+                fusing_outputs[plan_id] = 0.
+                fusing_weight_sum = 0.
+                for net_idx in fusing_plan[plan_id]:
+                    fusing_outputs[plan_id] += fusing_weight[net_idx] * outputs[net_idx]
+                    fusing_weight_sum += fusing_weight[net_idx]
+                fusing_outputs[plan_id] /= fusing_weight_sum
+
+                fusing_loss = criterion(fusing_outputs[plan_id], targets)
+
+                fusing_test_loss[plan_id] += fusing_loss.item()
+                _, predicted = torch.max(fusing_outputs[plan_id].data, 1)
+                fusing_total[plan_id] += targets.size(0)
+                fusing_correct[plan_id] += predicted.eq(targets.data).cpu().sum().item()
+
+            #########################################
+            #########################################
+
+        # Save checkpoint when best model
+        acc = [0] * num_nets
+        for i in range(num_nets):
+            acc[i] = 100. * correct[i] / total[i]
+
+        fusing_acc = [0] * fusing_num
+        for i in range(fusing_num):
+            fusing_acc[i] = 100. * fusing_correct[i] / fusing_total[i]
+
+        print("\n| Validation Epoch #%d\t\tLoss: [%.4f, %.4f, %.4f] Acc: [%.2f%%, %.2f%%, %.2f%%]   " 
+              %(epoch+1, test_loss[0], test_loss[1], test_loss[2], acc[0], acc[1], acc[2]))
+
+        print("| Fusing Loss: [%.4f, %.4f, %.4f, %.4f] Fusing Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%]   " 
+              %(fusing_test_loss[0], fusing_test_loss[1], fusing_test_loss[2], fusing_test_loss[3], 
+                fusing_acc[0], fusing_acc[1], fusing_acc[2], fusing_acc[3]))
+
+        for i in range(num_nets):
+            if acc[i] > best_acc[i]:
+                best_acc[i] = acc[i]
+                # torch.save(nets[i], "./multi_cnn_8_channel_{}.pth".format(i))
+
+        for i in range(fusing_num):
+            if fusing_acc[i] > best_fusing_acc[i]:
+                best_fusing_acc[i] = fusing_acc[i]
+        
+        test_acc_list.append(acc)
+        test_loss_list.append([test_loss[i] / num_test for i in range(num_nets)])
+
+        fusing_test_acc_list.append(fusing_acc)
+        fusing_test_loss_list.append([fusing_test_loss[i] / num_test for i in range(fusing_num)])
+    return best_acc, best_fusing_acc
 
 
 def test_multi_nets(epoch, nets, best_acc, test_acc_list, test_loss_list):
@@ -274,7 +357,7 @@ def test_multi_nets(epoch, nets, best_acc, test_acc_list, test_loss_list):
         acc = [0] * num_nets
         for i in range(num_nets):
             acc[i] = 100. * correct[i] / total[i]
-        print("\n| Validation Epoch #%d\t\t\tLoss: [%.4f, %.4f, %.4f] Acc: [%.2f%%, %.2f%%, %.2f%%]   " 
+        print("\n| Validation Epoch #%d\t\tLoss: [%.4f, %.4f, %.4f] Acc: [%.2f%%, %.2f%%, %.2f%%]   " 
               %(epoch+1, test_loss[0], test_loss[1], test_loss[2], acc[0], acc[1], acc[2]))
 
         for i in range(num_nets):
@@ -291,6 +374,9 @@ def train_multi_nets(num_epochs, nets):
     train_acc_list, train_loss_list = [], []
     test_acc_list, test_loss_list = [], []
     best_acc = [0.] * num_nets
+
+    fusing_test_acc_list, fusing_test_loss_list = [], []
+    best_fusing_acc = [0.] * fusing_num
 
     start_time = time.time()
 
@@ -334,24 +420,31 @@ def train_multi_nets(num_epochs, nets):
                           100.*correct[0]/total[0], 100.*correct[1]/total[1], 100.*correct[2]/total[2]))
                 sys.stdout.flush()
 
-            best_acc = test_multi_nets(epoch, nets, best_acc, test_acc_list, test_loss_list)
+            fusing_weight = [0] * num_nets
+            for i in range(num_nets):
+                fusing_weight[i] = 1 / np.square(train_loss[i])
+
+            best_acc, best_fusing_acc = test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list,
+                                        fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_weight=fusing_weight)
+
             train_acc_list.append([100.*correct[i]/total[i] for i in range(num_nets)])
             train_loss_list.append([train_loss[i] / num_train for i in range(num_nets)])
             now_time = time.time()
             print("| Best Acc: [%.2f%%, %.2f%%, %.2f%%] "%(best_acc[0], best_acc[1], best_acc[2]))
+            print("| Best Fusing Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%] "%(best_fusing_acc[0], best_fusing_acc[1], best_fusing_acc[2], best_fusing_acc[3]))
             print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
     except KeyboardInterrupt:
         pass
 
     print("\nBest training accuracy overall: [%.3f%%, %.3f%%, %.3f%%] "%(best_acc[0], best_acc[1], best_acc[2]))
 
-    return train_loss_list, train_acc_list, test_loss_list, test_acc_list
+    return train_loss_list, train_acc_list, test_loss_list, test_acc_list, fusing_test_loss_list, fusing_test_acc_list
 
 
-def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
+def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test_loss, fusing_test_acc):
 
     # write csv
-    with open('multi_cnn_8_cifar10_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open('fusing_multi_cnn_8_cifar10_testloss_trainloss_w.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
 
         f_csv.writerow(["Test Acc:"])
@@ -362,6 +455,14 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
         for idx in range(len(test_loss)):
             f_csv.writerow([idx + 1] + test_loss[idx])
 
+        f_csv.writerow(["Fusing Test Acc:"] + fusing_plan)
+        for idx in range(len(fusing_test_acc)):
+            f_csv.writerow([idx + 1] + fusing_test_acc[idx])
+
+        f_csv.writerow(["Fusing Test Loss:"] + fusing_plan)
+        for idx in range(len(test_loss)):
+            f_csv.writerow([idx + 1] + fusing_test_loss[idx])
+            
         f_csv.writerow(["Train Acc"])
         for idx in range(len(train_acc)):
             f_csv.writerow([idx + 1] + train_acc[idx])
@@ -373,6 +474,8 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # draw picture
     test_acc = np.array(test_acc)
     test_loss = np.array(test_loss)
+    fusing_test_acc = np.array(fusing_test_acc)
+    fusing_test_loss = np.array(fusing_test_loss)
     train_acc = np.array(train_acc)
     train_loss = np.array(train_loss)
 
@@ -383,6 +486,8 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     plt.title('multi-cnn-8 Loss on CIFAR10 ')
     for i in range(num_nets):
         plt.plot(np.arange(len(test_loss[:, i])), test_loss[:, i], label='TestLoss_{}'.format(i+1),linestyle='-')
+    for i in range(fusing_num):
+        plt.plot(np.arange(len(fusing_test_loss[:, i])), fusing_test_loss[:, i], label='FusingTestLoss_{}'.format(i+1),linestyle='-')
     for i in range(num_nets):
         plt.plot(np.arange(len(train_loss[:, i])), train_loss[:, i], label='TrainLoss_{}'.format(i+1),linestyle='--')
     plt.xlabel('Epoch')
@@ -394,6 +499,8 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     plt.title('multi-cnn-8 Accuracy on CIFAR10 ')
     for i in range(num_nets):
         plt.plot(np.arange(len(test_acc[:, i])), test_acc[:, i], label='TestAcc_{}'.format(i+1),linestyle='-')
+    for i in range(fusing_num):
+        plt.plot(np.arange(len(fusing_test_acc[:, i])), fusing_test_acc[:, i], label='FusingTestAcc_{}'.format(i+1),linestyle='-')
     for i in range(num_nets):
         plt.plot(np.arange(len(train_acc[:, i])), train_acc[:, i], label='TrainAcc_{}'.format(i+1),linestyle='--')
     plt.xlabel('Epoch')
@@ -402,7 +509,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     plt.legend()
     plt.show()
 
-    plt.savefig('./multi_cnn_8_cifar10.jpg')
+    plt.savefig('./fusing_multi_cnn_8_cifar10_trainloss_w.jpg')
 
 
 if __name__ == "__main__":
@@ -410,5 +517,5 @@ if __name__ == "__main__":
     for _ in range(num_nets):
         raw_nets.append(build(decomp=False))
     print(raw_nets[0])
-    train_loss_, train_acc_, test_loss_, test_acc_ = train_multi_nets(300, raw_nets)
-    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)
+    train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_ = train_multi_nets(300, raw_nets)
+    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_)
