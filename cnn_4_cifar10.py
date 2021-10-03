@@ -1,14 +1,11 @@
 ######################### 0. import packages #############################
 import time
 import torch
-import torch.nn.functional as F
 from torch import nn
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import os
 import sys
 
 
@@ -104,7 +101,7 @@ def build(decomp=False):
 
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
-lr0 = 0.005
+lr0 = 0.01
 
 
 def query_lr(epoch):
@@ -134,7 +131,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
             test_loss += loss.item()
             _, predicted = torch.max(outputs.data, 1)
             total += targets.size(0)
-            correct += predicted.eq(targets.data).cpu().sum()
+            correct += predicted.eq(targets.data).cpu().sum().item()
 
         # Save checkpoint when best model
         acc = 100.* correct / total
@@ -181,7 +178,7 @@ def train(num_epochs, net):
                 train_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
                 total += targets.size(0)
-                correct += predicted.eq(targets.data).cpu().sum()
+                correct += predicted.eq(targets.data).cpu().sum().item()
 
                 sys.stdout.write('\r')
                 sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%   '
@@ -207,14 +204,13 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
     with open('cnn_4_cifar10_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
+        f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Test Loss:'])
         f_csv.writerows(enumerate(test_loss,1))
-        f_csv.writerow(['Train Loss:'])
-        f_csv.writerows(enumerate(train_loss,1))
-        f_csv.writerow(['Test Acc:'])
-        f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Train Acc:'])
         f_csv.writerows(enumerate(train_acc,1))
+        f_csv.writerow(['Train Loss:'])
+        f_csv.writerows(enumerate(train_loss,1))
 
     # draw picture
     fig = plt.figure(1)
@@ -242,7 +238,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
 
 if __name__ == "__main__":
-    net = build(decomp=False)
-    print(net)
-    train_loss, train_acc, test_loss, test_acc = train(300, net)
-    save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
+    raw_net = build(decomp=False)
+    print(raw_net)
+    train_loss_, train_acc_, test_loss_, test_acc_ = train(300, raw_net)
+    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)

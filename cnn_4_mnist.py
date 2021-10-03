@@ -1,14 +1,11 @@
 ######################### 0. import packages #############################
 import time
 import torch
-import torch.nn.functional as F
 from torch import nn
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import os
 import sys
 
 
@@ -27,7 +24,7 @@ transform_test = transforms.Compose([
                                       (0.1307,), (0.3081,))
                               ])
 
-batch_size = 128
+batch_size = 64
 trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 num_train = len(trainset)
@@ -61,6 +58,7 @@ class CNN4MNIST(nn.Module):
                 padding=1
             ),
             nn.ReLU(True),
+            nn.Dropout2d(p=0.05),
             nn.MaxPool2d(kernel_size=2)
         )
         self.conv3 = nn.Sequential(
@@ -74,7 +72,10 @@ class CNN4MNIST(nn.Module):
             nn.ReLU(True),
             nn.MaxPool2d(kernel_size=2)
         )
-        self.pred = nn.Linear(32*3*3,10)
+        self.pred = nn.Sequential(
+            nn.Dropout(p=0.1),
+            nn.Linear(32*3*3,10)
+        )
 
     def forward(self,x):
         x = self.conv1(x)
@@ -90,9 +91,6 @@ class CNN4MNIST(nn.Module):
 def build(decomp=False):
     print('==> Building model..')
     full_net = CNN4MNIST()
-    # print(full_net)
-    # full_net.apply(weight_init)
-    full_net = full_net.to(device)
     print('==> Done')
     return full_net
 
@@ -116,7 +114,6 @@ def set_lr(optimizer, epoch):
 
 def test(epoch, net, best_acc, test_acc_list, test_loss_list):
     net.eval()
-    net.training = False
     test_loss = 0
     correct = 0
     total = 0
@@ -130,7 +127,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
             test_loss += loss.item()
             _, predicted = torch.max(outputs.data, 1)
             total += targets.size(0)
-            correct += predicted.eq(targets.data).cpu().sum()
+            correct += predicted.eq(targets.data).cpu().sum().item()
 
         # Save checkpoint when best model
         acc = 100.* correct / total
@@ -153,14 +150,13 @@ def train(num_epochs, net):
     original_time = time.asctime(time.localtime(time.time()))
     start_time = time.time()
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
     # optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
     current_lr = lr0
 
     try:
         for epoch in range(num_epochs):
             net.train()
-            net.training = True
             train_loss = 0
             correct = 0
             total = 0
@@ -178,7 +174,7 @@ def train(num_epochs, net):
                 train_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
                 total += targets.size(0)
-                correct += predicted.eq(targets.data).cpu().sum()
+                correct += predicted.eq(targets.data).cpu().sum().item()
 
                 sys.stdout.write('\r')
                 sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%   '
@@ -186,8 +182,6 @@ def train(num_epochs, net):
                             (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total))
                 sys.stdout.flush()
 
-            # scheduler.step()
-            # current_lr = scheduler.get_last_lr()[0]  # query_lr(epoch)
             best_acc = test(epoch, net, best_acc, test_acc_list, test_loss_list)
             train_acc_list.append(100.*correct/total)
             train_loss_list.append(train_loss / num_train)
@@ -206,14 +200,13 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
     with open('cnn_4_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
+        f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Test Loss:'])
         f_csv.writerows(enumerate(test_loss,1))
-        f_csv.writerow(['Train Loss:'])
-        f_csv.writerows(enumerate(train_loss,1))
-        f_csv.writerow(['Test Acc:'])
-        f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Train Acc:'])
         f_csv.writerows(enumerate(train_acc,1))
+        f_csv.writerow(['Train Loss:'])
+        f_csv.writerows(enumerate(train_loss,1))
 
     # draw picture
     fig = plt.figure(1)
@@ -241,7 +234,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
 
 if __name__ == "__main__":
-    net = build(decomp=False)
-    print(net)
-    train_loss, train_acc, test_loss, test_acc = train(100, net)
-    save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
+    raw_net = build(decomp=False)
+    print(raw_net)
+    train_loss_, train_acc_, test_loss_, test_acc_ = train(100, raw_net)
+    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)

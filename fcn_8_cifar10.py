@@ -1,14 +1,11 @@
 ######################### 0. import packages #############################
 import time
 import torch
-import torch.nn.functional as F
 from torch import nn
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import os
 import sys
 
 
@@ -119,8 +116,9 @@ def low_rank_matrix_decompose_nested_FC_layer(layer):
             fc_layer = l
             sp = fc_layer.weight.data.numpy().shape
             # rank = min(max(sp)//8, min(sp))
-            rank = 8
-            modules[key] = low_rank_matrix_decompose_FC_layer(fc_layer, rank)
+            rank = 16
+            if rank < min(sp):
+                modules[key] = low_rank_matrix_decompose_FC_layer(fc_layer, rank)
     return layer
 
 
@@ -134,8 +132,8 @@ def decompose_FC(model, mode):
         if isinstance(layers[key], torch.nn.modules.Linear):
             fc_layer = layers[key]
             sp = fc_layer.weight.data.numpy().shape
-            rank = 8
-            if rank == min(sp):
+            rank = 16
+            if rank >= min(sp):
                 continue
             if mode == "low_rank_matrix":
                 layers[key] = low_rank_matrix_decompose_FC_layer(fc_layer, rank)
@@ -151,7 +149,6 @@ def build(decomp=True):
     full_net = FC8Net(3072, 3072, 3072, 3072, 3072, 3072, 3072, 3072, 10)
     if decomp:
         full_net = decompose_FC(full_net, mode="low_rank_matrix")
-    full_net = full_net.to(device)
     print('==> Done')
     return full_net
 
@@ -175,7 +172,6 @@ def set_lr(optimizer, epoch):
 
 def test(epoch, net, best_acc, test_acc_list, test_loss_list):
     net.eval()
-    net.training = False
     test_loss = 0
     correct = 0
     total = 0
@@ -212,14 +208,13 @@ def train(num_epochs, net):
     original_time = time.asctime(time.localtime(time.time()))
     start_time = time.time()
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
     # optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
     current_lr = lr0
 
     try:
         for epoch in range(num_epochs):
             net.train()
-            net.training = True
             train_loss = 0
             correct = 0
             total = 0
@@ -298,7 +293,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
 
 if __name__ == "__main__":
-    net = build(decomp=False)
-    print(net)
-    train_loss, train_acc, test_loss, test_acc = train(100, net)
-    save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
+    raw_net = build(decomp=False)
+    print(raw_net)
+    train_loss_, train_acc_, test_loss_, test_acc_ = train(300, raw_net)
+    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)

@@ -222,7 +222,7 @@ def idct(X, norm=None):
     return x.view(*x_shape)
 
 # build model
-def build(decomp=True):
+def build(decomp=False):
     print('==> Building model..')
     full_net = CNN8CIFAR10()
     if decomp:

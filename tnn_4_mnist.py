@@ -1,14 +1,12 @@
+######################### 0. import packages #############################
 import time
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-import torch.nn.init as init
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import os
 import sys
 
 
@@ -54,7 +52,6 @@ class tNN4MNIST(nn.Module):
         self.B_3 = nn.Parameter(torch.randn(28, 28, 1) * std)
         self.W_4 = nn.Parameter(torch.randn(28, 10, 28) * std)
         self.B_4 = nn.Parameter(torch.randn(28, 10, 1) * std)
-        # self.reset_parameters()
 
     def forward(self, x):
         """
@@ -73,41 +70,6 @@ class tNN4MNIST(nn.Module):
         x = torch_tensor_product(self.W_4, x) + self.B_4
         return x
 
-    def reset_parameters(self):
-        init.kaiming_uniform_(self.W_1, a=np.sqrt(5))
-        fan_in, _ = init._calculate_fan_in_and_fan_out(self.W_1)
-        bound = 1 / np.sqrt(fan_in)
-        init.uniform_(self.B_1, -bound, bound)
-
-        init.kaiming_uniform_(self.W_2, a=np.sqrt(5))
-        fan_in, _ = init._calculate_fan_in_and_fan_out(self.W_2)
-        bound = 1 / np.sqrt(fan_in)
-        init.uniform_(self.B_2, -bound, bound)
-
-        init.kaiming_uniform_(self.W_3, a=np.sqrt(5))
-        fan_in, _ = init._calculate_fan_in_and_fan_out(self.W_3)
-        bound = 1 / np.sqrt(fan_in)
-        init.uniform_(self.B_3, -bound, bound)
-
-        init.kaiming_uniform_(self.W_4, a=np.sqrt(5))
-        fan_in, _ = init._calculate_fan_in_and_fan_out(self.W_4)
-        bound = 1 / np.sqrt(fan_in)
-        init.uniform_(self.B_4, -bound, bound)
-
-        # std = 0.0001
-        # init.kaiming_normal_(self.W_1)
-        # init.kaiming_normal_(self.B_1)
-
-        # init.kaiming_normal_(self.W_2)
-        # init.kaiming_normal_(self.B_2)
-
-        # init.kaiming_normal_(self.W_3)
-        # init.kaiming_normal_(self.B_3)
-
-        # init.kaiming_normal_(self.W_4)
-        # init.kaiming_normal_(self.B_4)
-        # print(self.W_1)
-        # print(self.B_1)
 # dct at the beginning and idct at the end
 
 def dct(x, norm=None):
@@ -222,7 +184,6 @@ def h_func_dct(lateral_slice):
 
     tubes = [dct_slice[i, :, 0] for i in range(l)]
 
-
     # todo: parallelism here, use tensor's batch operation
     h_tubes = []
     for tube in tubes:
@@ -261,19 +222,18 @@ def raw_img(img):
 
 
 # build model
-def build(decomp=True):
+def build(decomp=False):
     print('==> Building model..')
     full_net = tNN4MNIST()
     if decomp:
         raise("No Tensor Neural Network decompostion implementation.")
-    full_net = full_net.to(device)
     print('==> Done')
     return full_net
 
 
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
-lr0 = 0.01
+lr0 = 0.1
 
 
 def query_lr(epoch):
@@ -387,14 +347,13 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
     with open('tnn_4_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
+        f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Test Loss:'])
         f_csv.writerows(enumerate(test_loss,1))
-        f_csv.writerow(['Train Loss:'])
-        f_csv.writerows(enumerate(train_loss,1))
-        f_csv.writerow(['Test Acc:'])
-        f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Train Acc:'])
         f_csv.writerows(enumerate(train_acc,1))
+        f_csv.writerow(['Train Loss:'])
+        f_csv.writerows(enumerate(train_loss,1))
 
     # draw picture
     fig = plt.figure(1)
@@ -422,7 +381,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
 
 if __name__ == "__main__":
-    net = build(decomp=False)
-    print(net)
-    train_loss, train_acc, test_loss, test_acc = train(300, net)
-    save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
+    raw_net = build(decomp=False)
+    print(raw_net)
+    train_loss_, train_acc_, test_loss_, test_acc_ = train(300, raw_net)
+    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)

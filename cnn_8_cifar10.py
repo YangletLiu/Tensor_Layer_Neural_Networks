@@ -1,14 +1,11 @@
 ######################### 0. import packages #############################
 import time
 import torch
-import torch.nn.functional as F
 from torch import nn
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import os
 import sys
 
 
@@ -143,7 +140,6 @@ class CNN8CIFAR10(nn.Module):
 def build(decomp=False):
     print('==> Building model..')
     full_net = CNN8CIFAR10()
-    full_net = full_net.to(device)
     print('==> Done')
     return full_net
 
@@ -167,7 +163,6 @@ def set_lr(optimizer, epoch):
 
 def test(epoch, net, best_acc, test_acc_list, test_loss_list):
     net.eval()
-    net.training = False
     test_loss = 0
     correct = 0
     total = 0
@@ -181,7 +176,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
             test_loss += loss.item()
             _, predicted = torch.max(outputs.data, 1)
             total += targets.size(0)
-            correct += predicted.eq(targets.data).cpu().sum()
+            correct += predicted.eq(targets.data).cpu().sum().item()
 
         # Save checkpoint when best model
         acc = 100.* correct / total
@@ -211,7 +206,6 @@ def train(num_epochs, net):
     try:
         for epoch in range(num_epochs):
             net.train()
-            net.training = True
             train_loss = 0
             correct = 0
             total = 0
@@ -229,7 +223,7 @@ def train(num_epochs, net):
                 train_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
                 total += targets.size(0)
-                correct += predicted.eq(targets.data).cpu().sum()
+                correct += predicted.eq(targets.data).cpu().sum().item()
 
                 sys.stdout.write('\r')
                 sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%   '
@@ -237,8 +231,6 @@ def train(num_epochs, net):
                             (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total))
                 sys.stdout.flush()
 
-            # scheduler.step()
-            # current_lr = scheduler.get_last_lr()[0]  # query_lr(epoch)
             best_acc = test(epoch, net, best_acc, test_acc_list, test_loss_list)
             train_acc_list.append(100.*correct/total)
             train_loss_list.append(train_loss / num_train)
@@ -257,14 +249,14 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
     with open('cnn_8_cifar10_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
-        f_csv.writerow(['Test Loss:'])
-        f_csv.writerows(enumerate(test_loss,1))
-        f_csv.writerow(['Train Loss:'])
-        f_csv.writerows(enumerate(train_loss,1))
         f_csv.writerow(['Test Acc:'])
         f_csv.writerows(enumerate(test_acc,1))
+        f_csv.writerow(['Test Loss:'])
+        f_csv.writerows(enumerate(test_loss,1))
         f_csv.writerow(['Train Acc:'])
         f_csv.writerows(enumerate(train_acc,1))
+        f_csv.writerow(['Train Loss:'])
+        f_csv.writerows(enumerate(train_loss,1))
 
     # draw picture
     fig = plt.figure(1)
@@ -292,7 +284,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
 
 if __name__ == "__main__":
-    net = build(decomp=False)
-    print(net)
-    train_loss, train_acc, test_loss, test_acc = train(300, net)
-    save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
+    raw_net = build(decomp=False)
+    print(raw_net)
+    train_loss_, train_acc_, test_loss_, test_acc_ = train(300, raw_net)
+    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)

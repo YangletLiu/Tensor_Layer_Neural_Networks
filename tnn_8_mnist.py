@@ -1,14 +1,13 @@
+######################### 0. import packages #############################
 import time
 import torch
 import torch.nn.functional as F
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-import torch.nn.init as init
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import os
 import sys
 
 
@@ -38,9 +37,9 @@ num_test = len(testset)
 
 
 # define nn module
-class tNN4MNIST(nn.Module):
+class tNN8MNIST(nn.Module):
     def __init__(self):
-        super(tNN4MNIST, self).__init__()
+        super(tNN8MNIST, self).__init__()
         """
         use the nn.Parameter() and 'requires_grad = True' 
         to customize parameters which are needed to optimize
@@ -62,7 +61,6 @@ class tNN4MNIST(nn.Module):
         self.B_7 = nn.Parameter(torch.randn(28, 28, 1) * std)
         self.W_8 = nn.Parameter(torch.randn(28, 10, 28) * std)
         self.B_8 = nn.Parameter(torch.randn(28, 10, 1) * std)
-        self.reset_parameters()
 
     def forward(self, x):
         """
@@ -72,7 +70,6 @@ class tNN4MNIST(nn.Module):
         :return: this demo defines an one-layer networks,
                     whose output is processed by one-time tensor-product and activation
         """
-
         x = torch_tensor_product(self.W_1, x) + self.B_1
         x = F.relu(x)
         x = torch_tensor_product(self.W_2, x) + self.B_2
@@ -90,31 +87,6 @@ class tNN4MNIST(nn.Module):
         x = torch_tensor_product(self.W_8, x) + self.B_8
         return x
 
-    def reset_parameters(self):
-        # init.xavier_uniform_(self.W_1)
-        # init.xavier_uniform_(self.B_1)
-
-        # init.xavier_uniform_(self.W_2)
-        # init.xavier_uniform_(self.B_2)
-
-        # init.xavier_uniform_(self.W_3)
-        # init.xavier_uniform_(self.B_3)
-
-        # init.xavier_uniform_(self.W_4)
-        # init.xavier_uniform_(self.B_4)
-
-        # init.xavier_uniform_(self.W_5)
-        # init.xavier_uniform_(self.B_5)
-
-        # init.xavier_uniform_(self.W_6)
-        # init.xavier_uniform_(self.B_6)
-
-        # init.xavier_uniform_(self.W_7)
-        # init.xavier_uniform_(self.B_7)
-
-        # init.xavier_uniform_(self.W_8)
-        # init.xavier_uniform_(self.B_8)
-        pass
 # dct at the beginning and idct at the end
 
 def dct(x, norm=None):
@@ -203,22 +175,10 @@ def idct(X, norm=None):
 
 # circulant convolution part
 def torch_tensor_Bcirc(tensor, l, m, n):
-    tensor_blocks = torch.split(tensor, split_size_or_sections=1, dim=0)
-    tensor_blocks = list(tensor_blocks)
-    tensor_blocks.reverse()
-
-    circ_slices = []
+    bcirc_A = []
     for i in range(l):
-        tensor_blocks.insert(0, tensor_blocks.pop())
-        for j in tensor_blocks:
-            circ_slices.append(j.reshape(m, n))
-
-    circ = []
-    for i in range(l):
-        circ.append(torch.cat(circ_slices[l * i:l * i + l], dim=1))
-    ulti_circ = torch.cat(circ).reshape(l * m, l * n)
-
-    return ulti_circ
+        bcirc_A.append(torch.roll(tensor, shifts=i, dims=0))
+    return torch.cat(bcirc_A, dim=2).reshape(l * m, l * n)
 
 
 def torch_tensor_product(tensorA, tensorB):
@@ -241,10 +201,12 @@ def h_func_dct(lateral_slice):
 
     tubes = [dct_slice[i, :, 0] for i in range(l)]
 
+    # todo: parallelism here, use tensor's batch operation
     h_tubes = []
     for tube in tubes:
         tube_sum = torch.sum(torch.exp(tube))
         h_tubes.append(torch.exp(tube) / tube_sum)
+    #######################################################
 
     res_slice = torch.stack(h_tubes, dim=0).reshape(l, m, n)
 
@@ -267,28 +229,28 @@ def scalar_tubal_func(output_tensor):
 
 
 # process raw
-def raw_img(img, batch_size, n):
-    img_raw = img.reshape(batch_size, n * n)
-    single_img = torch.split(img_raw, split_size_or_sections=1, dim=0)
-    single_img_T = [torch.transpose(i.reshape(n, n, 1), 0, 1) for i in single_img]
-    ultra_img = torch.cat(single_img_T, dim=2)
+def raw_img(img):
+    """
+        :param img: (batch_size, channel=1, n1, n2)
+        :return (n2, n1, batch_size)
+    """
+    ultra_img = torch.squeeze(img).permute([2, 1, 0])
     return ultra_img
 
 
 # build model
-def build(decomp=True):
+def build(decomp=False):
     print('==> Building model..')
-    full_net = tNN4MNIST()
+    full_net = tNN8MNIST()
     if decomp:
         raise("No Tensor Neural Network decompostion implementation.")
-    full_net = full_net.to(device)
     print('==> Done')
     return full_net
 
 
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
-lr0 = 0.01
+lr0 = 0.1
 
 
 def query_lr(epoch):
@@ -311,7 +273,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
 
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
-            img = raw_img(img, batch_size, n=28)
+            img = raw_img(img)
             img, targets = img.to(device), targets.to(device)
 
             outputs = net(img) / 1e10
@@ -356,15 +318,16 @@ def train(num_epochs, net):
             total = 0
 
             # current_lr = set_lr(optimizer, epoch)  # comment this code if use fixed learning rate
-            print('\n=> Training Epoch #%d, LR=%.7f' %(epoch+1, current_lr))
+            print('\n=> Training Epoch #%d, LR=%.4f' %(epoch+1, current_lr))
             for batch_idx, (img, targets) in enumerate(trainloader):
-                img = raw_img(img, batch_size, n=28)
                 img, targets = img.to(device), targets.to(device)
+                img = raw_img(img)
                 optimizer.zero_grad()
 
                 outputs = net(img) / 1e10
                 # softmax function
                 outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
+
                 loss = criterion(outputs, targets)
                 loss.backward()
                 optimizer.step()
@@ -401,14 +364,13 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
     with open('tnn_8_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
+        f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Test Loss:'])
         f_csv.writerows(enumerate(test_loss,1))
-        f_csv.writerow(['Train Loss:'])
-        f_csv.writerows(enumerate(train_loss,1))
-        f_csv.writerow(['Test Acc:'])
-        f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Train Acc:'])
         f_csv.writerows(enumerate(train_acc,1))
+        f_csv.writerow(['Train Loss:'])
+        f_csv.writerows(enumerate(train_loss,1))
 
     # draw picture
     fig = plt.figure(1)
@@ -436,7 +398,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
 
 if __name__ == "__main__":
-    net = build(decomp=False)
-    print(net)
-    train_loss, train_acc, test_loss, test_acc = train(300, net)
-    save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
+    raw_net = build(decomp=False)
+    print(raw_net)
+    train_loss_, train_acc_, test_loss_, test_acc_ = train(300, raw_net)
+    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)
