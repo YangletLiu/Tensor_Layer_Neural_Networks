@@ -1,10 +1,10 @@
 ## MNIST Dataset
 |Networks|File|Layers|Test accuracy|#Epoch|Learning rate|Batch size|Initialization|Optimizer
 |-|-|-|-|-|-|-|-|-|
-|4-layer FC|fcn_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|100|0.01|64|random|SGD with 0.9 momentum
-|8-layer FC|fcn_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|100|0.01|64|random|SGD with 0.9 momentum
-|4-layer FC (decomposed)|de_fcn_4_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80% |100|0.05|64|xavier normal|SGD with 0.9 momentum
-|8-layer FC (decomposed)|de_fcn_8_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86% |100|0.001|64|xavier normal|SGD with 0.9 momentum
+|FC-4-layer |fcn_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|100|0.01|64|random|SGD with 0.9 momentum
+|FC-8-layer |fcn_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|100|0.01|64|random|SGD with 0.9 momentum
+|FC-4-layer (low-rank)|de_fcn_4_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80% |100|0.05|64|xavier normal|SGD with 0.9 momentum
+|FC-8-layer (low-rank)|de_fcn_8_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86% |100|0.001|64|xavier normal|SGD with 0.9 momentum
 
 ![avatar](./figs/mnist_acc.png)
 
