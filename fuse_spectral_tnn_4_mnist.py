@@ -389,7 +389,7 @@ def train_multi_nets(num_epochs, nets):
 
             fusing_weight = [0] * num_nets
             for i in range(num_nets):
-                fusing_weight[i] = 1 / np.square(train_loss[i])
+                fusing_weight[i] = 1 / train_loss[i]
 
             best_acc, best_fusing_acc = test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list,
                                         fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_weight=fusing_weight)
