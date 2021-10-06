@@ -361,7 +361,7 @@ def train_multi_nets(num_epochs, nets):
             total = [0] * num_nets
             loss = [0] * num_nets
 
-            print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f]' %(epoch+1, current_lr[0], current_lr[1], current_lr[2], current_lr[3]))
+            print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' %(epoch+1, current_lr[0], current_lr[1], current_lr[2], current_lr[3]))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
                 inputs, targets = inputs.to(device), targets.to(device) # GPU settings
                 inputs = dct(inputs)
@@ -426,7 +426,7 @@ def train_multi_nets(num_epochs, nets):
 def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test_loss, fusing_test_acc):
 
     # write csv
-    with open('fusing_tnn_4_mnist_testloss_y.csv','w',newline='',encoding='utf-8') as f:
+    with open('fusing_tnn_4_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
 
         f_csv.writerow(["Test Acc:"])
@@ -491,7 +491,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
     plt.legend()
     plt.show()
 
-    plt.savefig('./fusing_tnn_4_mnist_y.jpg')
+    plt.savefig('./fusing_tnn_4_mnist.jpg')
 
 
 if __name__ == "__main__":
