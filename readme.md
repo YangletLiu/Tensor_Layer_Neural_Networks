@@ -17,7 +17,7 @@ Rank: 16.
 |FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80%|0.05|xavier normal
 |FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86%|0.001|xavier normal
 |tNN-4-layer |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%;<br> <98.0% in [1]|0.1|random
-|tNN-8-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%;<br> $\approx$ 98.0% in [1]|0.01; <br>0.1 in [1]|random
+|tNN-8-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%;<br> ~= 98.0% in [1]|0.01; <br>0.1 in [1]|random
 |Spectral-tensor-4-layer| spectral_tensor_4_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 95.74% | 0.001| random
 |Spectral-tensor-8-layer| spectral_tensor_8_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 95.92% |0.001|random
 
@@ -125,7 +125,22 @@ Optimizer: SGD with momentum = 0.9.
 
 **Our spectral convolutional tensor networks**
 
-1). Add a new channel _m_ to CIFAR images: [_r_, _g_, _b_] -> [_r_, _g_, _b_, _m_], where _m_ is the average of _r_, _g_, _b_ channels. 2. Reorganize the images by arranging the 4 channels in 4 ways: [_r_, _g_, _b_, _m_], [_r_, _g_, _m_, _b_], [_r_, _m_, _g_, _b_], [_m_, _r_, _g_, _b_]. 3. DCT for the reorganized data after 4 kinds of arrangement, respectively. 4. Stack the 4 first channels of the transformed data to obtain tensor data with size of 32x32x4, and feed the tensor data to one CNN. Stack the 4 second channels ... 5. Fuse the outputs of the 4 CNNs for prediction.
+1). Preprocess training dataset:
+
+* Add a new channel _m_ to CIFAR images: [_r_, _g_, _b_] -> [_r_, _g_, _b_, _m_], where _m_ is the average of _r_, _g_, _b_ channels; 
+
+* Reorganize the images by rearranging the 4 channels in 4 ways: [_r_, _g_, _b_, _m_], [_r_, _g_, _m_, _b_], [_r_, _m_, _g_, _b_], [_m_, _r_, _g_, _b_];
+
+* Perform DCT on the 4 rearranged data along the channel-dimension (size 4). For each image the transformed data is a 32 x 32 x 4 tensor with 4 spectrals, where each spectral has a 32 x 32 matrix.
+
+* Split the training dataset into 4 subsets: stack the 4 first spectrals of the 4 transformed data to obtain the first subset; stack the 4 second spectrals of the 4 transformed data to obtain the second subset; and so on.
+
+2). Train 4 subnetworks (8-layer CNN) with training dataset: the 4 data subset as **input** and the corresponding labels as **output**;
+
+3). Obtain the trained 4 subnetworks and corresponding loss values;
+
+4). In the testing phase, use the loss values to set weights as 1/loss; get the 4 processed data of a new image (like in step 1) ) and input them into the 4 trained subnetwork; fuse the 4 outputs by weighted sum to obtain the predicted label.
+
 
 ![avatar](./figs/spectral_cnn_8_cifar10_acc.png)
 
