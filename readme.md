@@ -1,4 +1,7 @@
 ## MNIST Dataset
+
+Image size: 28 x 28.
+
 |Networks|File|Layers|Test accuracy|#Epoch|Learning rate|Batch size|Initialization|Optimizer
 |-|-|-|-|-|-|-|-|-|
 |FC-4-layer |fc_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|100|0.01|64|random|SGD with momentum=0.9
