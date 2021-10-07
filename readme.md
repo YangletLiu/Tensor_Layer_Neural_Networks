@@ -24,7 +24,8 @@ Rank = 16.
 [1] Stable Tensor Neural Networks for Rapid Deep Learning (https://arxiv.org/abs/1811.06569)
 
 Spectral tensor: 
-1). Perform DCT on the data along the width-dimension (size 28), and obtain 28 spectrals (each has a 28 x 1 vector); 
+
+1). Preprocess training dataset: perform DCT on the data along the width-dimension (size 28), and split the training dataset into 28 subsets corresponding to 28 spectrals (for each image, each spectral has a 28 x 1 vector); 
 
 2). Train 28 subnetworks (4-layer and 8-layer FC, respectively) with training dataset: the 28 spectral data as **input** and the corresponding labels as **output**;
 
