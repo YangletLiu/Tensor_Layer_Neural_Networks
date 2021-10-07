@@ -16,8 +16,8 @@ Rank: 16.
 |FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|0.01|random
 |FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80%|0.05|xavier normal
 |FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86%|0.001|xavier normal
-|tNN-4-layer |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%;<br> <98.0% in [1]|0.1|random
-|tNN-8-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%;<br> ~= 98.0% in [1]|0.01; <br>0.1 in [1]|random
+|tNN-4-layer |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%;<br> <98.0% in [1].|0.1|random
+|tNN-8-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%;<br> ~= 98.0% in [1].|0.01; <br>0.1 in [1].|random
 |Spectral-tensor-4-layer| spectral_tensor_4_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 95.74% | 0.001| random
 |Spectral-tensor-8-layer| spectral_tensor_8_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 95.92% |0.001|random
 
