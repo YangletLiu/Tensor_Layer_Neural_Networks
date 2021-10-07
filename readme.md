@@ -123,7 +123,7 @@ Optimizer: SGD with momentum = 0.9.
 |-|-|-|-|-|-|
 |Spectral-convolutional-tensor-8-layer| 4c_spectral_conv_tensor_8_cifar10.py|4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 91.93% | 0.001 | random 
 
-**Our spectral convolutional tensor networks**
+**Our spectral convolutional tensor networks**:
 
 1). Preprocess training dataset:
 
