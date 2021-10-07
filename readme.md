@@ -1,10 +1,10 @@
 ## MNIST Dataset
 |Networks|File|Layers|Test accuracy|#Epoch|Learning rate|Batch size|Initialization|Optimizer
 |-|-|-|-|-|-|-|-|-|
-|FC-4-layer |fc_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|100|0.01|64|random|SGD with 0.9 momentum
-|FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|100|0.01|64|random|SGD with 0.9 momentum
-|FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80% |100|0.05|64|xavier normal|SGD with 0.9 momentum
-|FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86% |100|0.001|64|xavier normal|SGD with 0.9 momentum
+|FC-4-layer |fc_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|100|0.01|64|random|SGD with momentum=0.9
+|FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|100|0.01|64|random|SGD with momentum=0.9
+|FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80% |100|0.05|64|xavier normal|SGD with momentum=0.9 
+|FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86% |100|0.001|64|xavier normal|SGD with  momentum=0.9
 
 ![avatar](./figs/mnist_acc.png)
 
@@ -12,12 +12,12 @@
 
 |Networks|File|Layers |Test accuracy|#Epoch|Learning rate|Batch size|Initialization|Optimizer
 |-|-|-|-|-|-|-|-|-|
-|4-layer CNN|cnn_4_mnist.py|[(Conv, ReLU, MaxPool), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.44% | 100 | 0.01 | 64 | random | SGD with 0.9 momentum
-|8-layer CNN|cnn_8_mnist.py|[(Conv, ReLU), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.47% | 100 | 0.01 | 64 | random | SGD with 0.9 momentum
-|4-layer tNN |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%|300|0.1|100|random|SGD with 0.9 momentum
-|4-layer tNN **(in reference)**|-| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|<98.0%|300|0.1|100|not mentioned|SGD with 0.9 momentum
-|8-layer tNN |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%|300|0.01|100|random|SGD with 0.9 momentum
-|8-layer tNN **(in reference)**|-| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|~98%|300|0.1|100|not mentioned|SGD with 0.9 momentum
+|4-layer CNN|cnn_4_mnist.py|[(Conv, ReLU, MaxPool), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.44% | 100 | 0.01 | 64 | random | SGD with momentum=0.9
+|8-layer CNN|cnn_8_mnist.py|[(Conv, ReLU), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.47% | 100 | 0.01 | 64 | random | SGD with momentum=0.9
+|4-layer tNN |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%|300|0.1|100|random|SGD with momentum=0.9
+|4-layer tNN **(in reference)**|-| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|<98.0%|300|0.1|100|not mentioned|SGD with momentum=0.9
+|8-layer tNN |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%|300|0.01|100|random|SGD with momentum=0.9
+|8-layer tNN **(in reference)**|-| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|~98%|300|0.1|100|not mentioned|SGD with momentum=0.9
 
 |Methods|File|Layers|Test accuracy|#Epoch|Learning rate|Batch size|Initialization|Optimizer
 |-|-|-|-|-|-|-|-|-|
