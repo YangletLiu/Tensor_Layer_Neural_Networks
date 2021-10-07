@@ -1,6 +1,6 @@
 ## MNIST Dataset
 
-Image size: 28 x 28.  #Epoch = 100.  Batch size = 64.
+Image size: 28 x 28.  #Epoch = 100 for FC, 300 for tNN and spectral tensor network.  Batch size = 64 for FC, 100 for tNN and spectral tensor network.
 
 Rank = 16.
 
@@ -10,10 +10,23 @@ Rank = 16.
 |FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|0.01|random|SGD with momentum=0.9
 |FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80%|0.05|xavier normal|SGD with momentum=0.9 
 |FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86%|0.001|xavier normal|SGD with  momentum=0.9
+|tNN-4-layer |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%,<98.0% in [1]|0.1|random|SGD with momentum=0.9
+|tNN-4-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%,~=98.0% in [1]|0.01, 0.1 in [1]|random|SGD with momentum=0.9
+|Spectral tensor network| fuse_spectral_tnn_4_mnist.py|[28, 28, 28, 28, 10] x 28 | 95.74% | 0.001| random | SGD with momentum = 0.9
+|Spectral tensor network| fuse_spectral_tnn_8_mnist.py|[28, 28, 28, 28, 28, 28, 28, 28, 10] x 28 | 95.92% |0.001|random | SGD with momentum = 0.9
+
+[1] Stable Tensor Neural Networks for Rapid Deep Learning (https://arxiv.org/abs/1811.06569)
+
+1. DCT (discrete cosine transform) for input data over width-dimension, build 28 8-layer FCNs for the 28 channels of processed data, respectively. 2. Fuse the outputs of the 28 FCNs (for the 28 channels) for prediction.
+
 
 ![avatar](./figs/mnist_acc.png)
 
 ![avatar](./figs/mnist_loss.png)
+
+![avatar](./figs/spectral_tnn_4_mnist_acc.png)
+
+![avatar](./figs/spectral_tnn_4_mnist_loss.png)
 
 Image size: 28 x 28.  #Epoch = 300.  Batch size = 100.
 
@@ -22,21 +35,6 @@ Rank = 16.
 |-|-|-|-|-|-|-|
 |CNN-4-layer|cnn_4_mnist.py|[(Conv, ReLU, MaxPool), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.44% | 0.01 | random | SGD with momentum=0.9
 |CNN-4-layer|cnn_8_mnist.py|[(Conv, ReLU), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.47% |  0.01 | random | SGD with momentum=0.9
-|tNN-4-layer |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%,<98.0% in [1]|0.1|random|SGD with momentum=0.9
-|tNN-4-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%,~=98.0% in [1]|0.01, 0.1 in [1]|random|SGD with momentum=0.9
-
-
-[1] Stable Tensor Neural Networks for Rapid Deep Learning (https://arxiv.org/abs/1811.06569)
-
-Image size: 28 x 28.  #Epoch = 300.  Batch size = 100.
-|Methods|File|Layers|Test accuracy|Learning rate|Initialization|Optimizer
-|-|-|-|-|-|-|-|
-|1. DCT (discrete cosine transform) for input data over width-dimension, build 28 4-layer FCNs for the 28 channels of processed data, respectively. 2. Fuse the outputs of the 28 FCNs (for the 28 channels) for prediction.| fuse_spectral_tnn_4_mnist.py|[28, 28, 28, 28, 10] x 28 | 95.74% | 0.001| random | SGD with momentum = 0.9
-|1. DCT (discrete cosine transform) for input data over width-dimension, build 28 8-layer FCNs for the 28 channels of processed data, respectively. 2. Fuse the outputs of the 28 FCNs (for the 28 channels) for prediction.| fuse_spectral_tnn_8_mnist.py|[28, 28, 28, 28, 28, 28, 28, 28, 10] x 28 | 95.92% |0.001|random | SGD with momentum = 0.9
-
-![avatar](./figs/spectral_tnn_4_mnist_acc.png)
-
-![avatar](./figs/spectral_tnn_4_mnist_loss.png)
 
 
 
