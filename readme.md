@@ -31,7 +31,7 @@ Spectral tensor:
 
 3). Obtain the trained 28 subnetworks and corresponding loss values; 
 
-4). In the testing phase, wse the loss values to set weights as 1/loss; get the 28 spectral of a new image and input them into the 28 trained subnetwork; fuse the 28 outputs by weighted sum to obtain the predicted label.
+4). In the testing phase, use the loss values to set weights as 1/loss; get the 28 spectrals of a new image and input them into the 28 trained subnetwork; fuse the 28 outputs by weighted sum to obtain the predicted label.
 
 
 ![avatar](./figs/mnist_acc.png)
