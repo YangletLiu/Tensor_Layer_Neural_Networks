@@ -2,11 +2,11 @@
 
 Image size: 28 x 28.  
 
-#Epoch = 100 for FC, 300 for tNN and spectral tensor network.  
+#Epoch: 100 for FC; 300 for tNN and spectral tensor network.  
 
-Batch size = 64 for FC, 100 for tNN and spectral tensor network.
+Batch size: 64 for FC; 100 for tNN and spectral tensor network.
 
-Optimizer: SGD with momentum=0.9
+Optimizer: SGD with momentum=0.9.
 
 Rank = 16.
 
