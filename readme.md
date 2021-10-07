@@ -1,13 +1,13 @@
 ## MNIST Dataset
 
-Image size: 28 x 28.
+Image size: 28 x 28.  #Epoch = 100.
 
-|Networks|File|Layers|Test accuracy|#Epoch|Learning rate|Batch size|Initialization|Optimizer
+|Networks|File|Layers|Test accuracy|Learning rate|Batch size|Initialization|Optimizer
 |-|-|-|-|-|-|-|-|-|
-|FC-4-layer |fc_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|100|0.01|64|random|SGD with momentum=0.9
-|FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|100|0.01|64|random|SGD with momentum=0.9
-|FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80% |100|0.05|64|xavier normal|SGD with momentum=0.9 
-|FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86% |100|0.001|64|xavier normal|SGD with  momentum=0.9
+|FC-4-layer |fc_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|0.01|64|random|SGD with momentum=0.9
+|FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|0.01|64|random|SGD with momentum=0.9
+|FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80%|0.05|64|xavier normal|SGD with momentum=0.9 
+|FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86%|0.001|64|xavier normal|SGD with  momentum=0.9
 
 ![avatar](./figs/mnist_acc.png)
 
