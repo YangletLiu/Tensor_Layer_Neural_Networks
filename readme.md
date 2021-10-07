@@ -18,12 +18,12 @@ Rank = 16.
 |FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86%|0.001|xavier normal
 |tNN-4-layer |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%;<98.0% in [1]|0.1|random
 |tNN-4-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%,~=98.0% in [1]|0.01, 0.1 in [1]|random
-|Spectral tensor| spectral_tensor_4_mnist.py|[28, 28, 28, 28, 10] x 28 | 95.74% | 0.001| random
-|Spectral tensor| spectral_tensor_8_mnist.py|[28, 28, 28, 28, 28, 28, 28, 28, 10] x 28 | 95.92% |0.001|random
+|Spectral-tensor-4-layer| spectral_tensor_4_mnist.py|[28, 28, 28, 28, 10] x 28 | 95.74% | 0.001| random
+|Spectral-tensor-8-layer| spectral_tensor_8_mnist.py|[28, 28, 28, 28, 28, 28, 28, 28, 10] x 28 | 95.92% |0.001|random
 
 [1] Stable Tensor Neural Networks for Rapid Deep Learning (https://arxiv.org/abs/1811.06569)
 
-1. DCT (discrete cosine transform) for input data over width-dimension, build 28 8-layer FCNs for the 28 channels of processed data, respectively. 2. Fuse the outputs of the 28 FCNs (for the 28 channels) for prediction.
+Spectral tensor: 1). DCT (discrete cosine transform) for input data over width-dimension, build 28 8-layer subnetworks (FC) for the 28 branches of processed data, respectively; 2). Fuse the outputs of the 28 FCNs (for the 28 channels) for prediction.
 
 
 ![avatar](./figs/mnist_acc.png)
