@@ -23,7 +23,7 @@ Rank = 16.
 
 [1] Stable Tensor Neural Networks for Rapid Deep Learning (https://arxiv.org/abs/1811.06569)
 
-Spectral tensor: 1). DCT (discrete cosine transform) for input data over width-dimension, build 28 8-layer subnetworks (FC) for the 28 branches of processed data, respectively; 2). Fuse the outputs of the 28 FCNs (for the 28 channels) for prediction.
+Spectral tensor: 1). Perform DCT (discrete cosine transform) for the data along the width-dimension (size 28), and obtain 28 spectrals (each has vector 28 x 1);  Input the 28 spectral data into the corresponding 28 branches (subnetworks, 4-laye3r and 8-layer FC, respectively); 2). Obtain the trained 28 subnetworks and loss values; 3). Use the loss value to set weights (1/loss); in the testing phase, for a new image, fuse the outputs of the 28 subnetworks (by weighted sum) to obtain the predicted label.
 
 
 ![avatar](./figs/mnist_acc.png)
