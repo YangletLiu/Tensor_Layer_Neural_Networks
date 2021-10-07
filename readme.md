@@ -18,7 +18,7 @@ Rank = 16.
 Image size: 28 x 28.  #Epoch = 300.  Batch size = 100.
 
 Rank = 16.
-|Networks|File|Layers |Test accuracy|#Epoch|Learning rate|Batch size|Initialization|Optimizer
+|Networks|File|Layers |Test accuracy|Learning rate|Initialization|Optimizer
 |-|-|-|-|-|-|-|
 |4-layer CNN|cnn_4_mnist.py|[(Conv, ReLU, MaxPool), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.44% | 0.01 | random | SGD with momentum=0.9
 |8-layer CNN|cnn_8_mnist.py|[(Conv, ReLU), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.47% |  0.01 | random | SGD with momentum=0.9
