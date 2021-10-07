@@ -1,19 +1,19 @@
 ## MNIST Dataset
 
 Image size: 28 x 28.  #Epoch = 100 for FC, 300 for tNN and spectral tensor network.  Batch size = 64 for FC, 100 for tNN and spectral tensor network.
-
+Optimizer: SGD with momentum=0.9
 Rank = 16.
 
-|Networks|File|Layers|Test accuracy|Learning rate|Initialization|Optimizer
-|-|-|-|-|-|-|-|
-|FC-4-layer |fc_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|0.01|random|SGD with momentum=0.9
-|FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|0.01|random|SGD with momentum=0.9
-|FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80%|0.05|xavier normal|SGD with momentum=0.9 
-|FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86%|0.001|xavier normal|SGD with  momentum=0.9
-|tNN-4-layer |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%,<98.0% in [1]|0.1|random|SGD with momentum=0.9
-|tNN-4-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%,~=98.0% in [1]|0.01, 0.1 in [1]|random|SGD with momentum=0.9
-|Spectral tensor network| fuse_spectral_tnn_4_mnist.py|[28, 28, 28, 28, 10] x 28 | 95.74% | 0.001| random | SGD with momentum = 0.9
-|Spectral tensor network| fuse_spectral_tnn_8_mnist.py|[28, 28, 28, 28, 28, 28, 28, 28, 10] x 28 | 95.92% |0.001|random | SGD with momentum = 0.9
+|Networks|File|Layers|Test accuracy|Learning rate|Initialization|
+|-|-|-|-|-|-|
+|FC-4-layer |fc_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|0.01|random
+|FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|0.01|random
+|FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80%|0.05|xavier normal
+|FC-8-layer (low-rank)| fc_8_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86%|0.001|xavier normal
+|tNN-4-layer |tnn_4_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%;<98.0% in [1]|0.1|random
+|tNN-4-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%,~=98.0% in [1]|0.01, 0.1 in [1]|random
+|Spectral tensor network| spectral_tensor_4_mnist.py|[28, 28, 28, 28, 10] x 28 | 95.74% | 0.001| random
+|Spectral tensor network| spectral_tensor_8_mnist.py|[28, 28, 28, 28, 28, 28, 28, 28, 10] x 28 | 95.92% |0.001|random
 
 [1] Stable Tensor Neural Networks for Rapid Deep Learning (https://arxiv.org/abs/1811.06569)
 
