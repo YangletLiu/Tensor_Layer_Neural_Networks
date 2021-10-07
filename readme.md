@@ -26,7 +26,7 @@ Rank = 16.
 Spectral tensor: 
 1). Perform DCT on the data along the width-dimension (size 28), and obtain 28 spectrals (each has a 28 x 1 vector); 
 
-2). Train 28 subnetworks (4-layer and 8-layer FC, respectively) with: **input** the 28 spectral data and **output** the corresponding labels;
+2). Train 28 subnetworks (4-layer and 8-layer FC, respectively) with: the 28 spectral data as **input** and the corresponding labels as **output**;
 
 3). Obtain the trained 28 subnetworks and corresponding loss values; 
 
