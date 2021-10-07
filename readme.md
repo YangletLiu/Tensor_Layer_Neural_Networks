@@ -1,6 +1,8 @@
 ## MNIST Dataset
 
-Image size: 28 x 28.  #Epoch = 100.  Batch size = 64
+Image size: 28 x 28.  #Epoch = 100.  Batch size = 64.
+
+Rank = 16.
 
 |Networks|File|Layers|Test accuracy|Learning rate|Initialization|Optimizer
 |-|-|-|-|-|-|-|
