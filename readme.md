@@ -3,7 +3,7 @@
 Image size: 28 x 28.  #Epoch = 100.
 
 |Networks|File|Layers|Test accuracy|Learning rate|Batch size|Initialization|Optimizer
-|-|-|-|-|-|-|-|-|-|
+|-|-|-|-|-|-|-|-|
 |FC-4-layer |fc_4_mnist.py|[784, 784, 784, 784, 10]|98.63%|0.01|64|random|SGD with momentum=0.9
 |FC-8-layer |fc_8_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|0.01|64|random|SGD with momentum=0.9
 |FC-4-layer (low-rank)| fc_4_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80%|0.05|64|xavier normal|SGD with momentum=0.9 
