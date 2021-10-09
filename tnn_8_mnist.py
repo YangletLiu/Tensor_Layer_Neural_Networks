@@ -26,7 +26,7 @@ transform_test = transforms.Compose([
                                       (0.1307,), (0.3081,))
                               ])
 
-batch_size = 100
+batch_size = 128
 trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 num_train = len(trainset)

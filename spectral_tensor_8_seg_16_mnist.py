@@ -14,126 +14,77 @@ import sys
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 transform_train = transforms.Compose([
-                                transforms.RandomCrop(32, padding=4),
-                                transforms.RandomHorizontalFlip(),
-                                transforms.ToTensor(),
-                                transforms.Normalize(
-                                    mean=[0.4914, 0.4822, 0.4465],
-                                    std=[0.2023, 0.1994, 0.2010]),
-                                ])
+                                  transforms.ToTensor(),
+                                  transforms.Normalize(
+                                      (0.1307,), (0.3081,))
+                              ])
 
 transform_test = transforms.Compose([
-                                transforms.ToTensor(),
-                                transforms.Normalize(
-                                    mean=[0.4914, 0.4822, 0.4465],
-                                    std=[0.2023, 0.1994, 0.2010])
-                                ])
+                                  transforms.ToTensor(),
+                                  transforms.Normalize(
+                                      (0.1307,), (0.3081,))
+                              ])
 
-num_nets = 4
+num_nets = 16
 batch_size = 128
-trainset = datasets.CIFAR10(root='../datasets', train=True, transform=transform_train, download=True)
+trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 num_train = len(trainset)
 
-testset = datasets.CIFAR10(root='../datasets', train=False, transform=transform_test, download=True)
+testset = datasets.MNIST(root='../datasets', train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True)
 num_test = len(testset)
 
 
 ########################### 2. define model ##################################
-class CNN8CIFAR10(nn.Module):
-    def __init__(self):
-        super(CNN8CIFAR10,self).__init__()
-
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=4,
-                out_channels=64,
-                kernel_size=3,
-                padding=1
-            ),
-            nn.BatchNorm2d(num_features=64),
-            nn.ReLU(True),
-        )
-        self.conv2 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=64,
-                kernel_size=3,
-                padding=1
-            ),
-            nn.ReLU(True),
-            nn.BatchNorm2d(num_features=64),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
-        self.conv3 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=128,
-                kernel_size=3,
-                padding=1
-            ),
-            nn.BatchNorm2d(num_features=128),
-            nn.ReLU(True),
-        )
-        self.conv4 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=128,
-                out_channels=128,
-                kernel_size=3,
-                padding=1
-            ),
-            nn.BatchNorm2d(num_features=128),
-            nn.ReLU(True),
-            nn.MaxPool2d(kernel_size=2, stride=2),
-            nn.Dropout2d(p=0.05),
-        )
-        self.conv5 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=128,
-                out_channels=256,
-                kernel_size=3,
-                padding=1
-            ),
-            nn.BatchNorm2d(num_features=256),
+# define nn module
+class FC8Net(nn.Module):
+    def __init__(self, in_dim, n_hidden_1, n_hidden_2, n_hidden_3,
+                 n_hidden_4, n_hidden_5, n_hidden_6, n_hidden_7, out_dim):
+        super(FC8Net, self).__init__()
+        # layer1
+        self.layer1 = nn.Sequential(
+            nn.Linear(in_dim, n_hidden_1),
             nn.ReLU(True)
         )
-        self.conv6 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=256,
-                out_channels=256,
-                kernel_size=3,
-                padding=1
-            ),
-            nn.BatchNorm2d(num_features=256),
+        self.layer2 = nn.Sequential(
+            nn.Linear(n_hidden_1, n_hidden_2),
             nn.ReLU(True)
         )
-        self.conv7 = nn.Sequential(
-            nn.Conv2d(
-                in_channels=256,
-                out_channels=256,
-                kernel_size=3,
-                padding=1
-            ),
-            nn.BatchNorm2d(num_features=256),
-            nn.ReLU(True),
-            nn.MaxPool2d(kernel_size=2, stride=2)
+        self.layer3 = nn.Sequential(
+            nn.Linear(n_hidden_2, n_hidden_3),
+            nn.ReLU(True)
         )
-        self.pred = nn.Sequential(
-            nn.Dropout(p=0.1),
-            nn.Linear(4*32*32,10)
+        self.layer4 = nn.Sequential(
+            nn.Linear(n_hidden_3, n_hidden_4),
+            nn.ReLU(True)
         )
-
-    def forward(self,x):
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.conv5(x)
-        x = self.conv6(x)
-        x = self.conv7(x)
-        x = x.reshape(x.size(0),-1)
-        x = self.pred(x)
+        self.layer5 = nn.Sequential(
+            nn.Linear(n_hidden_4, n_hidden_5),
+            nn.ReLU(True)
+        )
+        self.layer6 = nn.Sequential(
+            nn.Linear(n_hidden_5, n_hidden_6),
+            nn.ReLU(True)
+        )
+        self.layer7 = nn.Sequential(
+            nn.Linear(n_hidden_6, n_hidden_7),
+            nn.ReLU(True)
+        )
+        self.layer8 = nn.Sequential(
+            nn.Linear(n_hidden_7, out_dim),
+        )
+    # forward
+    def forward(self, x):
+        x = x.view(x.size(0), -1)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        x = self.layer5(x)
+        x = self.layer6(x)
+        x = self.layer7(x)
+        x = self.layer8(x)
         return x
 
 
@@ -221,45 +172,37 @@ def idct(X, norm=None):
 
     return x.view(*x_shape)
 
+def show_mnist_fig(im, file_name="show_image.png"):
+    im = np.array(im)
+    fig = plt.figure()
+    plotwindow = fig.add_subplot(111)
+    plt.cla()
+    plt.axis('off')
+    plt.imshow(im, cmap='gray')
+    # plt.show()
+    plt.savefig(file_name)  # 保存成文件
+    plt.close()
+    return
 
-def preprocess_cifar(x):
-    permute_plan = [[0, 1, 2, 3], [0, 1, 3, 2], [0, 3, 1, 2], [3, 0, 1, 2]]
-    x = x.permute([0, 2, 3, 1])
-    # generate the 'average channel', and attach the 'average channel' to the original 3 channels
-    thicker_x = torch.cat([x, torch.mean(x, dim=-1, keepdim=True)], dim=-1)
-    first_channels = []
-    second_channels = []
-    third_channels = []
-    fourth_channels = []
-    for i in range(len(permute_plan)):
-        rt = dct(thicker_x[:, :, :, permute_plan[i]])
-        first_channels.append(rt[:, :, :, 0])
-        second_channels.append(rt[:, :, :, 1])
-        third_channels.append(rt[:, :, :, 2])
-        fourth_channels.append(rt[:, :, :, 3])
 
-    new_x = []
-    first_channels = torch.stack(first_channels, dim=-1)
-    first_channels = first_channels.permute([0, 3, 1, 2]).contiguous()
-    new_x.append(first_channels)
+def preprocess_mnist(x, seg_length=0):
+    if seg_length:
+        assert num_nets == seg_length, "num_nets is not eqaul to seg_length"
+        # show_mnist_fig(x[0, 0], "original_image_seg{}.png".format(seg_length))
+        sp = x.shape
+        x = x.reshape(sp[0], sp[1], -1, seg_length)
+        # x = torch.split(x, split_size_or_sections=seg_length, dim=-1)
+        # x = torch.cat(x, dim=-2)
+        # show_mnist_fig(x[0, 0], "split_image_seg{}.png".format(seg_length))
+    x = dct(x)
+    return x
 
-    second_channels = torch.stack(second_channels, dim=-1)
-    second_channels = second_channels.permute([0, 3, 1, 2]).contiguous()
-    new_x.append(second_channels)
-
-    third_channels = torch.stack(third_channels, dim=-1)
-    third_channels = third_channels.permute([0, 3, 1, 2]).contiguous()
-    new_x.append(third_channels)
-
-    fourth_channels = torch.stack(fourth_channels, dim=-1)
-    fourth_channels = fourth_channels.permute([0, 3, 1, 2]).contiguous()
-    new_x.append(fourth_channels)
-    return new_x
 
 # build model
 def build(decomp=False):
     print('==> Building model..')
-    full_net = CNN8CIFAR10()
+    hidden_size = 784 // num_nets
+    full_net = FC8Net(hidden_size, hidden_size, hidden_size, hidden_size, hidden_size, hidden_size, hidden_size, hidden_size, 10)
     if decomp:
         raise("No Tensor Neural Network decompostion implementation.")
     print('==> Done')
@@ -268,8 +211,8 @@ def build(decomp=False):
 
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
-lr0 = [0.001, 0.001, 0.001, 0.001]
-fusing_plan = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3], [0, 1, 2], [0, 1, 3], [0, 2, 3], [1, 2, 3], [0, 1, 2, 3]]
+lr0 = [0.001] * num_nets
+fusing_plan = [list(range(num_nets))]  # only one plan: fuse all nets
 fusing_num = len(fusing_plan)
 
 
@@ -303,10 +246,10 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
             img, targets = img.to(device), targets.to(device)
-            img = preprocess_cifar(img)
+            img = preprocess_mnist(img, seg_length=16)
 
             for i in range(num_nets):
-                outputs[i] = nets[i](img[i])
+                outputs[i] = nets[i](img[:, :, :, i])
                 loss = criterion(outputs[i], targets)
 
                 test_loss[i] += loss.item()
@@ -337,7 +280,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
         # Save checkpoint when best model
         acc = [0] * num_nets
         for i in range(num_nets):
-            test_loss[i] /= num_test
+            test_loss[i] /=  num_test 
             acc[i] = 100. * correct[i] / total[i]
 
         fusing_acc = [0] * fusing_num
@@ -345,16 +288,19 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
             fusing_test_loss[i] /= num_test
             fusing_acc[i] = 100. * fusing_correct[i] / fusing_total[i]
 
-        print("\n| Validation Epoch #%d\t\tLoss: [%.4f, %.4f, %.4f, %.4f] Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%]   " 
-              %(epoch+1, test_loss[0], test_loss[1], test_loss[2], test_loss[3], 
-                acc[0], acc[1], acc[2], acc[3]))
+        print("\n| Validation Epoch #%d\t\t"%(epoch+1)
+              +"Loss: [%.4f, %.4f, %.4f, %.4f, "%(test_loss[0], test_loss[1], test_loss[2], test_loss[3])
+              +"%.4f, %.4f, %.4f, %.4f, "%(test_loss[4], test_loss[5], test_loss[6], test_loss[7])
+              +"%.4f, %.4f, %.4f, %.4f, "%(test_loss[8], test_loss[9], test_loss[10], test_loss[11])
+              +"%.4f, %.4f, %.4f, %.4f]"%(test_loss[12], test_loss[13], test_loss[14], test_loss[15])
+              +" Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(acc[0], acc[1], acc[2], acc[3])
+              +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(acc[4], acc[5], acc[6], acc[7])
+              +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(acc[8], acc[9], acc[10], acc[11])
+              +"%.2f%%, %.2f%%, %.2f%%, %.2f%%]"%(acc[12], acc[13], acc[14], acc[15])
+            )
 
-        print("| Fusing Loss: [%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f]\n "
-              %(fusing_test_loss[0], fusing_test_loss[1], fusing_test_loss[2], fusing_test_loss[3], fusing_test_loss[4], fusing_test_loss[5],
-                fusing_test_loss[6], fusing_test_loss[7], fusing_test_loss[8], fusing_test_loss[9], fusing_test_loss[10])
-              +"Fusing Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%]   " 
-              %(fusing_acc[0], fusing_acc[1], fusing_acc[2], fusing_acc[3], fusing_acc[4], fusing_acc[5], 
-                fusing_acc[6], fusing_acc[7], fusing_acc[8], fusing_acc[9], fusing_acc[10]))
+        print("| Fusing Loss: [%.4f]\t"%(fusing_test_loss[0])
+              +"Fusing Acc: [%.2f%%]  "%(fusing_acc[0]))
 
         for i in range(num_nets):
             if acc[i] > best_acc[i]:
@@ -383,11 +329,10 @@ def test_multi_nets(epoch, nets, best_acc, test_acc_list, test_loss_list):
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
             img, targets = img.to(device), targets.to(device)
-            img = preprocess_cifar(img)
+            img = preprocess_mnist(img, seg_length=16)
 
             for i in range(num_nets):
-
-                outputs = nets[i](img[i])
+                outputs = nets[i](img[:, :, :, i])
                 loss = criterion(outputs, targets)
 
                 test_loss[i] += loss.item()
@@ -398,16 +343,23 @@ def test_multi_nets(epoch, nets, best_acc, test_acc_list, test_loss_list):
         # Save checkpoint when best model
         acc = [0] * num_nets
         for i in range(num_nets):
-            test_loss[i] /= num_test
+            test_loss[i] /=  num_test 
             acc[i] = 100. * correct[i] / total[i]
-        print("\n| Validation Epoch #%d\t\tLoss: [%.4f, %.4f, %.4f, %.4f] Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%]   " 
-              %(epoch+1, test_loss[0], test_loss[1], test_loss[2], test_loss[3],
-                acc[0], acc[1], acc[2], acc[3]))
+        print("\n| Validation Epoch #%d\t\t"%(epoch+1)
+              +"Loss: [%.4f, %.4f, %.4f, %.4f, "%(test_loss[0], test_loss[1], test_loss[2], test_loss[3])
+              +"%.4f, %.4f, %.4f, %.4f, "%(test_loss[4], test_loss[5], test_loss[6], test_loss[7])
+              +"%.4f, %.4f, %.4f, %.4f, "%(test_loss[8], test_loss[9], test_loss[10], test_loss[11])
+              +"%.4f, %.4f, %.4f, %.4f]"%(test_loss[12], test_loss[13], test_loss[14], test_loss[15])
+              +" Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(acc[0], acc[1], acc[2], acc[3])
+              +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(acc[4], acc[5], acc[6], acc[7])
+              +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(acc[8], acc[9], acc[10], acc[11])
+              +"%.2f%%, %.2f%%, %.2f%%, %.2f%%]"%(acc[12], acc[13], acc[14], acc[15])
+            )
 
         for i in range(num_nets):
             if acc[i] > best_acc[i]:
                 best_acc[i] = acc[i]
-                torch.save(nets[i], "./4_channel_fusing_cnn_8_channel_{}.pth".format(i))
+                torch.save(nets[i], "./seg_fusing_tnn_4_mnist_{}.pth".format(i))
         test_acc_list.append(acc)
         test_loss_list.append([test_loss[i] for i in range(num_nets)])
     return best_acc
@@ -427,8 +379,8 @@ def train_multi_nets(num_epochs, nets):
     optimizers = []
     for i in range(num_nets):
         nets[i] = nets[i].to(device)
-        optimizers.append(torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9))
-        # optimizers.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i]))
+        # optimizers.append(torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9))
+        optimizers.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i]))
 
     current_lr = lr0
 
@@ -441,13 +393,13 @@ def train_multi_nets(num_epochs, nets):
             total = [0] * num_nets
             loss = [0] * num_nets
 
-            print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f]' %(epoch+1, current_lr[0], current_lr[1], current_lr[2], current_lr[3]))
+            print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' %(epoch+1, current_lr[0], current_lr[1], current_lr[2], current_lr[3]))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
                 inputs, targets = inputs.to(device), targets.to(device) # GPU settings
-                inputs = preprocess_cifar(inputs)
+                inputs = preprocess_mnist(inputs, seg_length=16)
                 for i in range(num_nets):
                     optimizers[i].zero_grad()
-                    outputs = nets[i](inputs[i])               # Forward Propagation
+                    outputs = nets[i](inputs[:, :, :, i])               # Forward Propagation
                     loss[i] = criterion(outputs, targets)  # Loss
                     loss[i].backward()  # Backward Propagation
                     optimizers[i].step() # Optimizer update
@@ -457,11 +409,14 @@ def train_multi_nets(num_epochs, nets):
                     total[i] += targets.size(0)
                     correct[i] += predicted.eq(targets.data).cpu().sum().item()
 
+                temp_loss_ary = np.array([loss[idx].item() for idx in range(num_nets)])
+                temp_acc_ary = np.array([100.*correct[idx]/total[idx] for idx in range(num_nets)])
                 sys.stdout.write('\r')
-                sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\tLoss: [%.4f, %.4f, %.4f, %.4f] Acc: [%.3f%%, %.3f%%, %.3f%%, %.3f%%]   '
-                        %(epoch+1, num_epochs, batch_idx+1, math.ceil(len(trainset)/batch_size), 
-                          loss[0].item(), loss[1].item(), loss[2].item(), loss[3].item(),
-                          100.*correct[0]/total[0], 100.*correct[1]/total[1], 100.*correct[2]/total[2], 100.*correct[3]/total[3]))
+                sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\tLoss: [%.4f ~ %.4f] mean: %.4f Acc: [%.3f%% ~ %.3f%%] mean: %.3f%%   '
+                                 %(epoch+1, num_epochs, batch_idx+1, math.ceil(len(trainset)/batch_size), 
+                                   temp_loss_ary.min(), temp_loss_ary.max(), temp_loss_ary.mean(),
+                                   temp_acc_ary.min(), temp_acc_ary.max(), temp_acc_ary.mean())
+                                )
                 sys.stdout.flush()
 
             fusing_weight = [0] * num_nets
@@ -474,27 +429,30 @@ def train_multi_nets(num_epochs, nets):
             train_acc_list.append([100.*correct[i]/total[i] for i in range(num_nets)])
             train_loss_list.append([train_loss[i] / num_train for i in range(num_nets)])
             now_time = time.time()
-            print("| Best Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%] "%(best_acc[0], best_acc[1], best_acc[2], best_acc[3]))
-            print("| Best Fusing Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%] "%(
-                    best_fusing_acc[0], best_fusing_acc[1], best_fusing_acc[2], best_fusing_acc[3],
-                    best_fusing_acc[4], best_fusing_acc[5], best_fusing_acc[6], best_fusing_acc[7],
-                    best_fusing_acc[8], best_fusing_acc[9], best_fusing_acc[10]))
+
+            print("| Best Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[0], best_acc[1], best_acc[2], best_acc[3])
+                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[4], best_acc[5], best_acc[6], best_acc[7])
+                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[8], best_acc[9], best_acc[10], best_acc[11])
+                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%]"%(best_acc[12], best_acc[13], best_acc[14], best_acc[15])
+                )
+            print("| Best Fusing Acc: [%.2f%%] "%(best_fusing_acc[0]))
             print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
     except KeyboardInterrupt:
         pass
 
-    print("\nBest training accuracy overall: [%.3f%%, %.3f%%, %.3f%%, %.3f%%] "%(best_acc[0], best_acc[1], best_acc[2], best_acc[3]))
-    print("| Best Fusing Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%, %.2f%%] "%(
-            best_fusing_acc[0], best_fusing_acc[1], best_fusing_acc[2], best_fusing_acc[3],
-            best_fusing_acc[4], best_fusing_acc[5], best_fusing_acc[6], best_fusing_acc[7],
-            best_fusing_acc[8], best_fusing_acc[9], best_fusing_acc[10]))
+    print("\nBest training accuracy overall: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[0], best_acc[1], best_acc[2], best_acc[3])
+            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[4], best_acc[5], best_acc[6], best_acc[7])
+            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[8], best_acc[9], best_acc[10], best_acc[11])
+            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%]"%(best_acc[12], best_acc[13], best_acc[14], best_acc[15])
+        )
+    print("| Best Fusing Acc: [%.2f%%] "%(best_fusing_acc[0]))
     return train_loss_list, train_acc_list, test_loss_list, test_acc_list, fusing_test_loss_list, fusing_test_acc_list
 
 
 def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test_loss, fusing_test_acc):
 
     # write csv
-    with open('4_channel_fusing_cnn_8_cifar10_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open('seg_{}_fusing_tnn_8_mnist_testloss.csv'.format(num_nets),'w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
 
         f_csv.writerow(["Test Acc:"])
@@ -533,7 +491,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
     fig = plt.figure(1)
     sub1 = plt.subplot(1, 2, 1)
     plt.sca(sub1)
-    plt.title('4-channel fusing-cnn-8 Loss on CIFAR10 ')
+    plt.title('seg-{}-fusing-tnn-8 Loss on MNIST '.format(num_nets))
     for i in range(num_nets):
         plt.plot(np.arange(len(test_loss[:, i])), test_loss[:, i], label='TestLoss_{}'.format(i+1),linestyle='-')
     for i in range(fusing_num):
@@ -546,7 +504,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
 
     sub2 = plt.subplot(1, 2, 2)
     plt.sca(sub2)
-    plt.title('4-channel fusing-cnn-8 Accuracy on CIFAR10 ')
+    plt.title('seg-{}-fusing-tnn-8 Accuracy on MNIST '.format(num_nets))
     for i in range(num_nets):
         plt.plot(np.arange(len(test_acc[:, i])), test_acc[:, i], label='TestAcc_{}'.format(i+1),linestyle='-')
     for i in range(fusing_num):
@@ -559,7 +517,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
     plt.legend()
     plt.show()
 
-    plt.savefig('./4_channel_fusing_cnn_8_cifar10.jpg')
+    plt.savefig('./seg_{}_fusing_tnn_8_mnist.jpg'.format(num_nets))
 
 
 if __name__ == "__main__":

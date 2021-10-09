@@ -20,8 +20,9 @@ Rank: 16.
 |tNN-8-layer |tnn_8_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%;<br> ~ 98.0% in [1].|0.01; <br>0.1 in [1].|random
 |Spectral-tensor-4-layer| spectral_tensor_4_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 95.74% | 0.001| random
 |Spectral-tensor-8-layer| spectral_tensor_8_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 95.92% |0.001|random
-
-
+|Spectral-tensor-8-layer-seg-7| spectral_tensor_8_seg_7_mnist.py| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.06% |0.001|random
+|Spectral-tensor-8-layer-seg-14| spectral_tensor_8_seg_14_mnist.py| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.12% |0.001|random
+|Spectral-tensor-8-layer-seg-16| spectral_tensor_8_seg_16_mnist.py| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.28% |0.001|random
 
 **Our spectral tensor networks**: 
 
@@ -34,6 +35,17 @@ Rank: 16.
 4). In the testing phase, use the loss values to set weights as 1/loss; get the 28 spectrals of a new image and input them into the 28 trained subnetwork; fuse the 28 outputs by weighted sum to obtain the predicted label.
 
 
+**Our spectral tensor networks for seg-_x_**: 
+
+1). Preprocess training dataset: reorganize each image into a matrix with a width of _x_, perform DCT on the data along the width-dimension (size _x_), and split the training dataset into _x_ subsets corresponding to _x_ spectrals (for each image, each spectral has a vector); 
+
+2). Train _x_ subnetworks (4-layer and 8-layer FC, respectively) with training dataset: the _x_ spectral data as **input** and the corresponding labels as **output**;
+
+3). Obtain the trained _x_ subnetworks and corresponding loss values; 
+
+4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ spectrals of a new image and input them into the _x_ trained subnetwork; fuse the _x_ outputs by weighted sum to obtain the predicted label.
+
+
 ![avatar](./figs/mnist_acc.png)
 
 ![avatar](./figs/mnist_loss.png)
@@ -41,6 +53,10 @@ Rank: 16.
 ![avatar](./figs/spectral_tnn_4_mnist_acc.png)
 
 ![avatar](./figs/spectral_tnn_4_mnist_loss.png)
+
+![avatar](./figs/spectral_tensor_8_seg_7_mnist_acc.png)
+
+![avatar](./figs/spectral_tensor_8_seg_7_mnist_loss.png)
 
 - - -
 

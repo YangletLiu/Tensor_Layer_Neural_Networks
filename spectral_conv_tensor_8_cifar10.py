@@ -301,10 +301,12 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
         # Save checkpoint when best model
         acc = [0] * num_nets
         for i in range(num_nets):
+            test_loss[i] /= num_test
             acc[i] = 100. * correct[i] / total[i]
 
         fusing_acc = [0] * fusing_num
         for i in range(fusing_num):
+            fusing_test_loss[i] /= num_test
             fusing_acc[i] = 100. * fusing_correct[i] / fusing_total[i]
 
         print("\n| Validation Epoch #%d\t\tLoss: [%.4f, %.4f, %.4f] Acc: [%.2f%%, %.2f%%, %.2f%%]   " 
@@ -324,10 +326,10 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
                 best_fusing_acc[i] = fusing_acc[i]
         
         test_acc_list.append(acc)
-        test_loss_list.append([test_loss[i] / num_test for i in range(num_nets)])
+        test_loss_list.append([test_loss[i] for i in range(num_nets)])
 
         fusing_test_acc_list.append(fusing_acc)
-        fusing_test_loss_list.append([fusing_test_loss[i] / num_test for i in range(fusing_num)])
+        fusing_test_loss_list.append([fusing_test_loss[i] for i in range(fusing_num)])
     return best_acc, best_fusing_acc
 
 
@@ -356,6 +358,7 @@ def test_multi_nets(epoch, nets, best_acc, test_acc_list, test_loss_list):
         # Save checkpoint when best model
         acc = [0] * num_nets
         for i in range(num_nets):
+            test_loss[i] /= num_test
             acc[i] = 100. * correct[i] / total[i]
         print("\n| Validation Epoch #%d\t\tLoss: [%.4f, %.4f, %.4f] Acc: [%.2f%%, %.2f%%, %.2f%%]   " 
               %(epoch+1, test_loss[0], test_loss[1], test_loss[2], acc[0], acc[1], acc[2]))
@@ -365,7 +368,7 @@ def test_multi_nets(epoch, nets, best_acc, test_acc_list, test_loss_list):
                 best_acc[i] = acc[i]
                 torch.save(nets[i], "./multi_cnn_8_channel_{}.pth".format(i))
         test_acc_list.append(acc)
-        test_loss_list.append([test_loss[i] / num_test for i in range(num_nets)])
+        test_loss_list.append([test_loss[i] for i in range(num_nets)])
     return best_acc
 
 

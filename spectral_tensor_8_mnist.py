@@ -259,10 +259,12 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
         # Save checkpoint when best model
         acc = [0] * num_nets
         for i in range(num_nets):
+            test_loss[i] /= num_test
             acc[i] = 100. * correct[i] / total[i]
 
         fusing_acc = [0] * fusing_num
         for i in range(fusing_num):
+            fusing_test_loss[i] /= num_test
             fusing_acc[i] = 100. * fusing_correct[i] / fusing_total[i]
 
         print("\n| Validation Epoch #%d\t\t"%(epoch+1)
@@ -295,10 +297,10 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
                 best_fusing_acc[i] = fusing_acc[i]
         
         test_acc_list.append(acc)
-        test_loss_list.append([test_loss[i] / num_test for i in range(num_nets)])
+        test_loss_list.append([test_loss[i] for i in range(num_nets)])
 
         fusing_test_acc_list.append(fusing_acc)
-        fusing_test_loss_list.append([fusing_test_loss[i] / num_test for i in range(fusing_num)])
+        fusing_test_loss_list.append([fusing_test_loss[i] for i in range(fusing_num)])
     return best_acc, best_fusing_acc
 
 
@@ -326,6 +328,7 @@ def test_multi_nets(epoch, nets, best_acc, test_acc_list, test_loss_list):
         # Save checkpoint when best model
         acc = [0] * num_nets
         for i in range(num_nets):
+            test_loss[i] /= num_test
             acc[i] = 100. * correct[i] / total[i]
         print("\n| Validation Epoch #%d\t\t"%(epoch+1)
               +"Loss: [%.4f, %.4f, %.4f, %.4f, "%(test_loss[0], test_loss[1], test_loss[2], test_loss[3])
@@ -446,7 +449,7 @@ def train_multi_nets(num_epochs, nets):
 def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test_loss, fusing_test_acc):
 
     # write csv
-    with open('fusing_tnn_8_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open('8_layer_spectral_tensor_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
 
         f_csv.writerow(["Test Acc:"])
@@ -485,7 +488,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
     fig = plt.figure(1)
     sub1 = plt.subplot(1, 2, 1)
     plt.sca(sub1)
-    plt.title('fusing-tnn-8 Loss on MNIST ')
+    plt.title('8-layer-spectral-tensor Loss on MNIST ')
     for i in range(num_nets):
         plt.plot(np.arange(len(test_loss[:, i])), test_loss[:, i], label='TestLoss_{}'.format(i+1),linestyle='-')
     for i in range(fusing_num):
@@ -498,7 +501,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
 
     sub2 = plt.subplot(1, 2, 2)
     plt.sca(sub2)
-    plt.title('fusing-tnn-8 Accuracy on MNIST ')
+    plt.title('8-layer-spectral-tensor Accuracy on MNIST ')
     for i in range(num_nets):
         plt.plot(np.arange(len(test_acc[:, i])), test_acc[:, i], label='TestAcc_{}'.format(i+1),linestyle='-')
     for i in range(fusing_num):
@@ -511,7 +514,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
     plt.legend()
     plt.show()
 
-    plt.savefig('./fusing_tnn_8_mnist.jpg')
+    plt.savefig('./8_layer_spectral_tensor_mnist.jpg')
 
 
 if __name__ == "__main__":
