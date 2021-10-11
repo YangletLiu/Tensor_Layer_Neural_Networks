@@ -30,13 +30,13 @@ Rank: 10.
 
 **Our spectral tensor networks with _x_ subnetworks**: 
 
-1). Preprocess training dataset: reorganize each image into a matrix with a width of _x_, perform DCT on the data along the width-dimension (size _x_), and split the training dataset into _x_ subsets corresponding to _x_ spectrals (for each image, each spectral has a vector); 
+1). Preprocess training dataset: reorganize each image into a matrix with a row of size _x_, perform DCT on the data along the row-dimension (size _x_), and split the training dataset into _x_ subsets corresponding to _x_ spectrals (for each image, each spectral has a vector); 
 
 2). Train _x_ subnetworks (4-layer and 8-layer FC, respectively) with training dataset: the _x_ spectral data as **input** and the corresponding labels as **output**;
 
 3). Obtain the trained _x_ subnetworks and corresponding loss values; 
 
-4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ spectrals of a new image and input them into the _x_ trained subnetwork; fuse the _x_ outputs by weighted sum to obtain the predicted label.
+4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ spectrals of a new image and input them into the _x_ trained subnetwork; ensemble the _x_ outputs by weighted sum to obtain the predicted label.
 
 
 ![avatar](./figs/mnist_acc.png)
