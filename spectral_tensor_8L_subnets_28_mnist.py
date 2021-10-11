@@ -26,7 +26,7 @@ transform_test = transforms.Compose([
                               ])
 
 num_nets = 28
-batch_size = 100
+batch_size = 128
 trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 num_train = len(trainset)
@@ -522,5 +522,5 @@ if __name__ == "__main__":
     for _ in range(num_nets):
         raw_nets.append(build(decomp=False))
     print(raw_nets[0])
-    train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_ = train_multi_nets(300, raw_nets)
+    train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_ = train_multi_nets(100, raw_nets)
     save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_)

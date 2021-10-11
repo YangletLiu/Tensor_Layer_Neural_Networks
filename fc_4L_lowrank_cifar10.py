@@ -188,8 +188,8 @@ def train(num_epochs, net):
     original_time = time.asctime(time.localtime(time.time()))
     start_time = time.time()
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
-    # optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
+    # optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
     current_lr = lr0
 
     try:
@@ -275,5 +275,5 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 if __name__ == "__main__":
     raw_net = build(decomp=True)
     print(raw_net)
-    train_loss_, train_acc_, test_loss_, test_acc_ = train(300, raw_net)
+    train_loss_, train_acc_, test_loss_, test_acc_ = train(100, raw_net)
     save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)

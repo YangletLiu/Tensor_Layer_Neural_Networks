@@ -306,8 +306,8 @@ def train(num_epochs, net):
     original_time = time.asctime(time.localtime(time.time()))
     start_time = time.time()
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
-    # optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
+    # optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
     current_lr = lr0
 
     try:

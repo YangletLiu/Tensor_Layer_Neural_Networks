@@ -25,7 +25,7 @@ transform_test = transforms.Compose([
                                       (0.1307,), (0.3081,))
                               ])
 
-batch_size = 100
+batch_size = 128
 trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 num_train = len(trainset)
@@ -61,13 +61,13 @@ class tNN4MNIST(nn.Module):
         :return: this demo defines an one-layer networks,
                     whose output is processed by one-time tensor-product and activation
         """
-        x = torch_tensor_product(self.W_1, x) + self.B_1
+        x = dct_tensor_product(self.W_1, x) + self.B_1
         x = F.relu(x)
-        x = torch_tensor_product(self.W_2, x) + self.B_2
+        x = dct_tensor_product(self.W_2, x) + self.B_2
         x = F.relu(x)
-        x = torch_tensor_product(self.W_3, x) + self.B_3
+        x = dct_tensor_product(self.W_3, x) + self.B_3
         x = F.relu(x)
-        x = torch_tensor_product(self.W_4, x) + self.B_4
+        x = dct_tensor_product(self.W_4, x) + self.B_4
         return x
 
 # dct at the beginning and idct at the end
@@ -164,16 +164,22 @@ def torch_tensor_Bcirc(tensor, l, m, n):
     return torch.cat(bcirc_A, dim=2).reshape(l * m, l * n)
 
 
-def torch_tensor_product(tensorA, tensorB):
+def dct_tensor_product(tensorA, tensorB):
     a_l, a_m, a_n = tensorA.shape
-    b_l, b_n, b_p = tensorB.shape  # (28, 28, batch_size)
+    b_l, b_m, b_n = tensorB.shape
+    dct_a = torch.transpose(dct(torch.transpose(tensorA, 0, 2)), 0, 2)
+    # print(dct_a)
+    dct_b = torch.transpose(dct(torch.transpose(tensorB, 0, 2)), 0, 2)
+    # print(dct_b)
 
-    if a_l == b_l and a_n == b_n:
-        circA = torch_tensor_Bcirc(tensorA, a_l, a_m, a_n)  # shape: (a_l * a_m, a_n * a_m)
-        circB = torch_tensor_Bcirc(tensorB, b_l, b_n, b_p)  # shape: (b_l * b_n, b_p * b_n)
-        return torch.mm(circA, circB[:, 0:b_p]).reshape(a_l, a_m, b_p)
-    else:
-        print('Shape Error')
+    dct_product = []
+    for i in range(a_l):
+        dct_product.append(torch.mm(dct_a[i, :, :], dct_b[i, :, :]))
+    dct_products = torch.stack(dct_product)
+
+    idct_product = torch.transpose(idct(torch.transpose(dct_products, 0, 2)), 0, 2).reshape(a_l, a_m, b_n)
+
+    return idct_product
 
 
 # Loss function(scalar tubal softmax function)
@@ -259,7 +265,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
             img = raw_img(img)
             img, targets = img.to(device), targets.to(device)
 
-            outputs = net(img) / 1e5
+            outputs = net(img) / 1e7
             outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
             loss = criterion(outputs, targets)
 
@@ -289,8 +295,8 @@ def train(num_epochs, net):
     original_time = time.asctime(time.localtime(time.time()))
     start_time = time.time()
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
-    # optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
+    # optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
     current_lr = lr0
 
     try:
@@ -307,7 +313,7 @@ def train(num_epochs, net):
                 img = raw_img(img)
                 optimizer.zero_grad()
 
-                outputs = net(img) / 1e5
+                outputs = net(img) / 1e7
                 # softmax function
                 outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
 

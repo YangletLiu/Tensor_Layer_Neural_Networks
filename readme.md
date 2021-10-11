@@ -2,27 +2,30 @@
 
 Image size: 28 x 28.  
 
-#Epoch: 100 for FC; 300 for both tNN and spectral tensor network.  
+#Epoch: 100; 300 for tNN in [1].
 
-Batch size: 64 for FC; 100 for both tNN and spectral tensor network.
+Batch size: 128; 100 for tNN in [1].
 
-Optimizer: Adam for 8-layer spectral tensor network; SGD with momentum=0.9 for others.
+Optimizer: Adam.
 
-Rank: 16.
+Rank: 10.
 
 |Networks|File|Layers|Test accuracy|Learning rate|Initialization|
 |-|-|-|-|-|-|
-|FC-4-layer |fc_4L_mnist.py|[784, 784, 784, 784, 10]|98.63%|0.01|random
-|FC-8-layer |fc_8L_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.66%|0.01|random
-|FC-4-layer (low-rank)| fc_4L_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 10]| 97.80%|0.05|xavier normal
-|FC-8-layer (low-rank)| fc_8L_lowrank_mnist.py|[784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 16, 784, 10]| 97.86%|0.001|xavier normal
-|tNN-4-layer |tnn_4L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.84%;<br> <98.0% in [1].|0.1|random
-|tNN-8-layer |tnn_8L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.81%;<br> ~ 98.0% in [1].|0.01; <br>0.1 in [1].|random
-|Spectral-tensor-4-layer-subnets-28| spectral_tensor_4L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 95.74% | 0.001| random
-|Spectral-tensor-8-layer-subnets-28| spectral_tensor_8L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 95.92% |0.001|random
-|Spectral-tensor-8-layer-subnets-7| spectral_tensor_8L_subnets_7_mnist.py| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.06% |0.001|random
-|Spectral-tensor-8-layer-subnets-14| spectral_tensor_8L_subnets_14_mnist.py| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.12% |0.001|random
-|Spectral-tensor-8-layer-subnets-16| spectral_tensor_8L_subnets_16_mnist.py| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.28% |0.001|random
+|FC-4-layer |fc_4L_mnist.py|[784, 784, 784, 784, 10]|98.64%|0.001|random
+|FC-8-layer |fc_8L_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.71%|0.001|random
+|FC-4-layer (low-rank)| fc_4L_lowrank_mnist.py|[784, 10, 784, 10, 784, 10, 784, 10]| 96.42%|0.001|xavier normal
+|FC-8-layer (low-rank)| fc_8L_lowrank_mnist.py|[784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10]| 96.46%|0.001|xavier normal
+|tNN-4-layer |tnn_4L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.85% (32/100 epochs);<br> <98.0% in [1].|0.01|random
+|tNN-8-layer |tnn_8L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.59% (28/100 epochs);<br> ~ 98.0% in [1].|0.01; <br>0.1 in [1].|random
+|tNN-8-layer-seg-7 |tnn_8L_seg_7_mnist.py| [(7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 10, 112)]|95.13% (3/100 epochs)|0.01|random
+|tNN-8-layer-seg-14 |tnn_8L_seg_14_mnist.py| [(14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 10, 56)]|97.63% (15/100 epochs)|0.01|random
+|tNN-8-layer-seg-16 |tnn_8L_seg_16_mnist.py| [(16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 10, 49)]|97.51% (20/100 epochs)|0.01|random
+|Spectral-tensor-4-layer-subnets-28| spectral_tensor_4L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
+|Spectral-tensor-8-layer-subnets-28| spectral_tensor_8L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random
+|Spectral-tensor-8-layer-subnets-7| spectral_tensor_8L_subnets_7_mnist.py| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.26% |0.001|random
+|Spectral-tensor-8-layer-subnets-14| spectral_tensor_8L_subnets_14_mnist.py| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.14% |0.001|random
+|Spectral-tensor-8-layer-subnets-16| spectral_tensor_8L_subnets_16_mnist.py| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.36% |0.001|random
 
 
 **Our spectral tensor networks with _x_ subnetworks**: 

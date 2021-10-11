@@ -8,7 +8,6 @@ from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import os
 import sys
 
 
@@ -27,7 +26,7 @@ transform_test = transforms.Compose([
                                       (0.1307,), (0.3081,))
                               ])
 
-batch_size = 64
+batch_size = 128
 trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 num_train = len(trainset)
@@ -87,7 +86,7 @@ def low_rank_matrix_decompose_FC_layer(layer, r):
     return nn.Sequential(*new_layers)
 
 
-def low_rank_matrix_decompose_nested_FC_layer(layer, rank=16):
+def low_rank_matrix_decompose_nested_FC_layer(layer, rank=10):
     modules = layer._modules
     for key in modules.keys():
         l = modules[key]
@@ -103,7 +102,7 @@ def low_rank_matrix_decompose_nested_FC_layer(layer, rank=16):
 
 
 # decomposition
-def decompose_FC(model, mode, rank=16):
+def decompose_FC(model, mode, rank=10):
     model.eval()
     model.cpu()
     layers = model._modules

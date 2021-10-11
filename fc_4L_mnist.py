@@ -8,7 +8,6 @@ from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-import os
 import sys
 
 
@@ -27,7 +26,7 @@ transform_test = transforms.Compose([
                                       (0.1307,), (0.3081,))
                               ])
 
-batch_size = 64
+batch_size = 128
 trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 num_train = len(trainset)
@@ -188,8 +187,8 @@ def train(num_epochs, net):
     original_time = time.asctime(time.localtime(time.time()))
     start_time = time.time()
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
-    # optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
+    # optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
+    optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
     current_lr = lr0
 
     try:
