@@ -70,21 +70,21 @@ class tNN8MNIST(nn.Module):
         :return: this demo defines an one-layer networks,
                     whose output is processed by one-time tensor-product and activation
         """
-        x = torch_tensor_product(self.W_1, x) + self.B_1
+        x = dct_tensor_product(self.W_1, x) + self.B_1
         x = F.relu(x)
-        x = torch_tensor_product(self.W_2, x) + self.B_2
+        x = dct_tensor_product(self.W_2, x) + self.B_2
         x = F.relu(x)
-        x = torch_tensor_product(self.W_3, x) + self.B_3
+        x = dct_tensor_product(self.W_3, x) + self.B_3
         x = F.relu(x)
-        x = torch_tensor_product(self.W_4, x) + self.B_4
+        x = dct_tensor_product(self.W_4, x) + self.B_4
         x = F.relu(x)
-        x = torch_tensor_product(self.W_5, x) + self.B_5
+        x = dct_tensor_product(self.W_5, x) + self.B_5
         x = F.relu(x)
-        x = torch_tensor_product(self.W_6, x) + self.B_6
+        x = dct_tensor_product(self.W_6, x) + self.B_6
         x = F.relu(x)
-        x = torch_tensor_product(self.W_7, x) + self.B_7
+        x = dct_tensor_product(self.W_7, x) + self.B_7
         x = F.relu(x)
-        x = torch_tensor_product(self.W_8, x) + self.B_8
+        x = dct_tensor_product(self.W_8, x) + self.B_8
         return x
 
 # dct at the beginning and idct at the end
@@ -181,16 +181,22 @@ def torch_tensor_Bcirc(tensor, l, m, n):
     return torch.cat(bcirc_A, dim=2).reshape(l * m, l * n)
 
 
-def torch_tensor_product(tensorA, tensorB):
+def dct_tensor_product(tensorA, tensorB):
     a_l, a_m, a_n = tensorA.shape
-    b_l, b_n, b_p = tensorB.shape
+    b_l, b_m, b_n = tensorB.shape
+    dct_a = torch.transpose(dct(torch.transpose(tensorA, 0, 2)), 0, 2)
+    # print(dct_a)
+    dct_b = torch.transpose(dct(torch.transpose(tensorB, 0, 2)), 0, 2)
+    # print(dct_b)
 
-    if a_l == b_l and a_n == b_n:
-        circA = torch_tensor_Bcirc(tensorA, a_l, a_m, a_n)
-        circB = torch_tensor_Bcirc(tensorB, b_l, b_n, b_p)
-        return torch.mm(circA, circB[:, 0:b_p]).reshape(a_l, a_m, b_p)
-    else:
-        print('Shape Error')
+    dct_product = []
+    for i in range(a_l):
+        dct_product.append(torch.mm(dct_a[i, :, :], dct_b[i, :, :]))
+    dct_products = torch.stack(dct_product)
+
+    idct_product = torch.transpose(idct(torch.transpose(dct_products, 0, 2)), 0, 2).reshape(a_l, a_m, b_n)
+
+    return idct_product
 
 
 # Loss function(scalar tubal softmax function)
@@ -229,12 +235,16 @@ def scalar_tubal_func(output_tensor):
 
 
 # process raw
-def raw_img(img):
+def raw_img(img, seg_length=0):
     """
         :param img: (batch_size, channel=1, n1, n2)
         :return (n2, n1, batch_size)
     """
-    ultra_img = torch.squeeze(img).permute([2, 1, 0])
+    img = torch.squeeze(img)
+    if seg_length:
+        sp = img.shape
+        img = img.reshape(sp[0], -1, seg_length)
+    ultra_img = img.permute([2, 1, 0])
     return ultra_img
 
 
@@ -250,7 +260,7 @@ def build(decomp=False):
 
 ########################### 4. train and test functions #########################
 criterion = nn.CrossEntropyLoss().to(device)
-lr0 = 0.1
+lr0 = 0.01
 
 
 def query_lr(epoch):
@@ -276,7 +286,7 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
             img = raw_img(img)
             img, targets = img.to(device), targets.to(device)
 
-            outputs = net(img) / 1e10
+            outputs = net(img) / 1e14
             outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
             loss = criterion(outputs, targets)
 
@@ -324,11 +334,14 @@ def train(num_epochs, net):
                 img = raw_img(img)
                 optimizer.zero_grad()
 
-                outputs = net(img) / 1e10
+                outputs = net(img) / 1e14
                 # softmax function
                 outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
 
                 loss = criterion(outputs, targets)
+                if torch.isnan(loss):
+                    print("Train loss is nan! Skip this iteration.")
+                    continue
                 loss.backward()
                 optimizer.step()
 
@@ -362,7 +375,7 @@ def train(num_epochs, net):
 
 def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
-    with open('tnn_8_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open('tnn_8L_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
         f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Test Loss:'])
@@ -394,11 +407,11 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     plt.legend()
     plt.show()
 
-    plt.savefig('./tnn_8_mnist.jpg')
+    plt.savefig('./tnn_8L_mnist.jpg')
 
 
 if __name__ == "__main__":
     raw_net = build(decomp=False)
     print(raw_net)
-    train_loss_, train_acc_, test_loss_, test_acc_ = train(300, raw_net)
+    train_loss_, train_acc_, test_loss_, test_acc_ = train(100, raw_net)
     save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)

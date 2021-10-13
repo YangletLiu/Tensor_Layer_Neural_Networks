@@ -3,6 +3,7 @@ import time
 import torch
 import torch.nn.functional as F
 from torch import nn
+from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,22 +37,30 @@ num_test = len(testset)
 
 
 # define nn module
-class tNN4MNIST(nn.Module):
+class tNN8MNIST(nn.Module):
     def __init__(self):
-        super(tNN4MNIST, self).__init__()
+        super(tNN8MNIST, self).__init__()
         """
         use the nn.Parameter() and 'requires_grad = True' 
         to customize parameters which are needed to optimize
         """
         std = 1
-        self.W_1 = nn.Parameter(torch.randn(28, 28, 28) * std)
-        self.B_1 = nn.Parameter(torch.randn(28, 28, 1) * std)
-        self.W_2 = nn.Parameter(torch.randn(28, 28, 28) * std)
-        self.B_2 = nn.Parameter(torch.randn(28, 28, 1) * std)
-        self.W_3 = nn.Parameter(torch.randn(28, 28, 28) * std)
-        self.B_3 = nn.Parameter(torch.randn(28, 28, 1) * std)
-        self.W_4 = nn.Parameter(torch.randn(28, 10, 28) * std)
-        self.B_4 = nn.Parameter(torch.randn(28, 10, 1) * std)
+        self.W_1 = nn.Parameter(torch.randn(14, 56, 56) * std)
+        self.B_1 = nn.Parameter(torch.randn(14, 56, 1) * std)
+        self.W_2 = nn.Parameter(torch.randn(14, 56, 56) * std)
+        self.B_2 = nn.Parameter(torch.randn(14, 56, 1) * std)
+        self.W_3 = nn.Parameter(torch.randn(14, 56, 56) * std)
+        self.B_3 = nn.Parameter(torch.randn(14, 56, 1) * std)
+        self.W_4 = nn.Parameter(torch.randn(14, 56, 56) * std)
+        self.B_4 = nn.Parameter(torch.randn(14, 56, 1) * std)
+        self.W_5 = nn.Parameter(torch.randn(14, 56, 56) * std)
+        self.B_5 = nn.Parameter(torch.randn(14, 56, 1) * std)
+        self.W_6 = nn.Parameter(torch.randn(14, 56, 56) * std)
+        self.B_6 = nn.Parameter(torch.randn(14, 56, 1) * std)
+        self.W_7 = nn.Parameter(torch.randn(14, 56, 56) * std)
+        self.B_7 = nn.Parameter(torch.randn(14, 56, 1) * std)
+        self.W_8 = nn.Parameter(torch.randn(14, 10, 56) * std)
+        self.B_8 = nn.Parameter(torch.randn(14, 10, 1) * std)
 
     def forward(self, x):
         """
@@ -68,6 +77,14 @@ class tNN4MNIST(nn.Module):
         x = dct_tensor_product(self.W_3, x) + self.B_3
         x = F.relu(x)
         x = dct_tensor_product(self.W_4, x) + self.B_4
+        x = F.relu(x)
+        x = dct_tensor_product(self.W_5, x) + self.B_5
+        x = F.relu(x)
+        x = dct_tensor_product(self.W_6, x) + self.B_6
+        x = F.relu(x)
+        x = dct_tensor_product(self.W_7, x) + self.B_7
+        x = F.relu(x)
+        x = dct_tensor_product(self.W_8, x) + self.B_8
         return x
 
 # dct at the beginning and idct at the end
@@ -234,7 +251,7 @@ def raw_img(img, seg_length=0):
 # build model
 def build(decomp=False):
     print('==> Building model..')
-    full_net = tNN4MNIST()
+    full_net = tNN8MNIST()
     if decomp:
         raise("No Tensor Neural Network decompostion implementation.")
     print('==> Done')
@@ -266,10 +283,10 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
 
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
-            img = raw_img(img)
+            img = raw_img(img, seg_length=14)
             img, targets = img.to(device), targets.to(device)
 
-            outputs = net(img) / 1e8
+            outputs = net(img) / 1e14
             outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
             loss = criterion(outputs, targets)
 
@@ -314,10 +331,10 @@ def train(num_epochs, net):
             print('\n=> Training Epoch #%d, LR=%.4f' %(epoch+1, current_lr))
             for batch_idx, (img, targets) in enumerate(trainloader):
                 img, targets = img.to(device), targets.to(device)
-                img = raw_img(img)
+                img = raw_img(img, seg_length=14)
                 optimizer.zero_grad()
 
-                outputs = net(img) / 1e8
+                outputs = net(img) / 1e14
                 # softmax function
                 outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
 
@@ -358,7 +375,7 @@ def train(num_epochs, net):
 
 def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
-    with open('tnn_4L_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open('tnn_8L_seg_14_mnist_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
         f_csv.writerows(enumerate(test_acc,1))
         f_csv.writerow(['Test Loss:'])
@@ -372,7 +389,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     fig = plt.figure(1)
     sub1 = plt.subplot(1, 2, 1)
     plt.sca(sub1)
-    plt.title('tNN-4 Loss on MNIST ')
+    plt.title('tNN-8L-seg-14 Loss on MNIST ')
     plt.plot(np.arange(len(test_loss)), test_loss, color='red', label='TestLoss',linestyle='-')
     plt.plot(np.arange(len(train_loss)), train_loss, color='blue', label='TrainLoss',linestyle='--')
     plt.xlabel('Epoch')
@@ -381,7 +398,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
 
     sub2 = plt.subplot(1, 2, 2)
     plt.sca(sub2)
-    plt.title('tNN-4 Accuracy on MNIST ')
+    plt.title('tNN-8L-seg-14 Accuracy on MNIST ')
     plt.plot(np.arange(len(test_acc)), test_acc, color='green', label='TestAcc',linestyle='-')
     plt.plot(np.arange(len(train_acc)), train_acc, color='orange', label='TrainAcc',linestyle='--')
     plt.xlabel('Epoch')
@@ -390,7 +407,7 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     plt.legend()
     plt.show()
 
-    plt.savefig('./tnn_4L_mnist.jpg')
+    plt.savefig('./tnn_8L_seg_14_mnist.jpg')
 
 
 if __name__ == "__main__":

@@ -16,16 +16,19 @@ Rank: 10.
 |FC-8-layer |fc_8L_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.71%|0.001|random
 |FC-4-layer (low-rank)| fc_4L_lowrank_mnist.py|[784, 10, 784, 10, 784, 10, 784, 10]| 96.42%|0.001|xavier normal
 |FC-8-layer (low-rank)| fc_8L_lowrank_mnist.py|[784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10]| 96.46%|0.001|xavier normal
-|tNN-4-layer |tnn_4L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.85% (32/100 epochs);<br> <98.0% in [1].|0.01|random
+|tNN-4-layer |tnn_4L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.90%;<br> <98.0% in [1].|0.01|random
 |tNN-8-layer |tnn_8L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.59% (28/100 epochs);<br> ~ 98.0% in [1].|0.01; <br>0.1 in [1].|random
-|tNN-8-layer-seg-7 |tnn_8L_seg_7_mnist.py| [(7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 10, 112)]|95.13% (3/100 epochs)|0.01|random
-|tNN-8-layer-seg-14 |tnn_8L_seg_14_mnist.py| [(14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 10, 56)]|97.63% (15/100 epochs)|0.01|random
-|tNN-8-layer-seg-16 |tnn_8L_seg_16_mnist.py| [(16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 10, 49)]|97.51% (20/100 epochs)|0.01|random
-|Spectral-tensor-4-layer-subnets-28| spectral_tensor_4L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
-|Spectral-tensor-8-layer-subnets-28| spectral_tensor_8L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random
+|tNN-8-layer-row-7 |tnn_8L_row_7_mnist.py| [(7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 10, 112)]|97.78% |0.001|random
+|tNN-8-layer-row-14 |tnn_8L_row_14_mnist.py| [(14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 10, 56)]|97.79% |0.001|random
+|tNN-8-layer-row-16 |tnn_8L_row_16_mnist.py| [(16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 10, 49)]|97.86% |0.001|random
 |Spectral-tensor-8-layer-subnets-7| spectral_tensor_8L_subnets_7_mnist.py| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.26% |0.001|random
 |Spectral-tensor-8-layer-subnets-14| spectral_tensor_8L_subnets_14_mnist.py| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.14% |0.001|random
 |Spectral-tensor-8-layer-subnets-16| spectral_tensor_8L_subnets_16_mnist.py| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.36% |0.001|random
+|Spectral-tensor-4-layer-subnets-28| spectral_tensor_4L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
+|Spectral-tensor-8-layer-subnets-28| spectral_tensor_8L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random
+
+
+tNN for row-_x_ images: reorganize each image into a matrix with a row of size _x_ and train the corresponding tNN.
 
 
 **Our spectral tensor networks with _x_ subnetworks**: 
@@ -36,7 +39,7 @@ Rank: 10.
 
 3). Obtain the trained _x_ subnetworks and corresponding loss values; 
 
-4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ spectrals of a new image and input them into the _x_ trained subnetwork; ensemble the _x_ outputs by weighted sum to obtain the predicted label.
+4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ spectrals of a new image and input them into the _x_ trained subnetworks; ensemble the _x_ outputs by weighted sum to obtain the predicted label.
 
 
 ![avatar](./figs/mnist_acc.png)
@@ -94,12 +97,38 @@ Image size: 32 x 32 x 3.
 
 Batch size: 128.
 
-Optimizer: SGD with momentum = 0.9.
+Optimizer: SGD with momentum = 0.9 for CNN; Adam for spectral convolutional tensor network.
 
 |Network|File|Layers|Test accuracy|Learning rate|Initialization
 |-|-|-|-|-|-|
 |CNN-4-layer|cnn_4L_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU, MaxPool, Dropout), (Dropout, Linear)] | 87.04% | 0.05 | random
-|CNN-8-layer|cnn_8L_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.07% | 0.01 | random 
+|CNN-8-layer|cnn_8L_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.07% | 0.01 | random
+|Spectral-convolutional-tensor-9-layer-subnets-2|spectral_conv_tensor_9L_subnets_2_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 91.37% | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-4|spectral_conv_tensor_9L_subnets_4_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.23% | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-8|spectral_conv_tensor_9L_subnets_8_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 82.03% | 0.001 | random
+
+**Our spectral convolutional tensor networks with _x_ subnetworks**: 
+
+1). Preprocess training dataset: reorganize each image into an image with a row of size _x_, perform DCT on the data along the row-dimension (size _x_), and split the training dataset into _x_ subsets corresponding to _x_ spectrals (for each image, each spectral has a tensor);
+
+2). Train _x_ subnetworks (9-layer CNN) with training dataset: the _x_ spectral data as **input** and the corresponding labels as **output**;
+
+3). Obtain the trained _x_ subnetworks and corresponding loss values;
+
+4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ spectrals of a new image and input them into the _x_ trained subnetworks; fuse the _x_ outputs by weighted sum to obtain the predicted label.
+
+- - -
+
+Image size: 32 x 32 x 3.
+
+#Epoch: 300.  
+
+Batch size: 128.
+
+Optimizer: SGD with momentum = 0.9 for CNN;
+
+|Network|File|Layers|Test accuracy|Learning rate|Initialization
+|-|-|-|-|-|-|
 |Spectral-convolutional-tensor-8-layer-subnets-3| spectral_conv_tensor_8L_subnets_3_cifar10.py|3 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 91.47% | 0.001 | random 
 
 **Our spectral convolutional tensor networks with 3 subnetworks**: 
@@ -110,7 +139,7 @@ Optimizer: SGD with momentum = 0.9.
 
 3). Obtain the trained 3 subnetworks and corresponding loss values;
 
-4). In the testing phase, use the loss values to set weights as 1/loss; get the 3 spectrals of a new image and input them into the 3 trained subnetwork; fuse the 3 outputs by weighted sum to obtain the predicted label.
+4). In the testing phase, use the loss values to set weights as 1/loss; get the 3 spectrals of a new image and input them into the 3 trained subnetworks; fuse the 3 outputs by weighted sum to obtain the predicted label.
 
 
 
@@ -148,7 +177,7 @@ Optimizer: SGD with momentum = 0.9.
 
 3). Obtain the trained 4 subnetworks and corresponding loss values;
 
-4). In the testing phase, use the loss values to set weights as 1/loss; get the 4 processed data of a new image (like in step 1)) and input them into the 4 trained subnetwork; fuse the 4 outputs by weighted sum to obtain the predicted label.
+4). In the testing phase, use the loss values to set weights as 1/loss; get the 4 processed data of a new image (like in step 1)) and input them into the 4 trained subnetworks; fuse the 4 outputs by weighted sum to obtain the predicted label.
 
 
 ![avatar](./figs/spectral_cnn_8L_avg_subnets_4_cifar10_acc.png)
