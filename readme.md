@@ -140,7 +140,7 @@ Optimizer: Adam.
 **CNN / Spectral convolutional tensor networks with _x_ subnetworks using downsampled data**: 
 
 1). Preprocess training dataset: 
-- Downsample each image into _x_ images: divide each image into blocks of size _bh_ x _bw_, where _bh_ x _bw_ = _x_; the first elements of all blocks organize the first downsampled image, the second elements of all blocks organize the second downsampled image, ...
+- Downsample each image into _x_ images: divide each image into blocks of size _bh_ x _bw_, where _bh_ x _bw_ = _x_; the first elements of all blocks are organized into the first downsampled image, the second elements of all blocks are organized into the second downsampled image, ...
 - * For CNN: split the training dataset into _x_ subsets.
   * For spectral convolutional tensor networks: stack the _x_ downsampled images, perform DCT on the data along the stacking-dimension (size _x_), and split the training dataset into _x_ subsets corresponding to _x_ spectrals (for each image, each spectral has a tensor);
 
