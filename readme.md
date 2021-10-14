@@ -107,6 +107,7 @@ Optimizer: SGD with momentum = 0.9 for CNN; Adam for spectral convolutional tens
 |Spectral-convolutional-tensor-9-layer-subnets-4|spectral_conv_tensor_9L_subnets_4_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.23% | 0.001 | random
 |Spectral-convolutional-tensor-9-layer-subnets-8|spectral_conv_tensor_9L_subnets_8_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 82.03% | 0.001 | random
 
+
 **Our spectral convolutional tensor networks with _x_ subnetworks**: 
 
 1). Preprocess training dataset: reorganize each image into an image with a row of size _x_, perform DCT on the data along the row-dimension (size _x_), and split the training dataset into _x_ subsets corresponding to _x_ spectrals (for each image, each spectral has a tensor);
@@ -116,6 +117,38 @@ Optimizer: SGD with momentum = 0.9 for CNN; Adam for spectral convolutional tens
 3). Obtain the trained _x_ subnetworks and corresponding loss values;
 
 4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ spectrals of a new image and input them into the _x_ trained subnetworks; fuse the _x_ outputs by weighted sum to obtain the predicted label.
+
+- - -
+
+Image size: 32 x 32 x 3.
+
+#Epoch: 300.  
+
+Batch size: 128.
+
+Optimizer: Adam.
+
+|Network|File|Layers|Test accuracy|Learning rate|Initialization
+|-|-|-|-|-|-|
+|CNN-9-layer-subnets-2|cnn_9L_subnets_2_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.66% (90/300 epochs)| 0.001 | random
+|CNN-10-layer-subnets-4|cnn_10L_subnets_4_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.29% (66/300 epochs) | 0.001 | random
+|CNN-10-layer-subnets-8|cnn_10L_subnets_8_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 79.81% (43/300 epochs) | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-2|spectral_conv_tensor_9L_subnets_2_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.94% (188/300 epochs)| 0.001 | random
+|Spectral-convolutional-tensor-10-layer-subnets-4|spectral_conv_tensor_10L_subnets_4_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.82% (137/300 epochs)| 0.001 | random
+|Spectral-convolutional-tensor-10-layer-subnets-8|spectral_conv_tensor_10L_subnets_8_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 83.03% (80/300 epochs)| 0.001 | random
+
+**CNN / Spectral convolutional tensor networks with _x_ subnetworks using downsampled data**: 
+
+1). Preprocess training dataset: 
+- Downsample each image into _x_ images: divide each image into blocks of size _bh_ x _bw_, where _bh_ x _bw_ = _x_; the first elements of all blocks organize the first downsampled image, the second elements of all blocks organize the second downsampled image, ...
+- * For CNN: split the training dataset into _x_ subsets.
+  * For spectral convolutional tensor networks: stack the _x_ downsampled images, perform DCT on the data along the stacking-dimension (size _x_), and split the training dataset into _x_ subsets corresponding to _x_ spectrals (for each image, each spectral has a tensor);
+
+2). Train _x_ subnetworks (CNN) with training dataset: the _x_ data as **input** and the corresponding labels as **output**;
+
+3). Obtain the trained _x_ subnetworks and corresponding loss values;
+
+4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ downsampled images (or spectrals) of a new image and input them into the _x_ trained subnetworks; fuse the _x_ outputs by weighted sum to obtain the predicted label.
 
 - - -
 
