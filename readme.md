@@ -78,7 +78,7 @@ Image size: 32 x 32 x 3.
 
 Batch size: 128.
 
-Rank: 10.
+Rank: 16.
 
 Optimizer: SGD with momentum = 0.9.
 
