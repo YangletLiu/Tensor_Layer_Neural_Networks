@@ -10,23 +10,38 @@ Optimizer: Adam.
 
 Rank: 10.
 
-|Networks|File|Layers|Test accuracy|Learning rate|Initialization|
-|-|-|-|-|-|-|
-|FC-4-layer |fc_4L_mnist.py|[784, 784, 784, 784, 10]|98.64%|0.001|random
-|FC-8-layer |fc_8L_mnist.py|[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.71%|0.001|random
-|FC-4-layer (low-rank)| fc_4L_lowrank_mnist.py|[784, 10, 784, 10, 784, 10, 784, 10]| 96.42%|0.001|xavier normal
-|FC-8-layer (low-rank)| fc_8L_lowrank_mnist.py|[784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10]| 96.46%|0.001|xavier normal
-|tNN-4-layer |tnn_4L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.90%;<br> <98.0% in [1].|0.01|random
-|tNN-8-layer |tnn_8L_mnist.py| [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.59% (28/100 epochs);<br> ~ 98.0% in [1].|0.01; <br>0.1 in [1].|random
-|tNN-8-layer-row-7 |tnn_8L_row_7_mnist.py| [(7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 10, 112)]|97.78% |0.001|random
-|tNN-8-layer-row-14 |tnn_8L_row_14_mnist.py| [(14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 10, 56)]|97.79% |0.001|random
-|tNN-8-layer-row-16 |tnn_8L_row_16_mnist.py| [(16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 10, 49)]|97.86% |0.001|random
-|Spectral-tensor-8-layer-subnets-7| spectral_tensor_8L_subnets_7_mnist.py| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.26% |0.001|random
-|Spectral-tensor-8-layer-subnets-14| spectral_tensor_8L_subnets_14_mnist.py| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.14% |0.001|random
-|Spectral-tensor-8-layer-subnets-16| spectral_tensor_8L_subnets_16_mnist.py| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.36% |0.001|random
-|Spectral-tensor-4-layer-subnets-28| spectral_tensor_4L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
-|Spectral-tensor-8-layer-subnets-28| spectral_tensor_8L_subnets_28_mnist.py| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random
+|Networks|Layers|Test accuracy|Learning rate|Initialization|
+|-|-|-|-|-|
+|FC-4-layer |[784, 784, 784, 784, 10]|98.64%|0.001|random
+|FC-8-layer |[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.71%|0.001|random
+|FC-4-layer (low-rank)|[784, 10, 784, 10, 784, 10, 784, 10]| 96.42%|0.001|xavier normal
+|FC-8-layer (low-rank)|[784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10]| 96.46%|0.001|xavier normal
+|tNN-4-layer | [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.90%;<br> <98.0% in [1].|0.01|random
+|tNN-8-layer || [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.59% (28/100 epochs);<br> ~ 98.0% in [1].|0.01; <br>0.1 in [1].|random
+|tNN-8-layer-row-7 | [(7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 10, 112)]|97.78% |0.001|random
+|tNN-8-layer-row-14 | [(14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 10, 56)]|97.79% |0.001|random
+|tNN-8-layer-row-16 | [(16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 10, 49)]|97.86% |0.001|random
+|Spectral-tensor-8-layer-subnets-7| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.26% |0.001|random
+|Spectral-tensor-8-layer-subnets-14| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.14% |0.001|random
+|Spectral-tensor-8-layer-subnets-16| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.36% |0.001|random
+|Spectral-tensor-4-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
+|Spectral-tensor-8-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random
 
+Files:
+> fc_4L_mnist.py <br>
+> fc_8L_mnist.py <br>
+> fc_4L_lowrank_mnist.py <br>
+> fc_8L_lowrank_mnist.py <br>
+> tnn_4L_mnist.py <br>
+> tnn_8L_mnist.py <br>
+> tnn_8L_row_7_mnist.py <br>
+> tnn_8L_row_14_mnist.py <br>
+> tnn_8L_row_16_mnist.py <br>
+> spectral_tensor_8L_subnets_7_mnist.py <br>
+> spectral_tensor_8L_subnets_14_mnist.py <br>
+> spectral_tensor_8L_subnets_16_mnist.py <br>
+> spectral_tensor_4L_subnets_28_mnist.py <br>
+> spectral_tensor_8L_subnets_28_mnist.py <br>
 
 tNN for row-_x_ images: reorganize each image into a matrix with a row of size _x_ and train the corresponding tNN.
 
@@ -64,11 +79,14 @@ Batch size: 100.
 
 Optimizer: SGD with momentum = 0.9.
 
-|Networks|File|Layers |Test accuracy|Learning rate|Initialization
-|-|-|-|-|-|-|
-|CNN-4-layer|cnn_4L_mnist.py|[(Conv, ReLU, MaxPool), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.44% | 0.01 | random 
-|CNN-4-layer|cnn_8L_mnist.py|[(Conv, ReLU), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.47% |  0.01 | random 
+|Networks|Layers |Test accuracy|Learning rate|Initialization
+|-|-|-|-|-|
+|CNN-4-layer|[(Conv, ReLU, MaxPool), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.44% | 0.01 | random 
+|CNN-4-layer|[(Conv, ReLU), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, Dropout, MaxPool), (Conv, ReLU), (Conv, ReLU), (Conv, ReLU, MaxPool), (Dropout, Linear)] | 99.47% |  0.01 | random 
 
+Files:
+> cnn_4L_mnist.py <br>
+> cnn_8L_mnist.py <br>
 
 
 ## CIFAR 10 Dataset
@@ -82,12 +100,18 @@ Rank: 16.
 
 Optimizer: SGD with momentum = 0.9.
 
-|Network|File|Layers|Test accuracy|Learning rate|Initialization
+|Network|Layers|Test accuracy|Learning rate|Initialization
 |-|-|-|-|-|-|
-|FC-4-layer|fc_4L_cifar10.py|[3072, 3072, 3072, 3072, 10]|59.40%|0.01|random
-|FC-8-layer|fc_8L_cifar10.py|[3072, 3072, 3072, 3072, 3072, 3072, 3072, 3072, 10]|59.19%|0.01|random
-|FC-4-layer (low-rank)|fc_4_lowrank_cifar10.py|[3072, 16, 3072, 16, 3072, 16, 3072, 10]|51.25%(need to be tuned)|0.01|xavier normal
-|FC-8-layer (low-rank)|fc_8L_lowrank_cifar10.py|[3072, 16, 3072, 16, 3072, 16, 3072, 16, 3072, 16, 3072, 16, 3072, 16, 3072, 10]|48.33%(need to be tuned)|0.0001|xavier normal
+|FC-4-layer|[3072, 3072, 3072, 3072, 10]|59.40%|0.01|random
+|FC-8-layer|[3072, 3072, 3072, 3072, 3072, 3072, 3072, 3072, 10]|59.19%|0.01|random
+|FC-4-layer (low-rank)|[3072, 16, 3072, 16, 3072, 16, 3072, 10]|51.25%(need to be tuned)|0.01|xavier normal
+|FC-8-layer (low-rank)|[3072, 16, 3072, 16, 3072, 16, 3072, 16, 3072, 16, 3072, 16, 3072, 16, 3072, 10]|48.33%(need to be tuned)|0.0001|xavier normal
+
+Files:
+> fc_4L_cifar10.py <br>
+> fc_8L_cifar10.py <br>
+> fc_4_lowrank_cifar10.py <br>
+> fc_8L_lowrank_cifar10.py <br>
 
 - - - 
 
@@ -99,14 +123,20 @@ Batch size: 128.
 
 Optimizer: SGD with momentum = 0.9 for CNN; Adam for spectral convolutional tensor network.
 
-|Network|File|Layers|Test accuracy|Learning rate|Initialization
-|-|-|-|-|-|-|
-|CNN-4-layer|cnn_4L_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU, MaxPool, Dropout), (Dropout, Linear)] | 87.04% | 0.05 | random
-|CNN-8-layer|cnn_8L_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.07% | 0.01 | random
-|Spectral-convolutional-tensor-9-layer-subnets-2|spectral_conv_tensor_9L_subnets_2_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 91.37% | 0.001 | random
-|Spectral-convolutional-tensor-9-layer-subnets-4|spectral_conv_tensor_9L_subnets_4_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.23% | 0.001 | random
-|Spectral-convolutional-tensor-9-layer-subnets-8|spectral_conv_tensor_9L_subnets_8_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 82.03% | 0.001 | random
+|Network|Layers|Test accuracy|Learning rate|Initialization
+|-|-|-|-|-|
+|CNN-4-layer|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU, MaxPool, Dropout), (Dropout, Linear)] | 87.04% | 0.05 | random
+|CNN-8-layer|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.07% | 0.01 | random
+|Spectral-convolutional-tensor-9-layer-subnets-2|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 91.37% | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-4|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.23% | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-8|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 82.03% | 0.001 | random
 
+Files:
+> cnn_4L_cifar10.py <br>
+> cnn_8L_cifar10.py <br>
+> spectral_conv_tensor_9L_subnets_2_cifar10.py <br>
+> spectral_conv_tensor_9L_subnets_4_cifar10.py <br>
+> spectral_conv_tensor_9L_subnets_8_cifar10.py <br>
 
 **Our spectral convolutional tensor networks with _x_ subnetworks**: 
 
@@ -128,14 +158,22 @@ Batch size: 128.
 
 Optimizer: Adam.
 
-|Network|File|Layers|Test accuracy|Learning rate|Initialization
-|-|-|-|-|-|-|
-|CNN-9-layer-subnets-2|cnn_9L_subnets_2_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.66% (90/300 epochs)| 0.001 | random
-|CNN-10-layer-subnets-4|cnn_10L_subnets_4_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.29% (66/300 epochs) | 0.001 | random
-|CNN-10-layer-subnets-8|cnn_10L_subnets_8_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 79.81% (43/300 epochs) | 0.001 | random
-|Spectral-convolutional-tensor-9-layer-subnets-2|spectral_conv_tensor_9L_subnets_2_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.94% (188/300 epochs)| 0.001 | random
-|Spectral-convolutional-tensor-10-layer-subnets-4|spectral_conv_tensor_10L_subnets_4_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.82% (137/300 epochs)| 0.001 | random
-|Spectral-convolutional-tensor-10-layer-subnets-8|spectral_conv_tensor_10L_subnets_8_downsample_cifar10.py|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 83.03% (80/300 epochs)| 0.001 | random
+|Network|Layers|Test accuracy|Learning rate|Initialization
+|-|-|-|-|-|
+|CNN-9-layer-subnets-2|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.66% (90/300 epochs)| 0.001 | random
+|CNN-10-layer-subnets-4|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.29% (66/300 epochs) | 0.001 | random
+|CNN-10-layer-subnets-8|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 79.81% (43/300 epochs) | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-2|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.94% (188/300 epochs)| 0.001 | random
+|Spectral-convolutional-tensor-10-layer-subnets-4|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.82% (137/300 epochs)| 0.001 | random
+|Spectral-convolutional-tensor-10-layer-subnets-8|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 83.03% (80/300 epochs)| 0.001 | random
+
+Files:
+> cnn_9L_subnets_2_downsample_cifar10.py <br>
+> cnn_10L_subnets_4_downsample_cifar10.py <br>
+> cnn_10L_subnets_8_downsample_cifar10.py| <br>
+> spectral_conv_tensor_9L_subnets_2_downsample_cifar10.py <br>
+> spectral_conv_tensor_10L_subnets_4_downsample_cifar10.py <br>
+> spectral_conv_tensor_10L_subnets_8_downsample_cifar10.py <br>
 
 **CNN / Spectral convolutional tensor networks with _x_ subnetworks using downsampled data**: 
 
@@ -160,9 +198,12 @@ Batch size: 128.
 
 Optimizer: SGD with momentum = 0.9 for CNN;
 
-|Network|File|Layers|Test accuracy|Learning rate|Initialization
-|-|-|-|-|-|-|
-|Spectral-convolutional-tensor-8-layer-subnets-3| spectral_conv_tensor_8L_subnets_3_cifar10.py|3 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 91.47% | 0.001 | random 
+|Network|Layers|Test accuracy|Learning rate|Initialization
+|-|-|-|-|-|
+|Spectral-convolutional-tensor-8-layer-subnets-3| 3 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 91.47% | 0.001 | random 
+
+File:
+> spectral_conv_tensor_8L_subnets_3_cifar10.py <br>
 
 **Our spectral convolutional tensor networks with 3 subnetworks**: 
 
@@ -190,9 +231,12 @@ Batch size: 128.
 
 Optimizer: SGD with momentum = 0.9.
 
-|Network|File|Layers|Test accuracy|Learning rate|Initialization
-|-|-|-|-|-|-|
-|Spectral-convolutional-tensor-8-layer-avg-subnets-4| spectral_conv_tensor_8L_avg_subnets_4_cifar10.py|4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 91.93% | 0.001 | random 
+|Network|Layers|Test accuracy|Learning rate|Initialization
+|-|-|-|-|-|
+|Spectral-convolutional-tensor-8-layer-avg-subnets-4| 4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 91.93% | 0.001 | random 
+
+File:
+> spectral_conv_tensor_8L_avg_subnets_4_cifar10.py| <br>
 
 **Our spectral convolutional tensor networks with 4 subnetworks**:
 
