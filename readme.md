@@ -21,11 +21,15 @@ Rank: 10.
 |tNN-8-layer-row-7 | [(7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 10, 112)]|97.78% |0.001|random
 |tNN-8-layer-row-14 | [(14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 10, 56)]|97.79% |0.001|random
 |tNN-8-layer-row-16 | [(16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 10, 49)]|97.86% |0.001|random
+|FC-8-layer-subnets-28(downsample)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.51% |0.001|random
+|FC-8-layer-subnets-28(segmentation)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 95.10% |0.001|random
+|FC-8-layer-subnets-28(block)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 97.01% |0.001|random
 |Spectral-tensor-8-layer-subnets-7| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.26% |0.001|random
 |Spectral-tensor-8-layer-subnets-14| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.14% |0.001|random
 |Spectral-tensor-8-layer-subnets-16| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.36% |0.001|random
 |Spectral-tensor-4-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
-|Spectral-tensor-8-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random
+|Spectral-tensor-8-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 96.95% |0.001|random
+<!-- |Spectral-tensor-8-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random -->
 
 Files:
 > fc_4L_mnist.py <br>
@@ -37,11 +41,15 @@ Files:
 > tnn_8L_row_7_mnist.py <br>
 > tnn_8L_row_14_mnist.py <br>
 > tnn_8L_row_16_mnist.py <br>
+> FC_8L_subnets_28_downsample_mnist.py <br>
+> FC_8L_subnets_28_segmentation_mnist.py <br>
+> FC_8L_subnets_28_block_mnist.py <br>
 > spectral_tensor_8L_subnets_7_mnist.py <br>
 > spectral_tensor_8L_subnets_14_mnist.py <br>
 > spectral_tensor_8L_subnets_16_mnist.py <br>
 > spectral_tensor_4L_subnets_28_mnist.py <br>
-> spectral_tensor_8L_subnets_28_mnist.py <br>
+> spectral_tensor_8L_subnets_28_downsample_mnist.py <br>
+<!-- > spectral_tensor_8L_subnets_28_mnist.py <br> -->
 
 tNN for row-_x_ images: reorganize each image into a matrix with a row of size _x_ and train the corresponding tNN.
 
