@@ -68,6 +68,7 @@ tNN for row-_x_ images: reorganize each image into a matrix with a row of size _
 
 
 Train 3 FC networks on 3 nodes using faderated learning method:
+
 1). Preprocess training dataset:
 - On node 1: the original training dataset.
 - On node 2 and node 3: 
@@ -76,7 +77,7 @@ Train 3 FC networks on 3 nodes using faderated learning method:
 
   * For node 3: Set the first 14 spectrals of the transformed data to 0, perform inverse DCT on the data along the stacking-demension (size 28) and inverse-downsample the data to original size, namely 28 x 28.
 
-2). Train the 3 networks on the 3 nodes in synchronous parallel: Take the average of the 3 gradients computed on the 3 nodes; update the 3 networks with the average gradient using Adam optimizer.
+2). Train the 3 networks on the 3 nodes in synchronous parallel: Take the average of the 3 gradients computed on the 3 nodes; update the 3 networks with the average gradient using Adam optimizers.
 
 
 **Our spectral tensor networks with 28 subnetworks using faderated learning method**: 
