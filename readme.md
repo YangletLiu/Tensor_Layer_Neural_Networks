@@ -12,27 +12,24 @@ Rank: 10.
 
 |Networks|Layers|Test accuracy|Learning rate|Initialization|
 |-|-|-|-|-|
-|FC-4-layer |[784, 784, 784, 784, 10]|98.64%|0.001|random
-|FC-8-layer |[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.71%|0.001|random
-|FC-4-layer (low-rank)|[784, 10, 784, 10, 784, 10, 784, 10]| 96.42%|0.001|xavier normal
-|FC-8-layer (low-rank)|[784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10]| 96.46%|0.001|xavier normal
-|tNN-4-layer | [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.90%;<br> <98.0% in [1].|0.01|random
-|tNN-8-layer |[(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.59% (28/100 epochs);<br> ~ 98.0% in [1].|0.01; <br>0.1 in [1].|random
-|tNN-8-layer-row-7 | [(7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 10, 112)]|97.78% |0.001|random
-|tNN-8-layer-row-14 | [(14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 10, 56)]|97.79% |0.001|random
-|tNN-8-layer-row-16 | [(16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 10, 49)]|97.86% |0.001|random
-|FC-8-layer-subnets-28(downsample)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.51% |0.001|random
-|FC-8-layer-subnets-28(segmentation)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 95.10% |0.001|random
-|FC-8-layer-subnets-28(block)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 97.01% |0.001|random
-|Spectral-tensor-8-layer-subnets-7| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.26% |0.001|random
-|Spectral-tensor-8-layer-subnets-14| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.14% |0.001|random
-|Spectral-tensor-8-layer-subnets-16| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.36% |0.001|random
-|Spectral-tensor-4-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
-|Spectral-tensor-8-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 96.95% |0.001|random
-|Faderated FC-8-layer|3 networks on 3 nodes, respectively: <br>[784, 784, 784, 784, 784, 784, 784, 784, 10] for each network. | 98.66%, 98.61%, 98.63% for the 3 networks, respectively | 0.001| random
-|Faderated Spectral-tensor-8-layer-subnets-28|28 subnets on Node-1, 14 subnets on Node-2, 14 subnets on Node-3: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 97.67% | 0.001 | random
-<!-- |Spectral-tensor-8-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random -->
-
+|FC-4L |[784, 784, 784, 784, 10]|98.64%|0.001|random
+|FC-8L |[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.71%|0.001|random
+|FC-4L (low-rank)|[784, 10, 784, 10, 784, 10, 784, 10]| 96.42%|0.001|xavier normal
+|FC-8L (low-rank)|[784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10]| 96.46%|0.001|xavier normal
+|tNN-4L | [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.90%;<br> <98.0% in [1].|0.01|random
+|tNN-8L | [(28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 28, 28), (28, 10, 28)]|97.59% (28/100 epochs);<br> ~ 98.0% in [1].|0.01; <br>0.1 in [1].|random
+|tNN-8L-row-7 | [(7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 112, 112), (7, 10, 112)]|97.78% |0.001|random
+|tNN-8L-row-14 | [(14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 56, 56), (14, 10, 56)]|97.79% |0.001|random
+|tNN-8L-row-16 | [(16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 49, 49), (16, 10, 49)]|97.86% |0.001|random
+|FC-8L-subnets-28(downsample)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.51% |0.001|random
+|FC-8L-subnets-28(segmentation)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 95.10% |0.001|random
+|FC-8L-subnets-28(block)| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 97.01% |0.001|random
+|Spectral-tensor-8L-subnets-7| 7 subnetworks: <br>[112 (28x4), 112, 112, 112, 112, 112, 112, 112, 10] for each subnetwork. | 98.26% |0.001|random
+|Spectral-tensor-8L-subnets-14| 14 subnetworks: <br>[56 (28x2), 56, 56, 56, 56, 56, 56, 56, 10] for each subnetwork. | 98.14% |0.001|random
+|Spectral-tensor-8L-subnets-16| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.36% |0.001|random
+|Spectral-tensor-4L-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
+|Spectral-tensor-8L-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 96.95% |0.001|random
+<!-- |Spectral-tensor-8L-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random -->
 
 Files:
 > fc_4L_mnist.py <br>
@@ -44,9 +41,9 @@ Files:
 > tnn_8L_row_7_mnist.py <br>
 > tnn_8L_row_14_mnist.py <br>
 > tnn_8L_row_16_mnist.py <br>
-> fc_8L_subnets_28_downsample_mnist <br>
-> fc_8L_subnets_28_segmentation_mnist <br>
-> fc_8L_subnets_28_block_mnist <br>
+> FC_8L_subnets_28_downsample_mnist.py <br>
+> FC_8L_subnets_28_segmentation_mnist.py <br>
+> FC_8L_subnets_28_block_mnist.py <br>
 > spectral_tensor_8L_subnets_7_mnist.py <br>
 > spectral_tensor_8L_subnets_14_mnist.py <br>
 > spectral_tensor_8L_subnets_16_mnist.py <br>
