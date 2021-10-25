@@ -29,6 +29,8 @@ Rank: 10.
 |Spectral-tensor-8-layer-subnets-16| 16 subnetworks: <br>[49 (7x7)), 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 98.36% |0.001|random
 |Spectral-tensor-4-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 10] for each subnetwork. | 94.53% | 0.001| random
 |Spectral-tensor-8-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 96.95% |0.001|random
+|Faderated FC-8-layer|3 networks on 3 nodes, respectively: <br>[784, 784, 784, 784, 784, 784, 784, 784, 10] for each network. | 98.66%, 98.61%, 98.63% for the 3 networks, respectively | 0.001| random
+|Faderated Spectral-tensor-8-layer-subnets-28|28 subnets on Node-1, 14 subnets on Node-2, 14 subnets on Node-3: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 97.67% | 0.001 | random
 <!-- |Spectral-tensor-8-layer-subnets-28| 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.26% |0.001|random -->
 
 
@@ -42,12 +44,17 @@ Files:
 > tnn_8L_row_7_mnist.py <br>
 > tnn_8L_row_14_mnist.py <br>
 > tnn_8L_row_16_mnist.py <br>
+> fc_8L_subnets_28_downsample_mnist <br>
+> fc_8L_subnets_28_segmentation_mnist <br>
+> fc_8L_subnets_28_block_mnist <br>
 > spectral_tensor_8L_subnets_7_mnist.py <br>
 > spectral_tensor_8L_subnets_14_mnist.py <br>
 > spectral_tensor_8L_subnets_16_mnist.py <br>
 > spectral_tensor_4L_subnets_28_mnist.py <br>
-> spectral_tensor_8L_subnets_28_mnist.py <br>
 > spectral_tensor_8L_subnets_28_downsample_mnist.py <br>
+> faderated_fc_3_nodes.py <br>
+> faderated_spectral_tensor_8L_subnets_28_mnist.py <br>
+<!-- > spectral_tensor_8L_subnets_28_mnist.py <br> -->
 
 tNN for row-_x_ images: reorganize each image into a matrix with a row of size _x_ and train the corresponding tNN.
 
@@ -62,6 +69,23 @@ tNN for row-_x_ images: reorganize each image into a matrix with a row of size _
 
 4). In the testing phase, use the loss values to set weights as 1/loss; get the _x_ spectrals of a new image and input them into the _x_ trained subnetworks; ensemble the _x_ outputs by weighted sum to obtain the predicted label.
 
+
+Train 3 FC networks on 3 nodes using faderated learning method:
+1). Preprocess training dataset:
+- On node 1: the original training dataset.
+- On node 2 and node 3: 
+  * Downsample each image into 28 images: divide each image into blocks of size 4 x 7; the first elements of all blocks are organized into the first downsampled image, the second elements of all blocks are organized into the second downsampled image, ... . Stack the 28 downsampled images, perform DCT on the data along the stacking-dimension (size 28) to obtain the transformed data.
+  * For node 2: Set the last 14 spectrals of the transformed data to 0, perform inverse DCT on the data along the stacking-demension (size 28) and inverse-downsample the data to original size, namely 28 x 28.
+
+  * For node 3: Set the first 14 spectrals of the transformed data to 0, perform inverse DCT on the data along the stacking-demension (size 28) and inverse-downsample the data to original size, namely 28 x 28.
+
+2). Train the 3 networks on the 3 nodes in synchronous parallel: Take the average of the 3 gradients computed on the 3 nodes; update the 3 networks with the average gradient using Adam optimizer.
+
+
+**Our spectral tensor networks with 28 subnetworks using faderated learning method**: 
+- Train spectral tensor networks with all 28 subnetworks on node 1.
+- Train spectral tensor networks with the last 14 subnetworks on node2.
+- Train spectral tensor networks with the last 14 subnetworks on node3.
 
 ![avatar](./figs/mnist_acc.png)
 
@@ -107,7 +131,7 @@ Rank: 16.
 Optimizer: SGD with momentum = 0.9.
 
 |Network|Layers|Test accuracy|Learning rate|Initialization
-|-|-|-|-|-|-|
+|-|-|-|-|-|
 |FC-4-layer|[3072, 3072, 3072, 3072, 10]|59.40%|0.01|random
 |FC-8-layer|[3072, 3072, 3072, 3072, 3072, 3072, 3072, 3072, 10]|59.19%|0.01|random
 |FC-4-layer (low-rank)|[3072, 16, 3072, 16, 3072, 16, 3072, 10]|51.25%(need to be tuned)|0.01|xavier normal
@@ -133,9 +157,9 @@ Optimizer: SGD with momentum = 0.9 for CNN; Adam for spectral convolutional tens
 |-|-|-|-|-|
 |CNN-4-layer|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU, MaxPool, Dropout), (Dropout, Linear)] | 87.04% | 0.05 | random
 |CNN-8-layer|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.07% | 0.01 | random
-|Spectral-convolutional-tensor-9-layer-subnets-2|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 91.37% | 0.001 | random
-|Spectral-convolutional-tensor-9-layer-subnets-4|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.23% | 0.001 | random
-|Spectral-convolutional-tensor-9-layer-subnets-8|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 82.03% | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-2|2 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 91.37% | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-4|4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork.| 88.23% | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-8|8 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 82.03% | 0.001 | random
 
 Files:
 > cnn_4L_cifar10.py <br>
@@ -167,11 +191,11 @@ Optimizer: Adam.
 |Network|Layers|Test accuracy|Learning rate|Initialization
 |-|-|-|-|-|
 |CNN-9-layer-subnets-2|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.66% (90/300 epochs)| 0.001 | random
-|CNN-10-layer-subnets-4|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.29% (66/300 epochs) | 0.001 | random
-|CNN-10-layer-subnets-8|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 79.81% (43/300 epochs) | 0.001 | random
-|Spectral-convolutional-tensor-9-layer-subnets-2|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.94% (188/300 epochs)| 0.001 | random
-|Spectral-convolutional-tensor-10-layer-subnets-4|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 88.82% (137/300 epochs)| 0.001 | random
-|Spectral-convolutional-tensor-10-layer-subnets-8|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 83.03% (80/300 epochs)| 0.001 | random
+|CNN-10-layer-subnets-4|4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork.| 88.29% (66/300 epochs) | 0.001 | random
+|CNN-10-layer-subnets-8|8 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork.| 79.81% (43/300 epochs) | 0.001 | random
+|Spectral-convolutional-tensor-9-layer-subnets-2|2 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork.| 91.37%| 0.001 | random
+|Spectral-convolutional-tensor-10-layer-subnets-4|4 subnetworks: [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork.| 88.82% | 0.001 | random
+|Spectral-convolutional-tensor-10-layer-subnets-8|8 subnetworks: [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork.| 83.03% | 0.001 | random
 
 Files:
 > cnn_9L_subnets_2_downsample_cifar10.py <br>
@@ -266,6 +290,23 @@ File:
 ![avatar](./figs/spectral_cnn_8L_avg_subnets_4_cifar10_acc.png)
 
 ![avatar](./figs/spectral_cnn_8L_avg_subnets_4_cifar10_loss.png)
+
+
+## ImageNet Dataset
+Image size: 224 x 224 x 3.
+
+#Epoch: 100.  
+
+Batch size: 1024.
+
+Optimizer: Adam.
+
+|Network|Layers|Test accuracy|Learning rate|Initialization
+|-|-|-|-|-|
+|Spectral-convolutional-tensor-10-layer-subnets-16|16 subnetworks: [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork.| 61.24% | 0.001 | random
+
+File:
+> spectral_conv_tensor_10L_subnets_28_imagenet.py
 
 
 ## Reference
