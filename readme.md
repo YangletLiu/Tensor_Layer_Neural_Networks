@@ -316,5 +316,5 @@ File:
 
 ## Reference
 
-[1] Stable Tensor Neural Networks for Rapid Deep Learning (https://arxiv.org/abs/1811.06569).
+[1] Stable Tensor Neural Networks for Rapid Deep Learning (https://arxiv.org/abs/1811.06569). <br>
 [2] CycleMLP: A MLP-like Architecture for Dense Prediction (https://arxiv.org/abs/2107.10224).
