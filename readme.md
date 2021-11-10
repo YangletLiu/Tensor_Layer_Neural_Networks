@@ -305,7 +305,7 @@ Optimizer: Adam.
 |Spectral-CycleMLP-B5 [2]|16 subnetworks: a CycleMLP-B5 for image size of 56x56 for each subnetwork.| ensemble: -; <br> subnetwork 1: 71.27%| adjusted periodically | -
 
 File:
-> spectral_conv_tensor_10L_subnets_28_imagenet.py
+> spectral_conv_tensor_10L_subnets_28_imagenet.py <br>
 > dct_cycle_mlp/main.py
 
 
