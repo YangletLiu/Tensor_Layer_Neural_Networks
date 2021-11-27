@@ -19,7 +19,7 @@ from timm.optim import create_optimizer
 from timm.utils import NativeScaler, get_state_dict, ModelEma
 
 from datasets import build_dataset
-from engine import train_one_epoch, evaluate
+from engine import train_one_epoch, evaluate, preprocess_imagenet, accuracy
 from losses import DistillationLoss
 from samplers import RASampler
 import cycle_mlp
@@ -58,6 +58,9 @@ def get_args_parser():
     parser.add_argument('--model', default='deit_base_patch16_224', type=str, metavar='MODEL',
                         help='Name of model to train')
     parser.add_argument('--net_idx', default=-1, type=int, help='subnetwork number')
+    parser.add_argument("--ens_val", action="store_true")
+    parser.add_argument("--ens_net", type=str)
+    parser.add_argument("--load_dir", type=str)
     parser.add_argument('--input-size', default=224, type=int, help='images input size')
 
     parser.add_argument('--drop', type=float, default=0.0, metavar='PCT',
@@ -250,8 +253,8 @@ def main(args):
         use_amp = 'native'
         print("Use native amp.")
     elif args.apex_amp or args.native_amp:
-        print ("Warning: Neither APEX or native Torch AMP is available, using float32. "
-                        "Install NVIDA apex or upgrade to PyTorch 1.6")
+        print("Warning: Neither APEX or native Torch AMP is available, using float32. "
+                       "Install NVIDA apex or upgrade to PyTorch 1.6")
 
     # fix the seed for reproducibility
     seed = args.seed + utils.get_rank()
@@ -568,12 +571,174 @@ def main(args):
         print('Training time {}'.format(total_time_str))
 
 
+def ensemble(args):
+    # utils.init_distributed_mode(args)
+    net_indices = list(np.sort(np.unique([int(i) for i in args.ens_net.split(",")])))
+    num_nets = len(net_indices)
+    # quota = []
+    # for i in range(utils.get_rank(), len(ensemble_nets), utils.get_world_size()):
+    #     quota.append(i)
+
+    print(args)
+
+    device = torch.device(args.device)
+
+    # resolve AMP arguments based on PyTorch / Apex availability
+    use_amp = None
+    if not args.no_amp:  # args.amp: Default  use AMP
+        # `--amp` chooses native amp before apex (APEX ver not actively maintained)
+        if has_native_amp:
+            args.native_amp = True
+            args.apex_amp = False
+        elif has_apex:
+            args.native_amp = False
+            args.apex_amp = True
+        else:
+            raise ValueError("Warning: Neither APEX or native Torch AMP is available, using float32."
+                             "Install NVIDA apex or upgrade to PyTorch 1.6")
+    else:
+        args.apex_amp = False
+        args.native_amp = False
+        print("Do not use amp.")
+    if args.apex_amp and has_apex:
+        use_amp = 'apex'
+        print("Use apex amp.")
+    elif args.native_amp and has_native_amp:
+        use_amp = 'native'
+        print("Use native amp.")
+    elif args.apex_amp or args.native_amp:
+        print("Warning: Neither APEX or native Torch AMP is available, using float32. "
+                       "Install NVIDA apex or upgrade to PyTorch 1.6")
+
+    # fix the seed for reproducibility
+
+    cudnn.benchmark = True
+
+    dataset_val, _ = build_dataset(is_train=False, args=args)
+
+    data_loader_val = torch.utils.data.DataLoader(
+        dataset_val, 
+        batch_size=int(1.5 * args.batch_size),
+        num_workers=args.num_workers,
+        pin_memory=args.pin_mem,
+        drop_last=False,
+        # collate_fn=collate_fn
+    )
+
+    print(f"Creating model: {args.model}")
+    nets = []
+    for _ in range(num_nets):
+        nets.append(
+            create_model(
+                args.model,
+                pretrained=False,
+                num_classes=1000,
+                drop_rate=args.drop,
+                drop_path_rate=args.drop_path,
+                drop_block_rate=None,
+                img_size=56
+                )
+            )
+        # nets[-1].to(device)
+
+    # setup automatic mixed-precision (AMP) loss scaling and op casting
+    amp_autocast = suppress  # do nothing
+
+    # model_without_ddp = model
+    # if args.distributed:
+    #     if has_apex and use_amp != 'native':
+    #         # Apex DDP preferred unless native amp is activated
+    #         model = ApexDDP(model, delay_allreduce=True)
+    #     else:
+    #         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+    #     model_without_ddp = model.module
+    # n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    # print('number of params:', n_parameters)
+    # print('=' * 30)
+
+    # lr_scheduler, _ = create_scheduler(args, optimizer)
+
+    load_dir = Path(args.load_dir)
+    for _ in range(num_nets):
+        net_idx = net_indices[_]
+        checkpoint = torch.load(load_dir/"best_model_{}.pth".format(net_idx), map_location='cpu')
+        nets[_].load_state_dict(checkpoint["model"])
+        print("Successfully load subnet-{}".format(net_idx))
+        nets[_] = nets[_].to(device)
+        nets[_].eval()
+
+    # weights = np.array([1.] * num_nets)
+
+    # weights = np.array([0.006870775814056397, 0.00772176059782505, 0.009846172868013382])
+
+    p = 0.5
+    weights = np.array([p * np.power((1 - p), i) for i in range(num_nets)])
+
+    weights = weights / weights.sum()
+
+    output_list = [0] * num_nets
+    loss_list = [0] * num_nets
+    fusing_loss = 0.
+    total = [0] * num_nets
+    correct = [0] * num_nets
+    fusing_correct = 0
+    fusing_total = 0
+
+    start_time = time.time()
+    header = 'Test:'
+
+    criterion = torch.nn.CrossEntropyLoss()
+    with torch.no_grad():
+        for (images, target) in data_loader_val:
+            images = images.to(device, non_blocking=True)
+            target = target.to(device, non_blocking=True)
+            images = preprocess_imagenet(images, block_size=(4, 4))
+
+            for i in range(num_nets):
+                net_idx = net_indices[i]
+                output = nets[i](images[:, :, :, :, net_idx])
+                loss = criterion(output, target)
+
+                output_list[i] = output.clone()
+                loss_list[i] += loss.item()
+                _, predicted = torch.max(output.data, 1)
+                total[i] += target.size(0)
+                correct[i] += predicted.eq(target.data).cpu().sum().item()
+
+            fusing_output = 0
+            for _  in range(num_nets):
+                fusing_output += weights[_] * output_list[_]
+
+            fusing_loss += criterion(fusing_output, target)
+            _, predicted = torch.max(fusing_output.data, 1)
+            fusing_total += target.size(0)
+            fusing_correct += predicted.eq(target.data).cpu().sum().item()
+
+    acc_list = [0.] * num_nets
+    for i in range(num_nets):
+        loss_list[i] /= total[i]
+        acc_list[i] = 100. * correct[i] / total[i]
+    fusing_loss /= fusing_total
+    fusing_acc1 = 100. * fusing_correct / fusing_total
+
+    end_time = time.time()
+    print("net indices: {}".format(net_indices))
+    print("separat acc1: {}".format(acc_list))
+    print("separarte loss: {}".format(loss_list))
+    print("fusing acc1: {}".format(fusing_acc1))
+    print("fusing loss: {}".format(fusing_loss))
+    print("Time cost: {}s".format(end_time - start_time))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('DeiT training and evaluation script', parents=[get_args_parser()])
-    args = parser.parse_args()
-    if args.output_dir:
-        Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-    main(args)
+    local_args = parser.parse_args()
+    if local_args.output_dir:
+        Path(local_args.output_dir).mkdir(parents=True, exist_ok=True)
+    if local_args.ens_val:  # do ensemble validation
+        ensemble(local_args)
+    else:
+        main(local_args)
 
 
 ############### running command ########################
@@ -581,12 +746,15 @@ if __name__ == '__main__':
 '''
 On dgx64:
 
-python -u -m torch.distributed.launch --nproc_per_node=1 --master_port 25197 --use_env main.py --model CycleMLP_B5 --batch-size 2 --num_workers 16 --data-path /xfs/imagenet/ --net_idx 0
+CUDA_VISIBLE_DEVICES=5 python -u -m torch.distributed.launch --nproc_per_node=1 --master_port 25199 --use_env main.py --model CycleMLP_B5 --batch-size 256 --num_workers 16 --data-path /xfs/imagenet/ --net_idx 0
 
 python -u -m torch.distributed.launch --nproc_per_node=6 --master_port 25197 --use_env main.py --model CycleMLP_B5 --batch-size 1024 --num_workers 24 --data-path /xfs/imagenet/ --net_idx 0
 
 python -u -m torch.distributed.launch --nproc_per_node=6 --master_port 25197 --use_env main.py --model CycleMLP_B5 --batch-size 1024 --num_workers 24 --data-path /xfs/imagenet/ --net_idx 0 --resume ./cycle_mlp/best_model_0.pth
 
+
+fusing test:
+python -u -m torch.distributed.launch --nproc_per_node=1 --master_port 25196 --use_env main.py --model CycleMLP_B5 --batch-size 128 --num_workers 16 --data-path /xfs/imagenet/ --ens_val --load_dir ./cycle_mlp --ens_net 0,1,2
 
 
 On cluster:

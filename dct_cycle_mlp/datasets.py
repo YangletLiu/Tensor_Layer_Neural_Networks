@@ -55,6 +55,29 @@ class INatDataset(ImageFolder):
     # __getitem__ and __len__ inherited from ImageFolder
 
 
+class MyDataSet(datasets.ImageFolder):
+    def __init__(self, root, transform=None, target_transform=None, is_valid_file=None):
+        super(MyDataSet, self).__init__(root, transform=transform, target_transform=target_transform, is_valid_file=is_valid_file)
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (sample, target) where target is class_index of the target class.
+        """
+        path, target = self.samples[index]
+        sample = self.loader(path)
+        if self.transform is not None:
+            sample = self.transform(sample)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+        print(sample.shape, index)
+        return sample, target, index
+        # return super().__getitem__(index)
+
+
 def build_dataset(is_train, args):
     transform = build_transform(is_train, args)
 
@@ -65,6 +88,7 @@ def build_dataset(is_train, args):
         if not args.mcloader:
             root = os.path.join(args.data_path, 'train' if is_train else 'val')
             dataset = datasets.ImageFolder(root, transform=transform)
+            # dataset = MyDataSet(root, transform=transform)
         else:
             dataset = ClassificationDataset(args.data_path, 'train' if is_train else 'val', pipeline=transform)
         nb_classes = 1000
