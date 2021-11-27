@@ -8,6 +8,7 @@ import numpy as np
 import math
 import csv
 import sys
+import torch_dct
 
 
 ########################## 1. load data ####################################
@@ -32,11 +33,11 @@ transform_test = transforms.Compose([
 num_nets = 4
 batch_size = 128
 trainset = datasets.CIFAR10(root='../datasets', train=True, transform=transform_train, download=True)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
 num_train = len(trainset)
 
 testset = datasets.CIFAR10(root='../datasets', train=False, transform=transform_test, download=True)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True)
 num_test = len(testset)
 
 
@@ -122,17 +123,29 @@ class CNN8CIFAR10(nn.Module):
         self.conv8 = nn.Sequential(
             nn.Conv2d(
                 in_channels=256,
-                out_channels=256,
+                out_channels=512,
                 kernel_size=3,
                 padding=1
             ),
-            nn.BatchNorm2d(num_features=256),
+            nn.BatchNorm2d(num_features=512),
+            nn.ReLU(True),
+            # nn.MaxPool2d(kernel_size=(2, 1), stride=(2, 1)),
+            nn.Dropout2d(p=0.05),
+        )
+        self.conv9 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=512),
             nn.ReLU(True),
             nn.MaxPool2d(kernel_size=(2, 1), stride=(2, 1))
         )
         self.pred = nn.Sequential(
             nn.Dropout(p=0.1),
-            nn.Linear(8192, 10),
+            nn.Linear(8192*2, 10),
         )
 
     def forward(self,x):
@@ -144,106 +157,41 @@ class CNN8CIFAR10(nn.Module):
         x = self.conv6(x)
         x = self.conv7(x)
         x = self.conv8(x)
+        x = self.conv9(x)
         x = x.view(x.size(0),-1)
         x = self.pred(x)
         return x
 
 
 ######################## 3. build model functions #################
-def dct(x, norm=None):
-    """
-    Discrete Cosine Transform, Type II (a.k.a. the DCT)
+def downsample_img(img, block_size):
+    batch_, c_, m_, n_ = img.shape
+    row_step, col_step = block_size
+    row_blocks = m_ // row_step
+    col_blocks = n_ // col_step
+    assert num_nets == row_step * col_step, "the number of downsampled images is not equal to the number of num_nets"
+    assert m_ % row_step == 0, "the image can' t be divided into several downsample blocks in row-dimension"
+    assert n_ % col_step == 0, "the image can' t be divided into several downsample blocks in col-dimension"
 
-    For the meaning of the parameter `norm`, see:
-    https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.fftpack.dct.html
+    # show_mnist_fig(img[0, 0, :, :], "split_image_seg{}.png".format(num_nets))
 
-    :param x: the input signal
-    :param norm: the normalization, None or 'ortho'
-    :return: the DCT-II of the signal over the last dimension
-    """
-    x_shape = x.shape
-    N = x_shape[-1]
-    x = x.contiguous().view(-1, N)
+    components = []
+    for row in range(row_step):
+        for col in range(col_step):
+            components.append(img[:, :, row::row_step, col::col_step].unsqueeze(dim=-1))
+    img = torch.cat(components, dim=-1)
 
-    v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1)
+    # for i in range(row_step * col_step):
+    #     show_mnist_fig(img[0, 0, :, :, i], "split_image_seg{}.png".format(i))
 
-    if torch.__version__ > "1.7.1":
-        Vc = torch.view_as_real(torch.fft.fft(v))
-    else:
-        Vc = torch.rfft(v, 1, onesided=False)
-
-    k = (- torch.arange(N, dtype=x.dtype)[None, :] * np.pi / (2 * N)).to(device)
-    W_r = torch.cos(k)
-    W_i = torch.sin(k)
-
-    V = Vc[:, :, 0] * W_r - Vc[:, :, 1] * W_i
-
-    if norm == 'ortho':
-        V[:, 0] /= np.sqrt(N) * 2
-        V[:, 1:] /= np.sqrt(N / 2) * 2
-
-    V = 2 * V.view(*x_shape)
-
-    return V
+    return img
 
 
-def idct(X, norm=None):
-    """
-    The inverse to DCT-II, which is a scaled Discrete Cosine Transform, Type III
+def preprocess_cifar10(img, block_size):
+    img = downsample_img(img, block_size=block_size)
+    img = torch_dct.dct(img)
+    return img
 
-    Our definition of idct is that idct(dct(x)) == x
-
-    For the meaning of the parameter `norm`, see:
-    https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.fftpack.dct.html
-
-    :param X: the input signal
-    :param norm: the normalization, None or 'ortho'
-    :return: the inverse DCT-II of the signal over the last dimension
-    """
-
-    x_shape = X.shape
-    N = x_shape[-1]
-
-    X_v = X.contiguous().view(-1, x_shape[-1]) / 2
-
-    if norm == 'ortho':
-        X_v[:, 0] *= np.sqrt(N) * 2
-        X_v[:, 1:] *= np.sqrt(N / 2) * 2
-
-    k = (torch.arange(x_shape[-1], dtype=X.dtype)[None, :] * np.pi / (2 * N)).to(device)
-    W_r = torch.cos(k)
-    W_i = torch.sin(k)
-
-    V_t_r = X_v
-    V_t_i = torch.cat([X_v[:, :1] * 0, -X_v.flip([1])[:, :-1]], dim=1)
-
-    V_r = V_t_r * W_r - V_t_i * W_i
-    V_i = V_t_r * W_i + V_t_i * W_r
-
-    V = torch.cat([V_r.unsqueeze(2), V_i.unsqueeze(2)], dim=2)
-
-    if torch.__version__ > "1.7.1":
-        v = torch.fft.ifft(torch.view_as_complex(V)).real
-    else:
-        v = torch.irfft(V, 1, onesided=False)
-
-    x = v.new_zeros(v.shape)
-    x[:, ::2] += v[:, :N - (N // 2)]
-    x[:, 1::2] += v.flip([1])[:, :N // 2]
-
-    return x.view(*x_shape)
-
-
-def preprocess_cifar10(x, seg_length=0):
-    batch_size_, c_, m_, n_= x.shape
-    if seg_length:
-        assert seg_length == num_nets, "seg_length is not equal to num_nets"
-        x = x.reshape(batch_size_, c_, m_, -1, seg_length)
-        x = dct(x)
-    else:
-        raise "seg_length = 0"
-    # x = dct(x.permute([0, 2, 3, 1])).permute([0, 3, 1, 2])
-    return x
 
 
 # build model
@@ -275,6 +223,28 @@ def set_lr(optimizer, epoch):
     return current_lr
 
 
+def set_weight(train_loss, mode="one_over"):
+    fusing_weight = [1.] * len(train_loss)
+    weight_sum = 0.
+    rank_list = np.argsort(train_loss)
+    p = 0.3
+
+    for idx in range(len(train_loss)):
+        if mode == "one_over":
+            fusing_weight[idx] = 1/train_loss[idx]
+            weight_sum += fusing_weight[idx]
+        elif mode == "one_over_square":
+            fusing_weight[idx] = 1/train_loss[idx]
+            weight_sum += fusing_weight[idx]
+        elif mode == "geometry":
+            fusing_weight[rank_list[idx]] = p * np.power((1 - p), idx)
+            weight_sum += fusing_weight[rank_list[idx]]
+
+    fusing_weight = torch.tensor(fusing_weight, device=device)
+    fusing_weight /= weight_sum
+    return fusing_weight
+
+
 def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_weight=None):
     for net in nets:
         net.eval()
@@ -293,7 +263,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
             img, targets = img.to(device), targets.to(device)
-            img = preprocess_cifar10(img, seg_length=4)
+            img = preprocess_cifar10(img, block_size=(2, 2))
 
             for i in range(num_nets):
                 outputs[i] = nets[i](img[:, :, :, :, i])
@@ -362,8 +332,11 @@ def train_multi_nets(num_epochs, nets):
     test_acc_list, test_loss_list = [], []
     best_acc = [0.] * num_nets
 
+    fusing_train_acc_list, fusing_train_loss_list = [], []
     fusing_test_acc_list, fusing_test_loss_list = [], []
     best_fusing_acc = [0.] * fusing_num
+
+    fusing_weight = set_weight([1]*num_nets, mode="one_over")
 
     start_time = time.time()
 
@@ -383,39 +356,50 @@ def train_multi_nets(num_epochs, nets):
             correct = [0] * num_nets
             total = [0] * num_nets
             loss = [0] * num_nets
+            fusing_train_loss = 0.
+            fusing_train_correct = 0
+            fusing_train_total = 0
 
             print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f]' %(epoch+1, current_lr[0], current_lr[1], current_lr[2], current_lr[3]))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
                 inputs, targets = inputs.to(device), targets.to(device) # GPU settings
-                inputs = preprocess_cifar10(inputs, seg_length=4)
-                for i in range(num_nets):
-                    optimizers[i].zero_grad()
-                    outputs = nets[i](inputs[:, :, :, :, i])               # Forward Propagation
-                    loss[i] = criterion(outputs, targets)  # Loss
-                    loss[i].backward()  # Backward Propagation
-                    optimizers[i].step() # Optimizer update
+                inputs = preprocess_cifar10(inputs, block_size=(2, 2))
 
-                    train_loss[i] += loss[i].item()
+                fusing_output = 0.
+                for net_idx in range(num_nets):
+                    optimizers[net_idx].zero_grad()
+                    outputs = nets[net_idx](inputs[:, :, :, :, net_idx])               # Forward Propagation
+                    loss[net_idx] = criterion(outputs, targets)  # Loss
+                    loss[net_idx].backward()  # Backward Propagation
+                    optimizers[net_idx].step()  # Optimizer update
+
+                    train_loss[net_idx] += loss[net_idx].item()
                     _, predicted = torch.max(outputs.data, 1)
-                    total[i] += targets.size(0)
-                    correct[i] += predicted.eq(targets.data).cpu().sum().item()
+                    total[net_idx] += targets.size(0)
+                    correct[net_idx] += predicted.eq(targets.data).cpu().sum().item()
 
+                    fusing_output += fusing_weight[net_idx] * outputs.detach()
+
+                fusing_train_loss += criterion(fusing_output, targets).item()
+                _, predicted = torch.max(fusing_output.data, 1)
+                fusing_train_total += targets.size(0)
+                fusing_train_correct += predicted.eq(targets.data).cpu().sum().item()
+                fusing_weight = set_weight(train_loss, mode="geometry")
                 sys.stdout.write('\r')
-                sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\tLoss: [%.4f, %.4f, %.4f, %.4f] Acc: [%.3f%%, %.3f%%, %.3f%%, %.3f%%]   '
+                sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\tLoss: [%.4f, %.4f, %.4f, %.4f] Acc: %.3f%%, [%.3f%%, %.3f%%, %.3f%%, %.3f%%]   '
                         %(epoch+1, num_epochs, batch_idx+1,
                           math.ceil(len(trainset)/batch_size), loss[0].item(), loss[1].item(), loss[2].item(), loss[3].item(),
-                          100.*correct[0]/total[0], 100.*correct[1]/total[1], 100.*correct[2]/total[2], 100.*correct[3]/total[3]))
+                          100.*fusing_train_correct/fusing_train_total, 100.*correct[0]/total[0], 100.*correct[1]/total[1], 100.*correct[2]/total[2], 100.*correct[3]/total[3]))
                 sys.stdout.flush()
 
-            fusing_weight = [0] * num_nets
-            for i in range(num_nets):
-                fusing_weight[i] = 1 / (train_loss[i])
-
+            fusing_weight = set_weight(train_loss, "geometry")
             best_acc, best_fusing_acc = test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list,
                                         fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_weight=fusing_weight)
 
             train_acc_list.append([100.*correct[i]/total[i] for i in range(num_nets)])
             train_loss_list.append([train_loss[i] / num_train for i in range(num_nets)])
+            fusing_train_loss_list.append(fusing_train_loss)
+            fusing_train_acc_list.append(100.*fusing_train_correct/fusing_train_total)
             now_time = time.time()
             print("| Best Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%] "%(best_acc[0], best_acc[1], best_acc[2], best_acc[3]))
             print("| Best Fusing Acc: [%.2f%%] "%(best_fusing_acc[0]))
@@ -426,13 +410,13 @@ def train_multi_nets(num_epochs, nets):
     print("\nBest training accuracy overall: [%.3f%%, %.3f%%, %.3f%%, %.3f%%] "%(best_acc[0], best_acc[1], best_acc[2], best_acc[3]))
     print("| Best fusing accuracy overall: [%.2f%%] "%(best_fusing_acc[0]))
 
-    return train_loss_list, train_acc_list, test_loss_list, test_acc_list, fusing_test_loss_list, fusing_test_acc_list
+    return train_loss_list, train_acc_list, fusing_train_loss_list, fusing_train_acc_list, test_loss_list, test_acc_list, fusing_test_loss_list, fusing_test_acc_list
 
 
-def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test_loss, fusing_test_acc):
+def save_record_and_draw(train_loss, train_acc, fusing_train_loss, fusing_train_acc, test_loss, test_acc, fusing_test_loss, fusing_test_acc):
 
     # write csv
-    with open('spectral_conv_tensor_8L_subnets_4_cifar10_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open('spectral_conv_tensor_9L_subnets_4_cifar10_testloss.csv','w',newline='',encoding='utf-8') as f:
         f_csv = csv.writer(f)
 
         f_csv.writerow(["Test Acc:"])
@@ -459,6 +443,14 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
         for idx in range(len(train_loss)):
             f_csv.writerow([idx + 1] + train_loss[idx])
 
+        f_csv.writerow(["Fusing Train Acc:"])
+        for idx in range(len(fusing_train_acc)):
+            f_csv.writerow([idx + 1] + [fusing_train_acc[idx]])
+
+        f_csv.writerow(["Fusing Train Loss:"])
+        for idx in range(len(fusing_train_loss)):
+            f_csv.writerow([idx + 1] + [fusing_train_loss[idx]])
+
     # draw picture
     test_acc = np.array(test_acc)
     test_loss = np.array(test_loss)
@@ -466,38 +458,42 @@ def save_record_and_draw(train_loss, train_acc, test_loss, test_acc, fusing_test
     fusing_test_loss = np.array(fusing_test_loss)
     train_acc = np.array(train_acc)
     train_loss = np.array(train_loss)
+    fusing_train_acc = np.array(fusing_train_acc)
+    fusing_train_loss = np.array(fusing_train_loss)
 
     plt.cla()
     fig = plt.figure(1)
     sub1 = plt.subplot(1, 2, 1)
     plt.sca(sub1)
-    plt.title('spectral-conv-tensor-8L-subnets-4 Loss on CIFAR10 ')
+    plt.title('spectral-conv-tensor-9L-subnets-4 Loss on CIFAR10 ')
     for i in range(num_nets):
         plt.plot(np.arange(len(test_loss[:, i])), test_loss[:, i], label='TestLoss_{}'.format(i+1),linestyle='-')
     for i in range(fusing_num):
         plt.plot(np.arange(len(fusing_test_loss[:, i])), fusing_test_loss[:, i], label='FusingTestLoss_{}'.format(i+1),linestyle='-')
     for i in range(num_nets):
         plt.plot(np.arange(len(train_loss[:, i])), train_loss[:, i], label='TrainLoss_{}'.format(i+1),linestyle='--')
+    plt.plot(np.arange(len(fusing_train_loss[:])), fusing_train_loss[:], label='FusingTrainLoss', linestyle='--')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
 
     sub2 = plt.subplot(1, 2, 2)
     plt.sca(sub2)
-    plt.title('spectral-conv-tensor-8L-subnets-4 Accuracy on CIFAR10 ')
+    plt.title('spectral-conv-tensor-9L-subnets-4 Accuracy on CIFAR10 ')
     for i in range(num_nets):
         plt.plot(np.arange(len(test_acc[:, i])), test_acc[:, i], label='TestAcc_{}'.format(i+1),linestyle='-')
     for i in range(fusing_num):
         plt.plot(np.arange(len(fusing_test_acc[:, i])), fusing_test_acc[:, i], label='FusingTestAcc_{}'.format(i+1),linestyle='-')
     for i in range(num_nets):
         plt.plot(np.arange(len(train_acc[:, i])), train_acc[:, i], label='TrainAcc_{}'.format(i+1),linestyle='--')
+    plt.plot(np.arange(len(fusing_train_acc[:])), fusing_train_acc[:], label='FusingTrainAcc',linestyle='--')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy(%)')
 
     plt.legend()
     plt.show()
 
-    plt.savefig('./spectral_conv_tensor_8L_subnets_4_cifar10_trainloss.jpg')
+    plt.savefig('./spectral_conv_tensor_9L_subnets_4_cifar10_trainloss.jpg')
 
 
 if __name__ == "__main__":
@@ -505,5 +501,5 @@ if __name__ == "__main__":
     for _ in range(num_nets):
         raw_nets.append(build(decomp=False))
     print(raw_nets[0])
-    train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_ = train_multi_nets(300, raw_nets)
-    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_)
+    train_loss_, train_acc_, fusing_train_loss_, fusing_train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_ = train_multi_nets(300, raw_nets)
+    save_record_and_draw(train_loss_, train_acc_, fusing_train_loss_, fusing_train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_)

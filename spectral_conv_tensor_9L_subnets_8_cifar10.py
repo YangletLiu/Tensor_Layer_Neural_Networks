@@ -8,6 +8,7 @@ import numpy as np
 import math
 import csv
 import sys
+import torch_dct
 
 
 ########################## 1. load data ####################################
