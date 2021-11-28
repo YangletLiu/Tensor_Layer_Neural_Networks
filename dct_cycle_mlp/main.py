@@ -92,7 +92,7 @@ def get_args_parser():
     # Learning rate schedule parameters
     parser.add_argument('--sched', default='cosine', type=str, metavar='SCHEDULER',
                         help='LR scheduler (default: "cosine"')
-    parser.add_argument('--lr', type=float, default=5e-4, metavar='LR',
+    parser.add_argument('--lr', type=float, default=1e-4, metavar='LR',
                         help='learning rate (default: 5e-4)')
     parser.add_argument('--lr-noise', type=float, nargs='+', default=None, metavar='pct, pct',
                         help='learning rate noise on/off epoch percentages')
@@ -748,7 +748,7 @@ On dgx64:
 
 CUDA_VISIBLE_DEVICES=5 python -u -m torch.distributed.launch --nproc_per_node=1 --master_port 25199 --use_env main.py --model CycleMLP_B5 --batch-size 256 --num_workers 16 --data-path /xfs/imagenet/ --net_idx 0
 
-python -u -m torch.distributed.launch --nproc_per_node=6 --master_port 25197 --use_env main.py --model CycleMLP_B5 --batch-size 1024 --num_workers 24 --data-path /xfs/imagenet/ --net_idx 0
+python -u -m torch.distributed.launch --nproc_per_node=5 --master_port 25197 --use_env main.py --model CycleMLP_B5 --batch-size 1024 --num_workers 24 --data-path /xfs/imagenet/ --net_idx 0
 
 python -u -m torch.distributed.launch --nproc_per_node=6 --master_port 25197 --use_env main.py --model CycleMLP_B5 --batch-size 1024 --num_workers 24 --data-path /xfs/imagenet/ --net_idx 0 --resume ./cycle_mlp/best_model_0.pth
 
