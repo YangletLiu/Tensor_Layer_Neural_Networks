@@ -309,9 +309,9 @@ File:
 > dct_cycle_mlp/main.py
 
 
-![avatar](./figs/cycle_mlp_sub0_acc.png)
+![avatar](./figs/imagenet_acc.png)
 
-![avatar](./figs/cycle_mlp_sub0_loss.png)
+![avatar](./figs/imagenet_loss.png)
 
 
 ## Reference
