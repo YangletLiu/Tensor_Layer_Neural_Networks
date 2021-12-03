@@ -9,8 +9,9 @@ import csv
 import sys
 
 
-########################## 1. load data ####################################
-device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+########################## 1. load data ##################################
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+batch_size = 128
 
 transform_train = transforms.Compose([
                                 transforms.RandomCrop(32, padding=4),
@@ -18,7 +19,7 @@ transform_train = transforms.Compose([
                                 transforms.ToTensor(),
                                 transforms.Normalize(
                                     mean=[0.4914, 0.4822, 0.4465],
-                                    std=[0.2023, 0.1994, 0.2010]),
+                                    std=[0.2023, 0.1994, 0.2010])
                                 ])
 
 transform_test = transforms.Compose([
@@ -28,17 +29,14 @@ transform_test = transforms.Compose([
                                     std=[0.2023, 0.1994, 0.2010])
                                 ])
 
-batch_size = 128
-trainset = datasets.CIFAR10(root='../datasets', train=True, transform=transform_train, download=True)
+trainset = datasets.CIFAR10(root="../datasets", train=True, transform=transform_train, download=True)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
-num_train = len(trainset)
 
-testset = datasets.CIFAR10(root='../datasets', train=False, transform=transform_test, download=True)
+testset = datasets.CIFAR10(root="../datasets", train=False, transform=transform_test, download=True)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True)
-num_test = len(testset)
 
 
-########################### 2. define model ##################################
+########################### 2. define model ##############################
 class CNN4CIFAR10(nn.Module):
     def __init__(self):
         super(CNN4CIFAR10,self).__init__()
@@ -89,38 +87,20 @@ class CNN4CIFAR10(nn.Module):
         x = self.pred(x)
         return x
 
-######################## 3. build model functions #################
-
-# build model
+########################### 3. build model functions #####################
 def build(decomp=False):
-    print('==> Building model..')
+    print("==> Building model..")
     full_net = CNN4CIFAR10()
-    print('==> Done')
+    print("==> Done")
     return full_net
 
 
-########################### 4. train and test functions #########################
-criterion = nn.CrossEntropyLoss().to(device)
-lr0 = 0.01
-
-
-def query_lr(epoch):
-    lr = lr0
-    return lr
-
-
-def set_lr(optimizer, epoch):
-    current_lr = query_lr(epoch)
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = current_lr
-    return current_lr
-
-
-def test(epoch, net, best_acc, test_acc_list, test_loss_list):
+########################### 4. train and test functions ##################
+def test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list):
     net.eval()
     test_loss = 0
-    correct = 0
-    total = 0
+    correct = 0     # the number of correctly classified images
+    total = 0       # the number of images
 
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
@@ -133,47 +113,54 @@ def test(epoch, net, best_acc, test_acc_list, test_loss_list):
             total += targets.size(0)
             correct += predicted.eq(targets.data).cpu().sum().item()
 
-        # Save checkpoint when best model
         acc = 100.* correct / total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch+1, loss.item(), acc))
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch + 1, loss.item(), acc))
 
         if acc > best_acc:
             best_acc = acc
+            # Save checkpoint when best model
+            checkpoint = {
+                    "epoch": epoch + 1,
+                    "state_dict": net.state_dict(),
+                    "best_acc": best_acc,
+                    }
+            torch.save(checkpoint, "cnn_4L_cifar10.pth.tar")
         test_acc_list.append(acc)
-        test_loss_list.append(test_loss / num_test)
+        test_loss_list.append(test_loss / total)
     return best_acc
 
 
 # Training
 def train(num_epochs, net):
     net = net.to(device)
+    # initialize some metrices
     train_acc_list, train_loss_list = [], []
     test_acc_list, test_loss_list = [], []
     best_acc = 0.
 
-    original_time = time.asctime(time.localtime(time.time()))
     start_time = time.time()
 
+    lr0 = 0.01
+    current_lr = lr0
+    criterion = nn.CrossEntropyLoss().to(device)
     optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9)
     # optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
-    current_lr = lr0
 
     try:
         for epoch in range(num_epochs):
             net.train()
-            train_loss = 0
-            correct = 0
-            total = 0
+            train_loss = 0      # training loss at this epoch
+            correct = 0         # the number of correctly classified images
+            total = 0           # the number of images
 
-            current_lr = set_lr(optimizer, epoch)
-            print('\n=> Training Epoch #%d, LR=%.4f' %(epoch+1, current_lr))
+            print("\n=> Training Epoch #%d, LR=%.4f" %(epoch+1, current_lr))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
                 inputs, targets = inputs.to(device), targets.to(device) # GPU settings
                 optimizer.zero_grad()
                 outputs = net(inputs)               # Forward Propagation
                 loss = criterion(outputs, targets)  # Loss
-                loss.backward()  # Backward Propagation
-                optimizer.step() # Optimizer update
+                loss.backward()                     # Backward Propagation
+                optimizer.step()                    # Optimizer update
 
                 train_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
@@ -181,14 +168,14 @@ def train(num_epochs, net):
                 correct += predicted.eq(targets.data).cpu().sum().item()
 
                 sys.stdout.write('\r')
-                sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%   '
+                sys.stdout.write("| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%   "
                         %(epoch+1, num_epochs, batch_idx+1,
-                            (len(trainset)//batch_size)+1, loss.item(), 100.*correct/total))
+                            (len(trainset) // batch_size) + 1, loss.item(), 100. * correct / total))
                 sys.stdout.flush()
 
-            best_acc = test(epoch, net, best_acc, test_acc_list, test_loss_list)
-            train_acc_list.append(100.*correct/total)
-            train_loss_list.append(train_loss / num_train)
+            best_acc = test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list)
+            train_acc_list.append(100. * correct / total)
+            train_loss_list.append(train_loss / total)
             now_time = time.time()
             print("| Best Acc: %.2f%% "%(best_acc))
             print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
@@ -200,45 +187,51 @@ def train(num_epochs, net):
     return train_loss_list, train_acc_list, test_loss_list, test_acc_list
 
 
+########################### 5. save results ##############################
 def save_record_and_draw(train_loss, train_acc, test_loss, test_acc):
     # write csv
-    with open('cnn_4_cifar10_testloss.csv','w',newline='',encoding='utf-8') as f:
+    with open("cnn_4L_cifar10_testloss.csv", "w", newline='', encoding="utf-8") as f:
         f_csv = csv.writer(f)
-        f_csv.writerows(enumerate(test_acc,1))
-        f_csv.writerow(['Test Loss:'])
+        f_csv.writerow(["Test Loss:"])
         f_csv.writerows(enumerate(test_loss,1))
-        f_csv.writerow(['Train Acc:'])
-        f_csv.writerows(enumerate(train_acc,1))
-        f_csv.writerow(['Train Loss:'])
+        f_csv.writerow(["Train Loss:"])
         f_csv.writerows(enumerate(train_loss,1))
+        f_csv.writerow(["Test Acc:"])
+        f_csv.writerows(enumerate(test_acc,1))
+        f_csv.writerow(["Train Acc:"])
+        f_csv.writerows(enumerate(train_acc,1))
 
     # draw picture
     fig = plt.figure(1)
     sub1 = plt.subplot(1, 2, 1)
     plt.sca(sub1)
-    plt.title('CNN-4 Loss on CIFAR10 ')
-    plt.plot(np.arange(len(test_loss)), test_loss, color='red', label='TestLoss',linestyle='-')
-    plt.plot(np.arange(len(train_loss)), train_loss, color='blue', label='TrainLoss',linestyle='--')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
+    plt.title("CNN-4L Loss on CIFAR10 ")
+    plt.plot(np.arange(len(test_loss)), test_loss, color="red", label="TestLoss",linestyle="-")
+    plt.plot(np.arange(len(train_loss)), train_loss, color="blue", label="TrainLoss",linestyle="--")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
     plt.legend()
 
     sub2 = plt.subplot(1, 2, 2)
     plt.sca(sub2)
-    plt.title('CNN-4 Accuracy on CIFAR10 ')
-    plt.plot(np.arange(len(test_acc)), test_acc, color='green', label='TestAcc',linestyle='-')
-    plt.plot(np.arange(len(train_acc)), train_acc, color='orange', label='TrainAcc',linestyle='--')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy(%)')
+    plt.title("CNN-4L Accuracy on CIFAR10 ")
+    plt.plot(np.arange(len(test_acc)), test_acc, color="green", label="TestAcc",linestyle="-")
+    plt.plot(np.arange(len(train_acc)), train_acc, color="orange", label="TrainAcc",linestyle="--")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy(%)")
 
     plt.legend()
     plt.show()
 
-    plt.savefig('./cnn_4_cifar10.jpg')
+    plt.savefig("./cnn_4L_cifar10.jpg")
+
+
+def main():
+    net = build(decomp=False)
+    print(net)
+    train_loss, train_acc, test_loss, test_acc = train(100, net)
+    save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
 
 
 if __name__ == "__main__":
-    raw_net = build(decomp=False)
-    print(raw_net)
-    train_loss_, train_acc_, test_loss_, test_acc_ = train(300, raw_net)
-    save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_)
+    main()
