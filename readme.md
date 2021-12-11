@@ -306,6 +306,12 @@ Optimizer: Adam.
 
 
 ## __fusing weight experiment__
+||test loss|1/testloss|1/testloss^2|
+|-|-|-|-|
+|subnet-0|0.0069(47.3%)|144.93(52.74%)|21004(55%)|
+|subnet-1|0.0077(52.7%)|129.87(47.26%)|16866(45%)|
+
+
 | | weight of subnet-0 | weight of subnet-1| fusing accuracy|
 |-|-|-|-|
 |1|1.0|0|71.256%|
