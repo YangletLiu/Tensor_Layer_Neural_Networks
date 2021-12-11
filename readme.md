@@ -304,6 +304,21 @@ Optimizer: Adam.
 |Spectral-convolutional-tensor-10-layer-subnets-16|16 subnetworks: [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork.| 61.24% | 0.001 | random
 |Spectral-CycleMLP-B5 [2]|16 subnetworks: a CycleMLP-B5 for image size of 56x56 for each subnetwork.| ensemble: -; <br> subnetwork-1: 71.27%| adjusted periodically | -
 
+
+## __fusing weight experiment__
+| | weight of subnet-0 | weight of subnet-1| fusing accuracy|
+|-|-|-|-|
+|1|1.0|0|71.256%|
+|2|0.9|0.1|71.826%|
+|3|0.8|0.2|72.302%|
+|4|0.7|0.3|72.618%|
+|5|0.6|0.4|72.624%|
+|6|0.5|0.5|72.472%|
+|7|0.4|0.6|71.962%|
+|8|0.3|0.7|71.278%|
+|9|0.2|0.8|70.316%|
+|10|0.1|0.9|69.246%|
+|2|0|1.0|68.024%|
 File:
 > spectral_conv_tensor_10L_subnets_28_imagenet.py <br>
 > dct_cycle_mlp/main.py
