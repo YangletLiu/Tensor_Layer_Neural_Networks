@@ -318,7 +318,9 @@ Optimizer: Adam.
 |8|0.3|0.7|71.278%|
 |9|0.2|0.8|70.316%|
 |10|0.1|0.9|69.246%|
-|2|0|1.0|68.024%|
+|11|0|1.0|68.024%|
+
+
 File:
 > spectral_conv_tensor_10L_subnets_28_imagenet.py <br>
 > dct_cycle_mlp/main.py
