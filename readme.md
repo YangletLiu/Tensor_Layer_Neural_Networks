@@ -344,7 +344,7 @@ The accuracy of the pretrained model: 83.23%.
 ### original network + subnetwork-0:
 |weight assignments|fusing accuracy|
 |-|-|
-|average|72.396%|
+|average||
 |1/train_loss|-|
 |1/train_loss^2|-|
 |geo, p=0.9|__83.202%__|
