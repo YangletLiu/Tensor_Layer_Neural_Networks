@@ -326,7 +326,7 @@ Optimizer: Adam.
 ## __fusing with original network__
 The accuracy of the pretrained model: 83.23%.
 
-### original network + 15 subnetworks:
+### original network + 16 subnetworks:
 |weight assignments|fusing accuracy|
 |-|-|
 |average|72.396%|
