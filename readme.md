@@ -306,26 +306,6 @@ Optimizer: Adam.
 
 
 ## __fusing weight experiment__
-||test loss|1/testloss|1/testloss^2|
-|-|-|-|-|
-|subnet-0|0.0069(47.3%)|144.93(52.74%)|21004(55%)|
-|subnet-1|0.0077(52.7%)|129.87(47.26%)|16866(45%)|
-
-
-| | weight of subnet-0 | weight of subnet-1| fusing accuracy|
-|-|-|-|-|
-|1|1.0|0|71.256%|
-|2|0.9|0.1|71.826%|
-|3|0.8|0.2|72.302%|
-|4|0.7|0.3|72.618%|
-|5|0.6|0.4|72.624%|
-|6|0.5|0.5|72.472%|
-|7|0.4|0.6|71.962%|
-|8|0.3|0.7|71.278%|
-|9|0.2|0.8|70.316%|
-|10|0.1|0.9|69.246%|
-|11|0|1.0|68.024%|
-
 
 |subnetwork|0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
@@ -334,15 +314,47 @@ Optimizer: Adam.
 
 |weight assignments|fusing accuracy|
 |-|-|
-|average|73.262|
+|average|73.262%|
 |1/train_loss|70.59%|
 |1/train_loss^2|70.916%|
 |geo (geometric distribution), p=0.6| 73.166% |
 |geo, 0.5|73.422%|
-|geo, 0.4|73.538%|
+|geo, 0.4|__73.538%__|
 |geo, 0.3|73.382%|
 |geo, 0.2|72.986%|
 
+## __fusing with original network__
+The accuracy of the pretrained model: 83.23%.
+
+### original network + 15 subnetworks:
+|weight assignments|fusing accuracy|
+|-|-|
+|average|72.396%|
+|1/train_loss|-|
+|1/train_loss^2|-|
+|geo, p=0.9|__83.202%__|
+|geo, p=0.8| 83.1% |
+|geo, p=0.7| 82.946% |
+|geo, p=0.6| 82.636% |
+|geo, 0.5|-|
+|geo, 0.4|81.3%|
+|geo, 0.3|-|
+|geo, 0.2|-|
+
+### original network + subnetwork-0:
+|weight assignments|fusing accuracy|
+|-|-|
+|average|72.396%|
+|1/train_loss|-|
+|1/train_loss^2|-|
+|geo, p=0.9|__83.202%__|
+|geo, p=0.8| - |
+|geo, p=0.7| - |
+|geo, p=0.6| - |
+|geo, 0.5|-|
+|geo, 0.4|82.546%|
+|geo, 0.3|-|
+|geo, 0.2|-|
 
 File:
 > spectral_conv_tensor_10L_subnets_28_imagenet.py <br>
