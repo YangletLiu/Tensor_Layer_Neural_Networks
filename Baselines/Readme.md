@@ -1,6 +1,4 @@
 Some baseliens to train models in ImageNet dataset, including AlexNet, VGG, ResNet.
-AlexNet on ImageNet
-![I(U@RB~MW}E`L4H@$15%K9F](https://user-images.githubusercontent.com/53403225/153807419-758f9247-7288-42aa-b748-00a663a16433.png)
-![E4~(85~HTUP M0EGF}~H~LA](https://user-images.githubusercontent.com/53403225/153807431-307421a5-9094-4f92-9156-b2b5abd7fbb7.png)  
-Orange:Train
-Blue:Test
+![)KJF$HCP0PYZ7U)GKH@6LJO](https://user-images.githubusercontent.com/53403225/156035882-30d00384-8abb-4f87-afc5-88776fd75a92.png)  
+![@(GGT0XK@ C)58510_C6MLF](https://user-images.githubusercontent.com/53403225/156035890-5d6f6a1e-077a-4b73-8811-80e0e4773d8c.png)  
+
