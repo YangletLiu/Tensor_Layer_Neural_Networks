@@ -3,7 +3,8 @@ Some baseliens to train models in ImageNet dataset, including AlexNet, VGG, ResN
 
 | Network  | Ours  | Reference |  
 | -------- | ----- | --------- |  
-| AlexNet  | 62.1% | 63%       |  
+| AlexNet  | 62.1% | 63%       | 
+| VGG11    | 72.0  | 74%       |  
 | ResNet18 | 73.6  | 70%       |  
 
 
