@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch import nn
 
@@ -54,7 +55,7 @@ def decompose_FC(model, mode, rank=10):
                 layers[key] = low_rank_matrix_decompose_nested_FC_layer(layers[key])
     return model
 
-def dct(x, norm=None):
+def dct(x, norm=None, device="cpu"):
     """
     Discrete Cosine Transform, Type II (a.k.a. the DCT)
 
@@ -91,7 +92,7 @@ def dct(x, norm=None):
     return V
 
 
-def idct(X, norm=None):
+def idct(X, norm=None, device="cpu"):
     """
     The inverse to DCT-II, which is a scaled Discrete Cosine Transform, Type III
 
@@ -212,11 +213,12 @@ def raw_img(img, seg_length=0):
     ultra_img = img.permute([2, 1, 0])
     return ultra_img
 
-def preprocess_mnist(img, block_size):
+def preprocess_mnist(img, block_size, num_nets, trans, device):
     mi, ma = -0.4242, 2.8215
     # img += (torch.rand_like(img, device=device) * (ma - mi) - mi)
-    img = downsample_img(img, block_size=block_size)
-    # img = dct(img)
+    img = downsample_img(img, block_size=block_size, num_nets=num_nets)
+    if trans:
+        img = dct(img, device=device)
     return img
 
 def downsample_img(img, block_size, num_nets):

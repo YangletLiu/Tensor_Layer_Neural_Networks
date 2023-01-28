@@ -167,14 +167,15 @@ class tNN8MNIST(nn.Module):
         x = dct_tensor_product(self.W_8, x) + self.B_8
         return x
 
-def build(model_name, decomp=True):
+def build(model_name, num_nets, decomp=True):
     print("==> Building model..")
-
+    weight = 784 // num_nets if num_nets > 0 else 784
+    print(weight)
     if model_name == "FC4Net":
-        net = FC4Net(784, 784, 784, 784, 10)
+        net = FC4Net(weight, weight, weight, weight, 10)
 
     elif model_name == "FC8Net":
-        net = FC8Net(784, 784, 784, 784, 784, 784, 784, 784, 10)
+        net = FC8Net(weight, weight, weight, weight, weight, weight, weight, weight, 10)
 
     elif model_name == "tNN4MNIST":
         net = tNN4MNIST()
