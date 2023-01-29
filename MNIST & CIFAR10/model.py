@@ -167,7 +167,197 @@ class tNN8MNIST(nn.Module):
         x = dct_tensor_product(self.W_8, x) + self.B_8
         return x
 
-def build(model_name, num_nets, decomp=True):
+class CNN8MNIST(nn.Module):
+    def __init__(self):
+        super(CNN8MNIST,self).__init__()
+
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=1,
+                out_channels=16,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=16,
+                out_channels=32,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+            nn.Dropout2d(p=0.05),
+            nn.MaxPool2d(kernel_size=2)
+        )
+        self.conv5 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+        )
+        self.conv6 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=256,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+        )
+        self.conv7 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                stride=1,
+                padding=1
+            ),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2)
+        )
+        self.pred = nn.Sequential(
+            nn.Dropout(p=0.1),
+            nn.Linear(16*28*28,10)
+        )
+
+    def forward(self,x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.conv4(x)
+        x = self.conv5(x)
+        x = self.conv6(x)
+        x = self.conv7(x)
+        x = x.view(x.size(0),-1)
+        x = self.pred(x)
+        return x
+
+class CNN8CIFAR10(nn.Module):
+    def __init__(self):
+        super(CNN8CIFAR10,self).__init__()
+
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=3,
+                out_channels=64,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=64),
+            nn.ReLU(True),
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.ReLU(True),
+            nn.BatchNorm2d(num_features=64),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=128),
+            nn.ReLU(True),
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=128),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout2d(p=0.05),
+        )
+        self.conv5 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=256,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(True)
+        )
+        self.conv6 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(True)
+        )
+        self.conv7 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+        self.pred = nn.Sequential(
+            nn.Dropout(p=0.1),
+            nn.Linear(4*32*32,10)
+        )
+
+    def forward(self,x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.conv4(x)
+        x = self.conv5(x)
+        x = self.conv6(x)
+        x = self.conv7(x)
+        x = x.view(x.size(0),-1)
+        x = self.pred(x)
+        return x
+
+
+def build(model_name, num_nets=0, decomp=True):
     print("==> Building model..")
     weight = 784 // num_nets if num_nets > 0 else 784
     print(weight)
@@ -182,6 +372,12 @@ def build(model_name, num_nets, decomp=True):
 
     elif model_name == "tNN8MNIST":
         net = tNN8MNIST()
+
+    elif model_name == "CNN8MNIST":
+        net = CNN8MNIST()
+
+    elif model_name == "CNN8CIFAR10":
+        net = CNN8CIFAR10()
 
     if decomp:
         net = decompose_FC(net, mode="low_rank_matrix")
