@@ -11,6 +11,7 @@ from torchvision import transforms, datasets
 from utils import preprocess_mnist, fusing
 from model import build
 from record import save_record_and_draw
+from data_loader import get_dataset
 import math
 
 parser = argparse.ArgumentParser(description="Training")
@@ -35,6 +36,7 @@ parser.add_argument("--decom", action="store_true", help="low rank decompose the
 parser.add_argument("--trans", action="store_true", help="whether to use transform")
 parser.add_argument("--split", default=None, type=str, help="method of split datasets")
 parser.add_argument("--geo", default=0., type=float, help="the p of geo fusing method")
+parser.add_argument("--dataset", default="MNIST", type=str)
 args = parser.parse_args()
 
 num_nets = args.r_idx - args.l_idx
@@ -42,24 +44,12 @@ num_nets = args.r_idx - args.l_idx
 device = args.device if torch.cuda.is_available() else "cpu"
 batch_size = args.batch_size
 
-transform_train = transforms.Compose([
-                                  transforms.ToTensor(),
-                                  transforms.Normalize(
-                                      (0.1307,), (0.3081,))
-                              ])
+trainset, testset = get_dataset(args.dataset)
 
-transform_test = transforms.Compose([
-                                  transforms.ToTensor(),
-                                  transforms.Normalize(
-                                      (0.1307,), (0.3081,))
-                              ])
-
-trainset = datasets.MNIST(root="../datasets", train=True, download=True, transform=transform_train)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
-num_train = len(trainset)
-
-testset = datasets.MNIST(root="../datasets", train=False, download=True, transform=transform_test)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=args.workers, pin_memory=True)
+
+num_train = len(trainset)
 num_test = len(testset)
 ########################### train and test functions ##################
 def test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list):
