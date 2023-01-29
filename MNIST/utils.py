@@ -213,14 +213,6 @@ def raw_img(img, seg_length=0):
     ultra_img = img.permute([2, 1, 0])
     return ultra_img
 
-def preprocess_mnist(img, block_size, num_nets, trans, device):
-    mi, ma = -0.4242, 2.8215
-    # img += (torch.rand_like(img, device=device) * (ma - mi) - mi)
-    img = downsample_img(img, block_size=block_size, num_nets=num_nets)
-    if trans:
-        img = dct(img, device=device)
-    return img
-
 def downsample_img(img, block_size, num_nets):
     batch_, c_, m_, n_ = img.shape
     row_step, col_step = block_size
@@ -242,3 +234,52 @@ def downsample_img(img, block_size, num_nets):
     #     show_mnist_fig(img[0, 0, :, :, i], "split_image_seg{}.png".format(i))
 
     return img
+
+def block_img(img, block_size, num_nets):
+    batch_, c_, m_, n_ = img.shape
+    block_row, block_col = block_size
+    row_blocks = m_ // block_row
+    col_blocks = n_ // block_col
+    assert num_nets == row_blocks * col_blocks, "the number of downsampled images is not equal to the number of num_nets"
+    assert m_ % block_row == 0, "the image can' t be divided into several downsample blocks in row-dimension"
+    assert n_ % block_col == 0, "the image can' t be divided into several downsample blocks in col-dimension"
+
+    # show_mnist_fig(img[0, 0, :, :], "split_image_seg{}.png".format(num_nets))
+
+    components = []
+    for row_block_idx in range(row_blocks):
+        for col_block_idx in range(col_blocks):
+            components.append(img[:,
+                                  :,
+                                  row_block_idx * block_row : row_block_idx * block_row + block_row,
+                                  col_block_idx * block_col : col_block_idx * block_col + block_col].unsqueeze(dim=-1))
+    img = torch.cat(components, dim=-1)
+
+    # for i in range(row_blocks * col_blocks):
+    #     show_mnist_fig(img[0, 0, :, :, i], "split_image_seg{}.png".format(i))
+    # print(img.shape)
+    # exit(0)
+
+    return img
+
+
+def preprocess_mnist(img, block_size,method, num_nets, trans, device):
+    # mi, ma = -0.4242, 2.8215
+    # img += (torch.rand_like(img, device=device) * (ma - mi) - mi)
+    if method == "downsample":
+        img = downsample_img(img, block_size=block_size, num_nets=num_nets)
+    elif method == "block":
+        img = block_img(img, block_size=block_size, num_nets=num_nets)
+
+    if trans:
+        img = dct(img, device=device)
+    return img
+
+def fusing(num_nets, p, train_loss):
+    p = 0.3
+    rank_list = np.argsort(train_loss)
+    fusing_weight = [0] * num_nets
+    for i in range(num_nets):
+        fusing_weight[rank_list[i]] = p * np.power((1 - p), i)
+
+    return fusing_weight

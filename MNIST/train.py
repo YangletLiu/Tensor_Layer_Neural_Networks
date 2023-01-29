@@ -8,7 +8,7 @@ import torch
 from torch import nn
 from torchvision import transforms, datasets
 
-from utils import preprocess_mnist
+from utils import preprocess_mnist, fusing
 from model import build
 from record import save_record_and_draw
 import math
@@ -33,6 +33,8 @@ parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="mo
 parser.add_argument("-j", "--workers", default=8, type=int, metavar="N", help="number of data loading workers (default: 16)")
 parser.add_argument("--decom", action="store_true", help="low rank decompose the net")
 parser.add_argument("--trans", action="store_true", help="whether to use transform")
+parser.add_argument("--split", default=None, type=str, help="method of split datasets")
+parser.add_argument("--geo", default=0., type=float, help="the p of geo fusing method")
 args = parser.parse_args()
 
 num_nets = args.r_idx - args.l_idx
@@ -180,7 +182,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
             img, targets = img.to(device), targets.to(device)
-            img = preprocess_mnist(img, block_size=(4, 7))
+            img = preprocess_mnist(img, block_size=(4, 7), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
 
             for i in range(num_nets):
                 outputs[i] = nets[i](img[:, :, :, :, i])
@@ -293,7 +295,7 @@ def train_multi_nets(num_epochs, nets):
             print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' % (epoch+1, current_lr[0], current_lr[1], current_lr[2], current_lr[3]))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
                 inputs, targets = inputs.to(device), targets.to(device)  # GPU settings
-                inputs = preprocess_mnist(inputs, block_size=(4, 7), num_nets=num_nets, trans=args.trans, device=device)
+                inputs = preprocess_mnist(inputs, block_size=(4, 7), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
 
                 for i in range(num_nets):
                     optimizers[i].zero_grad()
@@ -316,14 +318,10 @@ def train_multi_nets(num_epochs, nets):
                                    temp_acc_ary.min(), temp_acc_ary.max(), temp_acc_ary.mean())
                                 )
                 sys.stdout.flush()
-            fusing_weight = [0] * num_nets
-            # for i in range(num_nets):
-            #     fusing_weight[i] = 1
-            p = 0.3
-            rank_list = np.argsort(train_loss)
-            fusing_weight = [0] * num_nets
-            for i in range(num_nets):
-                fusing_weight[rank_list[i]] = p * np.power((1 - p), i)
+
+            fusing_weight = None
+            if args.geo:
+                fusing_weight = fusing(num_nets, args.geo, train_loss)
 
             best_acc, best_fusing_acc = test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list,
                                         fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_plan, fusing_num, criterion, fusing_weight=fusing_weight)
