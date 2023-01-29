@@ -24,8 +24,11 @@ parser.add_argument("--r_idx", default=0, type=int,
 parser.add_argument("--device", default="cuda:0", type=str, help="device (Use cuda or cpu Default: cuda)")
 parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
 parser.add_argument("--epochs", default=100, type=int, metavar="N", help="number of total epochs to run")
-parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
 parser.add_argument("--lr", default=0.001, type=float, help="initial learning rate")
+parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
+parser.add_argument("--scheduler", default=None, type=str, help="the lr scheduler")
+parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
+parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
 parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
 parser.add_argument("-j", "--workers", default=8, type=int, metavar="N", help="number of data loading workers (default: 16)")
 parser.add_argument("--decom", action="store_true", help="low rank decompose the net")
@@ -103,8 +106,16 @@ def train(num_epochs, net):
     lr0 = args.lr
     current_lr = lr0
     criterion = nn.CrossEntropyLoss().to(device)
-    # optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
-    optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
+    if args.opt == 'sgd':
+        optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
+    elif args.opt == 'adam':
+        optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
+
+    if args.scheduler == "steplr":
+        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.lr_step_size, gamma=args.lr_gamma)
+
+
+
 
     try:
         for epoch in range(num_epochs):
@@ -132,6 +143,9 @@ def train(num_epochs, net):
                         %(epoch+1, num_epochs, batch_idx+1,
                           (len(trainset) // batch_size) + 1, loss.item(), 100. * correct / total))
                 sys.stdout.flush()
+
+            if args.scheduler is not None:
+                lr_scheduler.step()
 
             best_acc = test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list)
             train_acc_list.append(100. * correct / total)
