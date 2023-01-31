@@ -266,10 +266,15 @@ def train_multi_nets(num_epochs, nets):
     start_time = time.time()
 
     optimizers = []
+
     for i in range(num_nets):
         nets[i] = nets[i].to(device)
         # optimizers.append(torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9))
         optimizers.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i]))
+    if args.scheduler is not None:
+        scheduler = []
+        for i in range(num_nets):
+            scheduler.append(torch.optim.lr_scheduler.StepLR(optimizers[i], step_size=30, gamma=0.1))
 
     current_lr = lr0
 
@@ -308,6 +313,10 @@ def train_multi_nets(num_epochs, nets):
                                    temp_acc_ary.min(), temp_acc_ary.max(), temp_acc_ary.mean())
                                 )
                 sys.stdout.flush()
+            if scheduler:
+                for i in range(num_nets):
+                    scheduler[i].step()
+                    current_lr[i] = optimizers[i].param_groups[0]["lr"]
 
             fusing_weight = None
             if args.geo:
