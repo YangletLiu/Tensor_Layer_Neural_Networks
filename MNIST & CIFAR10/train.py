@@ -29,6 +29,8 @@ parser.add_argument("--lr", default=0.001, type=float, help="initial learning ra
 parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
 parser.add_argument("--scheduler", default=None, type=str, help="the lr scheduler")
 parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
+parser.add_argument("--lr-warmup-decay", default=0.01, type=float, help="the decay for lr")
+parser.add_argument("--lr-min", default=0.0, type=float, help="minimum lr of lr schedule (default: 0.0)")
 parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
 parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
 parser.add_argument("-j", "--workers", default=8, type=int, metavar="N", help="number of data loading workers (default: 16)")
@@ -105,7 +107,8 @@ def train(num_epochs, net):
 
     if args.scheduler == "steplr":
         lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.lr_step_size, gamma=args.lr_gamma)
-
+    elif args.scheduler == "cos":
+        lr_scheduler=torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs - args.lr_warmup_epochs, eta_min=args.lr_min)
 
 
 
@@ -274,7 +277,16 @@ def train_multi_nets(num_epochs, nets):
     if args.scheduler is not None:
         scheduler = []
         for i in range(num_nets):
-            scheduler.append(torch.optim.lr_scheduler.StepLR(optimizers[i], step_size=30, gamma=0.1))
+            if args.scheduler == "steplr":
+                scheduler.append(torch.optim.lr_scheduler.StepLR(
+                    optimizers[i], step_size=args.lr_step_size, gamma=args.lr_gamma
+                ))
+            if args.scheduler == "cos":
+                scheduler.append(torch.optim.lr_scheduler.CosineAnnealingLR(
+                    optimizers[i], T_max=args.epochs - args.lr_warmup_epochs, eta_min=args.lr_min
+                ))
+
+
 
     current_lr = lr0
 
