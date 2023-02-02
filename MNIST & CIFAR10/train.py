@@ -26,12 +26,14 @@ parser.add_argument("--device", default="cuda:0", type=str, help="device (Use cu
 parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
 parser.add_argument("--epochs", default=100, type=int, metavar="N", help="number of total epochs to run")
 parser.add_argument("--lr", default=0.001, type=float, help="initial learning rate")
+parser.add_argument("--wd","--weight-decay", default=0.01, type=float, metavar="W", help="weight decay (default: 1e-4)", dest="weight_decay",)
 parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
 parser.add_argument("--scheduler", default=None, type=str, help="the lr scheduler")
 parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
 parser.add_argument("--lr-warmup-decay", default=0.01, type=float, help="the decay for lr")
 parser.add_argument("--lr-min", default=0.0, type=float, help="minimum lr of lr schedule (default: 0.0)")
 parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
+parser.add_argument("--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing")
 parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
 parser.add_argument("-j", "--workers", default=8, type=int, metavar="N", help="number of data loading workers (default: 16)")
 parser.add_argument("--decom", action="store_true", help="low rank decompose the net")
@@ -99,11 +101,13 @@ def train(num_epochs, net):
 
     lr0 = args.lr
     current_lr = lr0
-    criterion = nn.CrossEntropyLoss().to(device)
+    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing).to(device)
     if args.opt == 'sgd':
         optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
     elif args.opt == 'adam':
-        optimizer = torch.optim.Adam(net.parameters(), lr=lr0)
+        optimizer = torch.optim.Adam(net.parameters(), lr=lr0, weight_decay=args.weight_decay)
+    elif args.opt == "adamw":
+        optimizer = torch.optim.AdamW(net.parameters(), lr=lr0, weight_decay=args.weight_decay)
 
     if args.scheduler == "steplr":
         lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.lr_step_size, gamma=args.lr_gamma)
@@ -254,7 +258,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
     return best_acc, best_fusing_acc
 
 def train_multi_nets(num_epochs, nets):
-    criterion = nn.CrossEntropyLoss().to(device)
+    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing).to(device)
     lr0 = [args.lr] * num_nets
     fusing_plan = [list(range(28)), list(range(5))]
     fusing_num = len(fusing_plan)
@@ -272,8 +276,14 @@ def train_multi_nets(num_epochs, nets):
 
     for i in range(num_nets):
         nets[i] = nets[i].to(device)
-        # optimizers.append(torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9))
-        optimizers.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i]))
+        optimizer = []
+        if args.opt == 'sgd':
+            optimizer.append(torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9, weight_decay=args.weight_decay))
+        elif args.opt == 'adam':
+            optimizer.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
+        elif args.opt == "adamw":
+            optimizer.append(torch.optim.AdamW(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
+
     if args.scheduler is not None:
         scheduler = []
         for i in range(num_nets):
@@ -285,8 +295,6 @@ def train_multi_nets(num_epochs, nets):
                 scheduler.append(torch.optim.lr_scheduler.CosineAnnealingLR(
                     optimizers[i], T_max=args.epochs - args.lr_warmup_epochs, eta_min=args.lr_min
                 ))
-
-
 
     current_lr = lr0
 
