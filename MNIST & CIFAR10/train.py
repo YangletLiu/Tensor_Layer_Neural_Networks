@@ -8,7 +8,7 @@ import torch
 from torch import nn
 from torchvision import transforms, datasets
 
-from utils import preprocess_mnist, fusing
+from utils import preprocess, fusing
 from model import build
 from record import save_record_and_draw
 from data_loader import get_dataset
@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(description="Training")
 parser.add_argument("--model-name", default="FC4Net", type=str,
                     help="model name")
 parser.add_argument("--filename", type=str, help="the record filename")
+parser.add_argument("--subnums", type=int, help="the nums of datasets")
 parser.add_argument("--l_idx", default=0, type=int,
                     help="the index of the first network")
 parser.add_argument("--r_idx", default=0, type=int,
@@ -37,13 +38,14 @@ parser.add_argument("--label-smoothing", default=0.0, type=float, help="label sm
 parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
 parser.add_argument("-j", "--workers", default=8, type=int, metavar="N", help="number of data loading workers (default: 16)")
 parser.add_argument("--decom", action="store_true", help="low rank decompose the net")
-parser.add_argument("--trans", action="store_true", help="whether to use transform")
+parser.add_argument("--trans", default=None, help="the transform domain")
 parser.add_argument("--split", default=None, type=str, help="method of split datasets")
-parser.add_argument("--geo", default=0., type=float, help="the p of geo fusing method")
+parser.add_argument("--geo-p", default=0., type=float, help="the p of geo fusing method")
 parser.add_argument("--dataset", default="MNIST", type=str)
 args = parser.parse_args()
 
 num_nets = args.r_idx - args.l_idx
+blocks = math.sqrt(args.subnums)
 
 device = args.device if torch.cuda.is_available() else "cpu"
 batch_size = args.batch_size
@@ -179,7 +181,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
             img, targets = img.to(device), targets.to(device)
-            img = preprocess_mnist(img, block_size=(4, 7), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
+            img = preprocess(img, block_size=(4, 7), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
 
             for i in range(num_nets):
                 outputs[i] = nets[i](img[:, :, :, :, i])
@@ -310,7 +312,7 @@ def train_multi_nets(num_epochs, nets):
             print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' % (epoch+1, current_lr[0], current_lr[1], current_lr[2], current_lr[3]))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
                 inputs, targets = inputs.to(device), targets.to(device)  # GPU settings
-                inputs = preprocess_mnist(inputs, block_size=(4, 7), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
+                inputs = preprocess(inputs, block_size=(4, 7), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
 
                 for i in range(num_nets):
                     optimizers[i].zero_grad()
@@ -339,8 +341,8 @@ def train_multi_nets(num_epochs, nets):
                     current_lr[i] = optimizers[i].param_groups[0]["lr"]
 
             fusing_weight = None
-            if args.geo:
-                fusing_weight = fusing(num_nets, args.geo, train_loss)
+            if args.geo_p:
+                fusing_weight = fusing(num_nets, args.geo_p, train_loss)
 
             best_acc, best_fusing_acc = test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list,
                                         fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_plan, fusing_num, criterion, fusing_weight=fusing_weight)

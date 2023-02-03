@@ -263,7 +263,7 @@ def block_img(img, block_size, num_nets):
     return img
 
 
-def preprocess_mnist(img, block_size,method, num_nets, trans, device):
+def preprocess(img, block_size,method, num_nets, trans, device):
     # mi, ma = -0.4242, 2.8215
     # img += (torch.rand_like(img, device=device) * (ma - mi) - mi)
     if method == "downsample":
@@ -271,8 +271,10 @@ def preprocess_mnist(img, block_size,method, num_nets, trans, device):
     elif method == "block":
         img = block_img(img, block_size=block_size, num_nets=num_nets)
 
-    if trans:
+    if trans == "dct":
         img = dct(img, device=device)
+    elif trans == "fft":
+        img = torch.fft.ifft(img).real
     return img
 
 def fusing(num_nets, p, train_loss):
