@@ -298,7 +298,7 @@ def train_multi_nets(num_epochs, nets):
                     optimizers[i], T_max=args.epochs - args.lr_warmup_epochs, eta_min=args.lr_min
                 ))
 
-    current_lr = lr0
+        current_lr = scheduler[0].get_last_lr()[0]
 
     try:
         for epoch in range(num_epochs):

@@ -356,6 +356,125 @@ class CNN8CIFAR10(nn.Module):
         x = self.pred(x)
         return x
 
+class CNN10ImageNet(nn.Module):
+    def __init__(self):
+        super(CNN10ImageNet, self).__init__()
+
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=3,
+                out_channels=64,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=64),
+            nn.ReLU(True),
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.ReLU(True),
+            nn.BatchNorm2d(num_features=64),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=128),
+            nn.ReLU(True),
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=128),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2)),
+            nn.Dropout2d(p=0.05),
+        )
+        self.conv5 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=256,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(True)
+        )
+        self.conv6 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(True)
+        )
+        self.conv7 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=256),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
+        )
+        self.conv8 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=512,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=512),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2)),
+            nn.Dropout2d(p=0.05),
+        )
+        self.conv9 = nn.Sequential(
+            nn.Conv2d(
+                in_channels=512,
+                out_channels=512,
+                kernel_size=3,
+                padding=1
+            ),
+            nn.BatchNorm2d(num_features=512),
+            nn.ReLU(True),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
+        )
+        self.pred = nn.Sequential(
+            nn.Dropout(p=0.1),
+            nn.Linear(4608, 1000),
+        )
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        x = self.conv4(x)
+        x = self.conv5(x)
+        x = self.conv6(x)
+        x = self.conv7(x)
+        x = self.conv8(x)
+        x = self.conv9(x)
+        x = x.view(x.size(0),-1)
+        x = self.pred(x)
+        return x
 
 def build(model_name, num_nets=0, decomp=True):
     print("==> Building model..")
