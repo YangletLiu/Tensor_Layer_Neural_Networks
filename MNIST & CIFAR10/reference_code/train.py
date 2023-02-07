@@ -310,8 +310,8 @@ def main(args):
 
     print("Creating model")
     # model = torchvision.models.__dict__[args.model](weights=args.weights, num_classes=num_classes, pretrained=True)
-    model = torchvision.models.resnet50(pretrained = True)
-    model.fc = nn.Linear(512, 10)
+    model = torchvision.models.resnet50(weights=torchvision.models.ResNet50_Weights.IMAGENET1K_V2)
+    model.fc = nn.Linear(2048, 10)
     model.to(device)
 
     if args.distributed and args.sync_bn:

@@ -216,9 +216,7 @@ def raw_img(img, seg_length=0):
 def downsample_img(img, block_size, num_nets):
     batch_, c_, m_, n_ = img.shape
     row_step, col_step = block_size
-    row_blocks = m_ // row_step
-    col_blocks = n_ // col_step
-    assert num_nets == row_blocks * col_blocks, "the number of downsampled images is not equal to the number of num_nets"
+    assert num_nets == row_step * col_step, "the number of downsampled images is not equal to the number of num_nets"
     assert m_ % row_step == 0, "the image can' t be divided into several downsample blocks in row-dimension"
     assert n_ % col_step == 0, "the image can' t be divided into several downsample blocks in col-dimension"
 
@@ -263,7 +261,7 @@ def block_img(img, block_size, num_nets):
     return img
 
 
-def preprocess(img, block_size,method, num_nets, trans, device):
+def preprocess(img, block_size, method="downsample", num_nets=4, trans="dct", device="cpu"):
     # mi, ma = -0.4242, 2.8215
     # img += (torch.rand_like(img, device=device) * (ma - mi) - mi)
     if method == "downsample":

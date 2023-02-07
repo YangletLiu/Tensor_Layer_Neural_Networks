@@ -8,8 +8,10 @@ class ClassificationPresetTrain:
         self,
         *,
         crop_size,
-        mean=(0.485, 0.456, 0.406),
-        std=(0.229, 0.224, 0.225),
+        # mean=(0.485, 0.456, 0.406),
+        # std=(0.229, 0.224, 0.225),
+        mean=(0.4914, 0.4822, 0.4465),
+        std=(0.2023, 0.1994, 0.2010),
         interpolation=InterpolationMode.BILINEAR,
         hflip_prob=0.5,
         auto_augment_policy=None,
@@ -52,8 +54,8 @@ class ClassificationPresetEval:
         *,
         crop_size,
         resize_size=256,
-        mean=(0.485, 0.456, 0.406),
-        std=(0.229, 0.224, 0.225),
+        mean=(0.4914, 0.4822, 0.4465),
+        std=(0.2023, 0.1994, 0.2010),
         interpolation=InterpolationMode.BILINEAR,
     ):
 
