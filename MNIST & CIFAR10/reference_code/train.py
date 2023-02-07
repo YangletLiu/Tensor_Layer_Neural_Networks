@@ -3,6 +3,8 @@ import os
 import time
 import warnings
 
+import numpy as np
+
 import presets
 import torch
 import torch.utils.data
@@ -25,6 +27,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, arg
     for i, (image, target) in enumerate(metric_logger.log_every(data_loader, args.print_freq, header)):
         start_time = time.time()
         image, target = image.to(device), target.to(device)
+        image = preprocess_imagenet(image, block_size=(2, 2), device=device)
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             output = model(image)
             loss = criterion(output, target)
@@ -68,6 +71,7 @@ def evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="
         for image, target in metric_logger.log_every(data_loader, print_freq, header):
             image = image.to(device, non_blocking=True)
             target = target.to(device, non_blocking=True)
+            image = preprocess_imagenet(image, block_size=(2, 2), device=device)
             output = model(image)
             loss = criterion(output, target)
 
@@ -202,6 +206,63 @@ def load_data(traindir, valdir, args):
 
     return dataset, dataset_test, train_sampler, test_sampler
 
+def preprocess_imagenet(img, block_size, device):
+    img = downsample_img(img, block_size=block_size)
+    img = dct(img, device)
+    img = img[:, :, :, :, args.idx]
+    return img
+
+def downsample_img(img, block_size):
+    batch_, c_, m_, n_ = img.shape
+    row_step, col_step = block_size
+    row_blocks = m_ // row_step
+    col_blocks = n_ // col_step
+    assert m_ % row_step == 0, "the image can' t be divided into several downsample blocks in row-dimension"
+    assert n_ % col_step == 0, "the image can' t be divided into several downsample blocks in col-dimension"
+
+    components = []
+    for row in range(row_step):
+        for col in range(col_step):
+            components.append(img[:, :, row::row_step, col::col_step].unsqueeze(dim=-1))
+    img = torch.cat(components, dim=-1)
+
+    return img
+
+def dct(x, device, norm=None):
+    """
+    Discrete Cosine Transform, Type II (a.k.a. the DCT)
+
+    For the meaning of the parameter `norm`, see:
+    https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.fftpack.dct.html
+
+    :param x: the input signal
+    :param norm: the normalization, None or 'ortho'
+    :return: the DCT-II of the signal over the last dimension
+    """
+    x_shape = x.shape
+    N = x_shape[-1]
+    x = x.contiguous().view(-1, N)
+
+    v = torch.cat([x[:, ::2], x[:, 1::2].flip([1])], dim=1)
+
+    if torch.__version__ > "1.7.1":
+        Vc = torch.view_as_real(torch.fft.fft(v))
+    else:
+        Vc = torch.rfft(v, 1, onesided=False)
+
+    k = (- torch.arange(N, dtype=x.dtype)[None, :] * np.pi / (2 * N)).to(device)
+    W_r = torch.cos(k)
+    W_i = torch.sin(k)
+
+    V = Vc[:, :, 0] * W_r - Vc[:, :, 1] * W_i
+
+    if norm == 'ortho':
+        V[:, 0] /= np.sqrt(N) * 2
+        V[:, 1:] /= np.sqrt(N / 2) * 2
+
+    V = 2 * V.view(*x_shape)
+
+    return V
 
 def main(args):
     if args.output_dir:
@@ -248,7 +309,9 @@ def main(args):
     )
 
     print("Creating model")
-    model = torchvision.models.__dict__[args.model](weights=args.weights, num_classes=num_classes)
+    # model = torchvision.models.__dict__[args.model](weights=args.weights, num_classes=num_classes, pretrained=True)
+    model = torchvision.models.resnet50(pretrained = True)
+    model.fc = nn.Linear(512, 10)
     model.to(device)
 
     if args.distributed and args.sync_bn:
@@ -387,9 +450,9 @@ def main(args):
             if scaler:
                 checkpoint["scaler"] = scaler.state_dict()
 
-            # if acc > best_acc:
-            #     best_acc = acc
-            #     utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"model_{epoch}_best.pth"))
+            if acc > best_acc:
+                best_acc = acc
+                utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"spectral_resnet50_sub{args.idx}_best.pth"))
             # if epoch % 10 == 0:
             #     utils.save_on_master(checkpoint, os.path.join(args.output_dir, "checkpoint.pth"))
 
@@ -526,6 +589,8 @@ def get_args_parser(add_help=True):
         "--ra-reps", default=3, type=int, help="number of repetitions for Repeated Augmentation (default: 3)"
     )
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
+    parser.add_argument("--idx", default=0, type=int,
+                        help="the index of the last network")
     return parser
 
 
