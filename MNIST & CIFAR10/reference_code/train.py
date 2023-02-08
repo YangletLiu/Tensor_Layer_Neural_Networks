@@ -444,6 +444,7 @@ def main(args):
                 "lr_scheduler": lr_scheduler.state_dict(),
                 "epoch": epoch,
                 "args": args,
+                "acc": acc,
             }
             if model_ema:
                 checkpoint["model_ema"] = model_ema.state_dict()
@@ -452,7 +453,7 @@ def main(args):
 
             if acc > best_acc:
                 best_acc = acc
-                utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"spectral_resnet50_sub{args.idx}_best.pth"))
+                utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"spectral_resnet50_sub{args.idx}.pth"))
             # if epoch % 10 == 0:
             #     utils.save_on_master(checkpoint, os.path.join(args.output_dir, "checkpoint.pth"))
 
