@@ -208,7 +208,8 @@ def load_data(traindir, valdir, args):
 
 def preprocess_imagenet(img, block_size, device):
     img = downsample_img(img, block_size=block_size)
-    img = dct(img, device)
+    # img = dct(img, device)
+    img = torch.fft.fft(img).real
     img = img[:, :, :, :, args.idx]
     return img
 
@@ -453,7 +454,7 @@ def main(args):
 
             if acc > best_acc:
                 best_acc = acc
-                utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"spectral_resnet50_sub{args.idx}.pth"))
+                utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"spectral_resnet50_fft_sub{args.idx}.pth"))
             # if epoch % 10 == 0:
             #     utils.save_on_master(checkpoint, os.path.join(args.output_dir, "checkpoint.pth"))
 
