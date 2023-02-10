@@ -24,7 +24,8 @@ parser.add_argument("--r_idx", default=4, type=int,
                     help="the index of the last network")
 parser.add_argument("--net_idx", default="0", type=str, help="subnetwork idx")
 parser.add_argument("--premodel", default="best", type=str)
-parser.add_argument("--checkpoint_path", default="spectral_resnet50_subx_best.pth", type=str)
+parser.add_argument("--checkpoint_path", default="spectral_resnet50_subx.pth", type=str)
+parser.add_argument("--dct_nets", default="4", type=int, help="the number of dct subnetworks")
 parser.add_argument("--ensemble", default="geo", type=str)
 parser.add_argument("--geo", default=0.3, type=float)
 parser.add_argument("--models_path", default=".", type=str)
@@ -85,13 +86,11 @@ fusing_num = len(fusing_plan)
 loss_format_str = "%.4f, " * num_nets
 acc_format_str = "%.2f%%, " * num_nets
 test_loss_content_str = ""
-top1_acc_content_str = ""
-top5_acc_content_str = ""
+acc_content_str = ""
 best_acc_content_str = ""
 for __ in range(num_nets):
     test_loss_content_str += "test_loss[{}], ".format(__)
-    top1_acc_content_str += "acc[{}][{}], ".format(__, 0)
-    top5_acc_content_str += "acc[{}][{}], ".format(__, 1)
+    acc_content_str += "acc[{}], ".format(__)
     best_acc_content_str += "best_acc[{}], ".format(__)
 
 
@@ -114,7 +113,14 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
             img, targets = img.to(device), targets.to(device)
-            img = preprocess(img, block_size=(2, 2), device=device)
+            fft_img = None
+
+            if num_nets > args.dct_nets:
+                fft_img = preprocess(img, block_size=(2, 2), device=device, trans="fft")
+            img = preprocess(img, block_size=(2, 2), device=device, trans="dct")
+
+            if fft_img is not None:
+                img = torch.cat((img, fft_img), dim=-1)
 
             for i in range(num_nets):
                 outputs[i] = nets[i](img[:, :, :, :, i])
@@ -156,17 +162,22 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
             fusing_test_loss[i] /= num_test
             fusing_acc[i] = 100. * fusing_correct[i] / fusing_total[i]
 
-        print("\n| Validation Epoch #%d\t\tLoss: [%.4f, %.4f, %.4f, %.4f] Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%]   "
-              %(epoch+1, test_loss[0], test_loss[1], test_loss[2], test_loss[3], acc[0], acc[1], acc[2], acc[3]))
+        print("| Validation Epoch #%d\t\t"% (epoch+1)
+              + ("  Loss: [" + loss_format_str + "]" )%(eval(test_loss_content_str))
+              + ("  Acc: [" + acc_format_str + "]")%(eval(acc_content_str))
+            )
 
-        print("| Fusing Loss: [%.4f] Fusing Acc: [%.2f%%]   "%(fusing_test_loss[0], fusing_acc[0]))
+        print("| s [%.4f] Fusing Acc: [%.2f%%]   " % (fusing_test_loss[0], fusing_acc[0]))
 
 
 def ensemble(nets, checkpoint_path):
     start_time = time.time()
     acc = []
     for i in range(num_nets):
-        checkpoint = torch.load(checkpoint_path.replace("subx", f"sub{i}"))
+        if i >= args.dct_nets:
+            checkpoint = torch.load(checkpoint_path.replace("subx", f"fft_sub{i-args.dct_nets}"))
+        else:
+            checkpoint = torch.load(checkpoint_path.replace("subx", f"sub{i}"))
         acc.append(checkpoint["acc"])
         nets[i].load_state_dict(checkpoint["model"])
         nets[i].to(device)
