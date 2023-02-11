@@ -52,3 +52,4 @@ Batch size: 128.
 | Spectral-resnet34-subnets-4<br>(pretrain on ImageNet) | 4 subnetworks: <br> [spectral resnet34 with 10 num_classes] for each subnetwork. | 95.66% | 0.001 | adam |
 | Spectral-resnet50-subnets-4<br>(pretrain on ImageNet) | 4 subnetworks: <br> [spectral resnet50 with 10 num_classes] for each subnetwork. | 98.06% | 0.2 with lr scheduler | SGD |
 | Spectral-resnet50-subnets-4+4<br>(4 dct + 4 fft, pretrain on ImageNet) | 8 subnetworks: <br> [spectral resnet50 with 10 num_classes] for each subnetwork. | 98.20% | 0.2 with lr scheduler | SGD |
+| Spectral-resnext101_64x4d-subnets-4<br>(pretrain on ImageNet) | 4 subnetworks: <br> [spectral resnext101_64x4d with 10 num_classes] for each subnetwork. | 98.23% | 0.2 with lr scheduler | SGD |
