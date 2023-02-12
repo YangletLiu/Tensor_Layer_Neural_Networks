@@ -24,9 +24,9 @@ python train.py --model-name FC8Net
 ```
 
 ## dataset
-Use the `--model-name` parameter to select the dataset
+Use the `--model-name` parameter to select the dataset. Currently, the code will automatically download MNIST and CIFAR-10 datasets,  you can use `--datapath` to choose the path to save the dataset or your downloaded data.
 ```shell
-python train.py --dataset MNIST
+python train.py --dataset MNIST --datapath ./
 ```
 
 ## spectral method

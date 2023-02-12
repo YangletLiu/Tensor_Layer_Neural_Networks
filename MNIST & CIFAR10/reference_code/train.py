@@ -27,7 +27,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, arg
     for i, (image, target) in enumerate(metric_logger.log_every(data_loader, args.print_freq, header)):
         start_time = time.time()
         image, target = image.to(device), target.to(device)
-        image = preprocess_imagenet(image, block_size=(2, 2), device=device)
+        image = preprocess_imagenet(image, block_size=(2, 2), device=device, trans=args.trans)
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             output = model(image)
             loss = criterion(output, target)
@@ -71,7 +71,7 @@ def evaluate(model, criterion, data_loader, device, print_freq=100, log_suffix="
         for image, target in metric_logger.log_every(data_loader, print_freq, header):
             image = image.to(device, non_blocking=True)
             target = target.to(device, non_blocking=True)
-            image = preprocess_imagenet(image, block_size=(2, 2), device=device)
+            image = preprocess_imagenet(image, block_size=(2, 2), device=device, trans=args.trans)
             output = model(image)
             loss = criterion(output, target)
 
@@ -206,10 +206,12 @@ def load_data(traindir, valdir, args):
 
     return dataset, dataset_test, train_sampler, test_sampler
 
-def preprocess_imagenet(img, block_size, device):
+def preprocess_imagenet(img, block_size, device, trans):
     img = downsample_img(img, block_size=block_size)
-    # img = dct(img, device)
-    img = torch.fft.fft(img).real
+    if trans == "dct":
+        img = dct(img, device)
+    if trans == "fft":
+        img = torch.fft.fft(img).real
     img = img[:, :, :, :, args.idx]
     return img
 
@@ -310,9 +312,25 @@ def main(args):
     )
 
     print("Creating model")
-    # model = torchvision.models.__dict__[args.model](weights=args.weights, num_classes=num_classes, pretrained=True)
-    model = torchvision.models.resnet50(weights=torchvision.models.ResNet50_Weights.IMAGENET1K_V2)
-    model.fc = nn.Linear(2048, 10)
+    # model = torchvision.models.__dict__[args.model](weights=args.weights, num_classes=num_classes)
+    if args.model == "resnet50":
+        model = torchvision.models.resnet50(weights=torchvision.models.ResNet50_Weights.IMAGENET1K_V2)
+        model.fc = nn.Linear(2048, 10)
+    if args.model == "resnext":
+        model = torchvision.models.resnext101_64x4d(weights=torchvision.models.ResNeXt101_64X4D_Weights.IMAGENET1K_V1)
+        model.fc = nn.Linear(2048, 10)
+    if args.model == "vit_l_16":
+        model = torchvision.models.vit_l_16(image_size=args.train_crop_size, weights=torchvision.models.ViT_L_16_Weights.IMAGENET1K_SWAG_LINEAR_V1)
+        for param in model.parameters():
+                param.requires_grad = False
+        model.heads = nn.Linear(1024, 10)
+    if args.model == "vit_h_14":
+        weights = torchvision.models.ViT_H_14_Weights.IMAGENET1K_SWAG_LINEAR_V1
+        model = torchvision.models.vit_h_14(image_size=args.train_crop_size, weights=weights)
+        for param in model.parameters():
+                param.requires_grad = False
+        model.heads = nn.Linear(1280, 10)
+
     model.to(device)
 
     if args.distributed and args.sync_bn:
@@ -454,7 +472,7 @@ def main(args):
 
             if acc > best_acc:
                 best_acc = acc
-                utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"spectral_resnet50_fft_sub{args.idx}.pth"))
+                utils.save_on_master(checkpoint, os.path.join(args.output_dir, f"spectral_resnext101_64x4d_fft_sub{args.idx}.pth"))
             # if epoch % 10 == 0:
             #     utils.save_on_master(checkpoint, os.path.join(args.output_dir, "checkpoint.pth"))
 
@@ -593,6 +611,7 @@ def get_args_parser(add_help=True):
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
     parser.add_argument("--idx", default=0, type=int,
                         help="the index of the last network")
+    parser.add_argument("--trans", default="dct", type=str, help="the transform domain")
     return parser
 
 
