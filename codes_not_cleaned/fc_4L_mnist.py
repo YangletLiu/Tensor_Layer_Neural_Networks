@@ -99,7 +99,7 @@ def test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list):
                     "state_dict": net.state_dict(),
                     "best_acc": best_acc,
                     }
-            torch.save(checkpoint, "fc_4L_mnist.pth.tar")
+            torch.save(checkpoint, "../fc_4L_mnist.pth.tar")
         test_acc_list.append(acc)
         test_loss_list.append(test_loss / total)
     return best_acc
