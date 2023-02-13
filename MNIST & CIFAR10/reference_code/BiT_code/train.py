@@ -172,7 +172,7 @@ def main(args):
   model.load_from(np.load(f"{args.model}.npz"))
 
   logger.info("Moving model onto all GPUs")
-  # model = torch.nn.DataParallel(model)
+  model = torch.nn.DataParallel(model)
 
   # Optionally resume from a checkpoint.
   # Load it to CPU first as we'll move the model to GPU later.
@@ -281,8 +281,8 @@ if __name__ == "__main__":
   parser = bit_common.argparser(models.KNOWN_MODELS.keys())
   parser.add_argument("--datadir", required=True,
                       help="Path to the ImageNet data folder, preprocessed for torchvision.")
-  parser.add_argument("--workers", type=int, default=8,
+  parser.add_argument("--workers", type=int, default=16,
                       help="Number of background threads used to load data.")
   parser.add_argument("--no-save", dest="save", action="store_false")
-  parser.add_argument("--device", default="cuda:7", type=str)
+  parser.add_argument("--device", default="cuda:1", type=str)
   main(parser.parse_args())
