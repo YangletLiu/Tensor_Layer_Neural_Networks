@@ -213,13 +213,10 @@ def main(args):
   mixup_l = np.random.beta(mixup, mixup) if mixup > 0 else 1
   end = time.time()
 
-  with lb.Uninterrupt() as u:
-    for x, y in recycle(train_loader):
+  for i in range(args.epochs):
+    for batch_idx, (x, y) in enumerate(train_loader):
       # measure data loading time, which is spent in the `for` statement.
       chrono._done("load", time.time() - end)
-
-      if u.interrupted:
-        break
 
       # Schedule sending to GPU(s)
       x = x.to(device, non_blocking=True)
@@ -227,8 +224,6 @@ def main(args):
 
       # Update learning-rate, including stop training if over.
       lr = bit_hyperrule.get_lr(step, len(train_set), args.base_lr)
-      if lr is None:
-        break
       for param_group in optim.param_groups:
         param_group["lr"] = lr
 
@@ -250,7 +245,7 @@ def main(args):
         accum_steps += 1
 
       accstep = f" ({accum_steps}/{args.batch_split})" if args.batch_split > 1 else ""
-      logger.info(f"[step {step}{accstep}]: loss={c_num:.5f} (lr={lr:.1e})")  # pylint: disable=logging-format-interpolation
+      logger.info(f"[(batch: {(batch_idx // args.batch_split) + 1}/{(len(train_set) // args.batch) + 1}){accstep}]: loss={c_num:.5f} (lr={lr:.1e})")  # pylint: disable=logging-format-interpolation
       logger.flush()
 
       # Update params
@@ -274,7 +269,7 @@ def main(args):
             }, savename)
 
       end = time.time()
-
+    logger.info(f"epoch: [{i+1}/{args.epochs}] ")
     # Final eval at end of training.
     run_eval(model, valid_loader, device, chrono, logger, step='end')
 
@@ -288,5 +283,6 @@ if __name__ == "__main__":
   parser.add_argument("--workers", type=int, default=16,
                       help="Number of background threads used to load data.")
   parser.add_argument("--no-save", dest="save", action="store_false")
-  parser.add_argument("--device", default="cuda:1", type=str)
+  parser.add_argument("--device", default="cuda:0", type=str)
+  parser.add_argument("--epochs", default=100, type=int)
   main(parser.parse_args())

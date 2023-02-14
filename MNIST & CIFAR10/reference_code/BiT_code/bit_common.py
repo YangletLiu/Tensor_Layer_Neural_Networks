@@ -49,7 +49,7 @@ def argparser(known_models):
                       help="Number of batches to compute gradient on before updating weights.")
   parser.add_argument("--base_lr", type=float, default=0.003,
                       help="Base learning-rate for fine-tuning. Most likely default is best.")
-  parser.add_argument("--eval_every", type=int, default=98,
+  parser.add_argument("--eval_every", type=int, default=None,
                       help="Run prediction on validation set every so many steps."
                       "Will always run one evaluation at the end of training.")
   return parser
