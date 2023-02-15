@@ -169,4 +169,9 @@ command :
 1. python train.py --dataset cifar10 --model-name CNN9CIFAR10 --epochs 300 --trans dct --l_idx 0 --r_idx 4 --split downsample
 2. python train.py --dataset cifar10 --model-name CNN9CIFAR10 --epochs 300 --trans fft --l_idx 0 --r_idx 4 --split downsample
 3. python ensemble.py --model-name CNN9CIFAR10 --l_idx 0 --r_idx 8 --dct-nets 4 --checkpoint-path spectral_CNN9CIFAR10_subx.pth
+
+1. python train.py --dataset cifar10 --model-name resnet50 --epochs 300 --trans dct --l_idx 0 --r_idx 4 --split downsample
+2. python train.py --dataset cifar10 --model-name resnet50 --epochs 300 --trans fft --l_idx 0 --r_idx 4 --split downsample
+3. python ensemble.py --model-name CNN9CIFAR10 --l_idx 0 --r_idx 8 --dct-nets 4 --checkpoint-path spectral_resnet50_subx.pth
+
 ```
