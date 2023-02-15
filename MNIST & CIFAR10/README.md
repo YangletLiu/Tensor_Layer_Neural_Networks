@@ -1,4 +1,4 @@
-# MNIST & CIFAR-10 dataset classification reference training scripts
+# MNIST & CIFAR-10 dataset classification
 
 Some general parameters are as follows
 
