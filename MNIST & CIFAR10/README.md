@@ -89,6 +89,8 @@ mixup: 0.1
 | resnet-152x4| 99.03% | 0.003 | SGD |
 
 ```shell
+command :
+
 1. cd ./reference_code/bit
 2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4
 ```
@@ -130,6 +132,8 @@ cd ./reference_code
 training:
 
 ```shell
+command :
+
 python train.py --model resnet34 --batch-size 512 --lr 0.2 --lr-scheduler cosineannealinglr --lr-warmup-epochs 5 --lr-warmup-method linear \
 --auto-augment ta_wide --epochs 600 --random-erase 0.1 --weight-decay 0.0001 --norm-weight-decay 0.0 --mixup-alpha 0.2 --cutmix-alpha 1.0 --idx i --output-dir . \
 --train-crop-size 176 --val-resize-size 232 --ra-sampler --ra-reps 4 --label-smoothing 0.05
@@ -147,6 +151,8 @@ python train.py --model resnext101_64x4d --batch-size 512 --lr 0.2 --lr-schedule
 
 ensemble:
 ```shell
+command :
+
 python ensemble.py --model-name resnet34 --l_idx 0 --r_idx 4 --checkpoint-path spectral_resnet34_subx.pth
 python ensemble.py --model-name resnet50 --l_idx 0 --r_idx 4 --checkpoint-path spectral_resnet50_subx.pth
 python ensemble.py --model-name resnext101_64x4d --l_idx 0 --r_idx 4 --checkpoint-path spectral_resnext101_64x4d_subx.pth
@@ -156,6 +162,8 @@ python ensemble.py --model-name resnext101_64x4d --l_idx 0 --r_idx 4 --checkpoin
 | Spectral-CNN-9-layer-subnets-4+4<br>(4 dct + 4 fft) | 8 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, ReLU, BN), (Conv, ReLU, BN, MaxPool, Dropout), (Conv, ReLU, BN), (Conv, ReLU, BN), (Conv, ReLU, BN), (Conv, ReLU, BN, MaxPool), (Dropout, Linear)] for each subnetwork. | 90.36%  | 0.001 | adam |
 | Spectral-resnet50-subnets-4+4<br>(4 dct + 4 fft, pretrain on ImageNet) | 8 subnetworks: <br> [spectral resnet50 with 10 num_classes] for each subnetwork. | 98.20% | 0.2 with lr scheduler | SGD |
 ```shell
+command :
+
 1. python train.py --dataset cifar10 --model-name CNN9CIFAR10 --epochs 300 --trans dct --l_idx 0 --r_idx 4 --split downsample
 2. python train.py --dataset cifar10 --model-name CNN9CIFAR10 --epochs 300 --trans fft --l_idx 0 --r_idx 4 --split downsample
 3. python ensemble.py --model-name CNN9CIFAR10 --l_idx 0 --r_idx 8 --dct-nets 4 --checkpoint-path spectral_CNN9CIFAR10_subx.pth
