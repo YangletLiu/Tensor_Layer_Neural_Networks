@@ -1,4 +1,4 @@
-# MNIST & CIFAR-10 dataset classification
+# MNIST & CIFAR-10 Dataset Classification
 
 Training parameters
 
