@@ -2,7 +2,7 @@
 
 Training parameters
 
-| Parameter                | value  |
+| Parameters                | value  |
 | ------------------------ | ------ |
 | `-b`,`--batch_size`      | `128`   |
 | `--epochs`               | `100`   |
