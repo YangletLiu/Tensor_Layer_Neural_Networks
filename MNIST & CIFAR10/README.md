@@ -39,7 +39,7 @@ Rank: 10.
 | Spectral-FC-8L-subnets-28(downsample) | 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 96.93% | 0.001 | - |
 
 ```shell
-command:
+command :
 
 python train.py --opt adam --model-name FC4Net
 python train.py --opt adam --model-name FC8Net 
@@ -65,6 +65,8 @@ Batch size: 128.
 | CNN-8-layer | [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 90.91%        | 0.001          | SGD         |
 | CNN-8-layer | [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.42% | 0.001          | adam        |
 ```shell
+command :
+
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --lr 0.01
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --opt adam
