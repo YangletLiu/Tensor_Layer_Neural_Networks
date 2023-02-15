@@ -3,4 +3,4 @@
 
 ![img.png](figs/img.png)
 
-[MNIST & CIFAR10](./MNIST%20&%20CIFAR10/README_old.md)
+[MNIST & CIFAR10](./MNIST%20&%20CIFAR10/README.md)
