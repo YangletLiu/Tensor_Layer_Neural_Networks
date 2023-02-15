@@ -1,9 +1,9 @@
-# MNIST & CIFAR-10 dataset classification reference training scripts
+# MNIST & CIFAR-10 Dataset Classification
 
 The code will automatically download MNIST and CIFAR-10 datasets
 
 Training parameters
-| Parameter                | value  |
+| Parameters                | values  |
 | ------------------------ | ------ |
 | `-b`,`--batch_size`      | `128`   |
 | `--epochs`               | `100`   |
