@@ -84,6 +84,8 @@ lr: 0.003, multiply by 0.1 every 30 epochs
 
 mixup: 0.1
 
+pretrained on ImageNet-21K
+
 | Network     | Test accuracy | base_lr | opt |
 | ----------- | ------------- | -------------- | -------------- |
 | resnet-152x4| 99.03% | 0.003 | SGD |
@@ -106,7 +108,7 @@ command :
 | Spectral-CNN-8-layer-subnets-4 | 4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 89.39 % | 0.001 | adam |
 | Spectral-CNN-8-layer-subnets-4 | 4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 89.54 % | 0.001 | adamw with 0.01 wd |
 | Spectral-CNN-8-layer-subnets-16 | 16 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 80.18% | 0.001 | adam |
-| Spectral-CNN-10-layer-subnets-4<br>(pretrain on ImageNet for 5 epochs) | 4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 93.98% | 0.001 | adam |
+| Spectral-CNN-10-layer-subnets-4<br>(pretrained on ImageNet for 5 epochs) | 4 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 93.98% | 0.001 | adam |
 ```shell
 command :
 
@@ -123,9 +125,9 @@ python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt a
 ```
 | Network     | Layers                                                       | Test accuracy | Learning rate | opt |
 | ----------- | ------------------------------------------------------------ | ------------- | ------------- | -------------- |
-| Spectral-resnet34-subnets-4<br>(pretrain on ImageNet) | 4 subnetworks: <br> [spectral resnet34 with 10 num_classes] for each subnetwork. | 95.66% | 0.001 | adam |
-| Spectral-resnet50-subnets-4<br>(pretrain on ImageNet) | 4 subnetworks: <br> [spectral resnet50 with 10 num_classes] for each subnetwork. | 98.06% | 0.2 with lr scheduler | SGD |
-| Spectral-resnext101_64x4d-subnets-4<br>(pretrain on ImageNet) | 4 subnetworks: <br> [spectral resnext101_64x4d with 10 num_classes] for each subnetwork. | 98.23% | 0.2 with lr scheduler | SGD |
+| Spectral-resnet34-subnets-4<br>(pretrained on ImageNet) | 4 subnetworks: <br> [spectral resnet34 with 10 num_classes] for each subnetwork. | 95.66% | 0.001 | adam |
+| Spectral-resnet50-subnets-4<br>(pretrained on ImageNet) | 4 subnetworks: <br> [spectral resnet50 with 10 num_classes] for each subnetwork. | 98.06% | 0.2 with lr scheduler | SGD |
+| Spectral-resnext101_64x4d-subnets-4<br>(pretrained on ImageNet) | 4 subnetworks: <br> [spectral resnext101_64x4d with 10 num_classes] for each subnetwork. | 98.23% | 0.2 with lr scheduler | SGD |
 ```shell
 cd ./reference_code
 ```
