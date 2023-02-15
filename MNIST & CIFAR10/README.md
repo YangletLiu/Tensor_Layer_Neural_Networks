@@ -1,6 +1,6 @@
 # MNIST & CIFAR-10 dataset classification
 
-Some general parameters are as follows
+Training parameters
 
 | Parameter                | value  |
 | ------------------------ | ------ |
