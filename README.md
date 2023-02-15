@@ -1,3 +1,4 @@
+# Spectral Tensor Layer for Communication-free Distributed Deep Learning
 # Highly Parallel Deep Ensemble Learning on GPUs
 
 
