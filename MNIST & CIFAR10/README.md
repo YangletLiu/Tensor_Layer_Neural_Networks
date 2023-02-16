@@ -1,4 +1,4 @@
-# MNIST & CIFAR-10 Dataset Classification
+# Classification on MNIST & CIFAR-10 Dataset 
 
 The code will automatically download MNIST and CIFAR-10 datasets
 

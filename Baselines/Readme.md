@@ -1,7 +1,7 @@
-Some baseliens to train models in ImageNet dataset, including AlexNet, VGG, ResNet.  
+Baselines on ImageNet dataset, including AlexNet, VGG, ResNet.  
 
 
-| Network  | Ours  | Reference |  
+| Network  | Ours  | Results from Reference Papers |  
 | -------- | ----- | --------- |  
 | AlexNet  | 62.1% | 63%       | 
 | VGG11    | 74.0% | 74%       |  
