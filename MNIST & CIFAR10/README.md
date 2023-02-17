@@ -130,6 +130,17 @@ command :
 3. python ensemble.py --model-name CNN9CIFAR10 --l_idx 0 --r_idx 8 --dct-nets 4 --checkpoint-path spectral_resnet50_subx.pth
 
 ```
-| Network     | Test accuracy | Learning rate | opt |
-| -----------  | ------------- | ------------- | -------------- |
-| Spectral-resnet152x4-subnet0  | 99.00% | 0.003 | SGD |
+
+### Spectral-resnet152x4 :
+
+| sub-network   | sub0 | sub1 | sub2 | sub3 |
+| -----------  | ------------- | ------------- | -------------- | --------|
+| acc | 99.00% | 97.47% | 89.18% | 97.45% |
+
+| Ensemble-network | sub0,1 | sub0~3 | sub0,1,3 |
+| -----------  | ------------- | ------------- | --- |
+| acc (p = 0.3)| 98.96% | 98.07% | 98.87% |
+|acc (p = 0.4) |-|-|98.96%|
+|acc (p = 0.5) |-|-|99.00%|
+|acc (p = 0.6) |99.01%|99.02%|99.04%|
+|acc (p = 0.7) |-|-|99.01%|
