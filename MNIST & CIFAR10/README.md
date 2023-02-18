@@ -144,3 +144,13 @@ command :
 |acc (p = 0.5) |-|-|99.00%|
 |acc (p = 0.6) |99.01%|99.02%|99.04%|
 |acc (p = 0.7) |-|-|99.01%|
+
+
+```shell
+command :
+
+CUDA_VISIBLE_DEVICES=4,7 nohup python -u -m train_for_spectral --name cifar10_`date +%F_%H%M%S` --model BiT-M-R152x4 --logdir ./bit_logs --dataset cifar10 --datadir /xfs/home/tensor_zy/zhangjie/datasets --workers 16 --batch_split 4 --idx 1
+
+python ensemble.py --r_idx 4 --checkpoint_path /colab_space/yanglet/model_weight/spectral-resnet152x4-subx.pth.tar
+
+```
