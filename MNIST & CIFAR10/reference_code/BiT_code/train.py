@@ -29,6 +29,7 @@ import bit_pytorch.models as models
 
 import bit_common
 import bit_hyperrule
+import utils
 
 
 def topk(output, target, ks=(1,)):
@@ -49,22 +50,15 @@ def recycle(iterable):
 def mktrainval(args, logger):
   """Returns train and validation datasets."""
   precrop, crop = bit_hyperrule.get_resolution_from_dataset(args.dataset)
-  train_tx = tv.transforms.Compose([
-      tv.transforms.Resize((precrop, precrop)),
-      tv.transforms.RandomCrop((crop, crop)),
-      tv.transforms.RandomHorizontalFlip(),
-      tv.transforms.ToTensor(),
-      tv.transforms.Normalize(
-        mean=[0.4914, 0.4822, 0.4465],
-        std=[0.2023, 0.1994, 0.2010])
-  ])
-  val_tx = tv.transforms.Compose([
-      tv.transforms.Resize((crop, crop)),
-      tv.transforms.ToTensor(),
-      tv.transforms.Normalize(
-        mean=[0.4914, 0.4822, 0.4465],
-        std=[0.2023, 0.1994, 0.2010])
-  ])
+  train_tx = utils.ClassificationPresetTrain(
+    precrop=precrop,
+    crop_size=crop,
+    auto_augment_policy=args.auto_augment,
+    random_erase_prob=args.random_erase
+  )
+  val_tx = utils.ClassificationPresetEval(
+    crop_size=crop
+  )
 
   if args.dataset == "cifar10":
     train_set = tv.datasets.CIFAR10(args.datadir, transform=train_tx, train=True, download=True)
@@ -182,10 +176,16 @@ def main(args):
   # Load it to CPU first as we'll move the model to GPU later.
   # This way, we save a little bit of GPU memory when loading.
   step = 0
-
-  # Note: no weight-decay!
-  optim = torch.optim.SGD(model.parameters(), lr=0.003, momentum=0.9)
-
+  if args.weight_decay > 0.0:
+    parameters = utils.set_weight_decay(
+      model,
+      args.weight_decay,
+      norm_weight_decay=args.norm_weight_decay,
+    )
+    # Note: no weight-decay!
+    optim = torch.optim.SGD(parameters, lr=0.003, momentum=0.9, weight_decay=args.weight_decay)
+  else:
+    optim = torch.optim.SGD(model.parameters(), lr=0.003, momentum=0.9)
   # Resume fine-tuning if we find a saved model.
   savename = pjoin(args.logdir, args.name, "bit.pth.tar")
   try:
@@ -205,7 +205,7 @@ def main(args):
 
   model.train()
   mixup = bit_hyperrule.get_mixup(len(train_set))
-  cri = torch.nn.CrossEntropyLoss().to(device)
+  cri = torch.nn.CrossEntropyLoss(label_smoothing=args.label_smoothing).to(device)
 
   logger.info("Starting training!")
   chrono = lb.Chrono()
@@ -285,4 +285,24 @@ if __name__ == "__main__":
   parser.add_argument("--no-save", dest="save", action="store_false")
   parser.add_argument("--device", default="cuda:0", type=str)
   parser.add_argument("--epochs", default=100, type=int)
+  parser.add_argument("--auto-augment", default=None, type=str, help="auto augment policy (default: None)")
+  parser.add_argument("--random-erase", default=0.0, type=float, help="random erasing probability (default: 0.0)")
+  parser.add_argument(
+    "--wd",
+    "--weight-decay",
+    default=2e-5,
+    type=float,
+    metavar="W",
+    help="weight decay (default: 1e-4)",
+    dest="weight_decay",
+  )
+  parser.add_argument(
+    "--norm-weight-decay",
+    default=None,
+    type=float,
+    help="weight decay for Normalization layers (default: None, same value as --wd)",
+  )
+  parser.add_argument(
+    "--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing"
+  )
   main(parser.parse_args())
