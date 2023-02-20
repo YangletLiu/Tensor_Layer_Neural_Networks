@@ -31,7 +31,7 @@ Rank: 10.
 | Networks         | Test accuracy | Learning rate | remark |
 | ---------------- | ------------- | ------------- | -------------- |
 | FC-4L            | 98.64%        | 0.001         | -         |
-| FC-8L            |98.51%        | 0.001         | -         |
+| FC-8L            |98.71%        | 0.001         | -         |
 | Spectral-FC-8L-subnets-4 |  98.39%  | 0.001 | 98.53% for sub0 |
 ```shell
 command :
