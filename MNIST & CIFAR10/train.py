@@ -36,7 +36,7 @@ parser.add_argument("--lr-min", default=0.0, type=float, help="minimum lr of lr 
 parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
 parser.add_argument("--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing")
 parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
-parser.add_argument("-j", "--workers", default=8, type=int, metavar="N", help="number of data loading workers (default: 16)")
+parser.add_argument("-j", "--workers", default=2, type=int, metavar="N", help="number of data loading workers (default: 16)")
 parser.add_argument("--decom", action="store_true", help="low rank decompose the net")
 parser.add_argument("--trans", default=None, help="the transform domain")
 parser.add_argument("--split", default=None, type=str, help="method of split datasets")
@@ -45,7 +45,8 @@ parser.add_argument("--dataset", default="MNIST", type=str)
 args = parser.parse_args()
 
 num_nets = args.r_idx - args.l_idx
-blocks = math.sqrt(args.subnums)
+if args.subnums:
+    blocks = math.sqrt(args.subnums)
 
 device = args.device if torch.cuda.is_available() else "cpu"
 batch_size = args.batch_size
@@ -147,6 +148,7 @@ def train(num_epochs, net):
 
             if args.scheduler is not None:
                 lr_scheduler.step()
+                current_lr = lr_scheduler.get_last_lr()[0]
 
             best_acc = test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list)
             train_acc_list.append(100. * correct / total)

@@ -167,7 +167,7 @@ def main(args):
 
   logger.info(f"Loading model from {args.model}.npz")
   model = models.KNOWN_MODELS[args.model](head_size=len(valid_set.classes), zero_head=True)
-  model.load_from(np.load(f"{args.model}.npz"))
+  model.load_from(np.load(f"{args.bit_pretrained_dir}{args.model}.npz"))
 
   logger.info("Moving model onto all GPUs")
   model = torch.nn.DataParallel(model)
@@ -303,6 +303,6 @@ if __name__ == "__main__":
     help="weight decay for Normalization layers (default: None, same value as --wd)",
   )
   parser.add_argument(
-    "--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing"
+    "--label_smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing"
   )
   main(parser.parse_args())
