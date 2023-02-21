@@ -31,13 +31,14 @@ Rank: 10.
 | Networks         | Test accuracy | Learning rate | remark |
 | ---------------- | ------------- | ------------- | -------------- |
 | FC-4L            | 98.64%        | 0.001         | -         |
-| FC-8L            |98.71%        | 0.001         | -         |
+| FC-8L            |98.79%        | 0.001         | -         |
 | Spectral-FC-8L-subnets-4 |  98.39%  | 0.001 | 98.53% for sub0 |
+| Spectral-FC-8L-subnets-4 |  98.14%  | 0.001 with lr scheduler | 98.67% for sub0 |
 ```shell
 command :
 
 python train.py --opt adam --model-name FC4Net
-python train.py --opt adam --model-name FC8Net 
+python train.py --model-name FC8Net --scheduler steplr --b 256 -j 8 --lr 0.001 --opt adam
 python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 4  --split downsample
 ```
 
@@ -82,7 +83,7 @@ pretrained on ImageNet-21K
 command :
 
 1. cd ./reference_code/bit
-2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4
+2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4 --no-save --label-smoothing 0.5 --auto-augment cifar10 --random-erase 0.1
 ```
 
 | Network     | Test accuracy | Learning rate | opt |
@@ -149,7 +150,7 @@ command :
 ```shell
 command :
 
-CUDA_VISIBLE_DEVICES=4,7 nohup python -u -m train_for_spectral --name cifar10_`date +%F_%H%M%S` --model BiT-M-R152x4 --logdir ./bit_logs --dataset cifar10 --datadir /xfs/home/tensor_zy/zhangjie/datasets --workers 16 --batch_split 4 --idx 1
+CUDA_VISIBLE_DEVICES=4,7 nohup python -u -m train_for_spectral --name cifar10_`date +%F_%H%M%S` --model BiT-M-R152x4 --logdir ./bit_logs --dataset cifar10 --datadir /xfs/home/tensor_zy/zhangjie/datasets --workers 16 --batch_split 4 --idx 1 
 
 python ensemble.py --r_idx 4 --checkpoint_path /colab_space/yanglet/model_weight/spectral-resnet152x4-subx.pth.tar
 
