@@ -37,10 +37,10 @@ class FC4Net(nn.Module):
         return x
 
 
-class FC8Net(nn.Module):
+class ResFC8Net(nn.Module):
     def __init__(self, in_dim, n_hidden_1, n_hidden_2, n_hidden_3,
                  n_hidden_4, n_hidden_5, n_hidden_6, n_hidden_7, out_dim):
-        super(FC8Net, self).__init__()
+        super(ResFC8Net, self).__init__()
         # layer1
         self.layer1 = nn.Sequential(
             nn.Linear(in_dim, n_hidden_1),
@@ -97,6 +97,64 @@ class FC8Net(nn.Module):
         x = self.layer6(x)
         # x = self.layer7(x)
         x = self.layer7(x) + x5
+        x = self.layer8(x)
+        return x
+
+class FC8Net(nn.Module):
+    def __init__(self, in_dim, n_hidden_1, n_hidden_2, n_hidden_3,
+                 n_hidden_4, n_hidden_5, n_hidden_6, n_hidden_7, out_dim):
+        super(FC8Net, self).__init__()
+        # layer1
+        self.layer1 = nn.Sequential(
+            nn.Linear(in_dim, n_hidden_1),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer2 = nn.Sequential(
+            nn.Linear(n_hidden_1, n_hidden_2),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer3 = nn.Sequential(
+            nn.Linear(n_hidden_2, n_hidden_3),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer4 = nn.Sequential(
+            nn.Linear(n_hidden_3, n_hidden_4),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer5 = nn.Sequential(
+            nn.Linear(n_hidden_4, n_hidden_5),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer6 = nn.Sequential(
+            nn.Linear(n_hidden_5, n_hidden_6),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer7 = nn.Sequential(
+            nn.Linear(n_hidden_6, n_hidden_7),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer8 = nn.Sequential(
+            nn.Dropout(p=0.1),
+            nn.Linear(n_hidden_7, out_dim),
+        )
+
+    # forward
+    def forward(self, x):
+        x = x.view(x.size(0), -1)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        x = self.layer5(x)
+        x = self.layer6(x)
+        x = self.layer7(x)
         x = self.layer8(x)
         return x
 
@@ -603,7 +661,7 @@ class CNN9CIFAR10(nn.Module):
 def build(model_name, num_nets=0, decomp=True):
     print("==> Building model..")
     weight = 784 // num_nets if num_nets > 0 else 784
-    print(weight)
+
     if model_name == "FC4Net":
         net = FC4Net(weight, weight, weight, weight, 10)
 

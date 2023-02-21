@@ -27,7 +27,7 @@ parser.add_argument("--device", default="cuda:0", type=str, help="device (Use cu
 parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
 parser.add_argument("--epochs", default=100, type=int, metavar="N", help="number of total epochs to run")
 parser.add_argument("--lr", default=0.001, type=float, help="initial learning rate")
-parser.add_argument("--wd","--weight-decay", default=0.01, type=float, metavar="W", help="weight decay (default: 1e-4)", dest="weight_decay",)
+parser.add_argument("--wd","--weight-decay", default=0.0, type=float, metavar="W", help="weight decay (default: 1e-4)", dest="weight_decay",)
 parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
 parser.add_argument("--scheduler", default=None, type=str, help="the lr scheduler")
 parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
@@ -44,9 +44,21 @@ parser.add_argument("--geo-p", default=0., type=float, help="the p of geo fusing
 parser.add_argument("--dataset", default="MNIST", type=str)
 args = parser.parse_args()
 
+
+
 num_nets = args.r_idx - args.l_idx
-if args.subnums:
-    blocks = math.sqrt(args.subnums)
+if num_nets:
+    blocks = int(math.sqrt(num_nets))
+
+loss_format_str = "%.4f, " * num_nets
+acc_format_str = "%.2f%%, " * num_nets
+test_loss_content_str = ""
+acc_content_str = ""
+best_acc_content_str = ""
+for __ in range(num_nets):
+    test_loss_content_str += "test_loss[{}], ".format(__)
+    acc_content_str += "acc[{}], ".format(__)
+    best_acc_content_str += "best_acc[{}], ".format(__)
 
 device = args.device if torch.cuda.is_available() else "cpu"
 batch_size = args.batch_size
@@ -183,7 +195,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
             img, targets = img.to(device), targets.to(device)
-            img = preprocess(img, block_size=(4, 7), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
+            img = preprocess(img, block_size=(blocks, blocks), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
 
             for i in range(num_nets):
                 outputs[i] = nets[i](img[:, :, :, :, i])
@@ -225,25 +237,12 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
             fusing_test_loss[i] /= num_test
             fusing_acc[i] = 100. * fusing_correct[i] / fusing_total[i]
 
-        print("\n| Validation Epoch #%d\t\t" % (epoch + 1)
-              + "Loss: [%.4f, %.4f, %.4f, %.4f, " % (test_loss[0], test_loss[1], test_loss[2], test_loss[3])
-              + "%.4f, %.4f, %.4f, %.4f, " % (test_loss[4], test_loss[5], test_loss[6], test_loss[7])
-              + "%.4f, %.4f, %.4f, %.4f, " % (test_loss[8], test_loss[9], test_loss[10], test_loss[11])
-              + "%.4f, %.4f, %.4f, %.4f, " % (test_loss[12], test_loss[13], test_loss[14], test_loss[15])
-              + "%.4f, %.4f, %.4f, %.4f, " % (test_loss[16], test_loss[17], test_loss[18], test_loss[19])
-              + "%.4f, %.4f, %.4f, %.4f, " % (test_loss[20], test_loss[21], test_loss[22], test_loss[23])
-              + "%.4f, %.4f, %.4f, %.4f]" % (test_loss[24], test_loss[25], test_loss[26], test_loss[27])
-              + " Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, " % (acc[0], acc[1], acc[2], acc[3])
-              + "%.2f%%, %.2f%%, %.2f%%, %.2f%%, " % (acc[4], acc[5], acc[6], acc[7])
-              + "%.2f%%, %.2f%%, %.2f%%, %.2f%%, " % (acc[8], acc[9], acc[10], acc[11])
-              + "%.2f%%, %.2f%%, %.2f%%, %.2f%%, " % (acc[12], acc[13], acc[14], acc[15])
-              + "%.2f%%, %.2f%%, %.2f%%, %.2f%%, " % (acc[16], acc[17], acc[18], acc[19])
-              + "%.2f%%, %.2f%%, %.2f%%, %.2f%%, " % (acc[20], acc[21], acc[22], acc[23])
-              + "%.2f%%, %.2f%%, %.2f%%, %.2f%%]" % (acc[24], acc[25], acc[26], acc[27])
-              )
+        print("| Validation Epoch #%d\t\t"% (epoch+1)
+              + ("  Loss: [" + loss_format_str + "]" )%(eval(test_loss_content_str))
+              + ("  Acc: [" + acc_format_str + "]")%(eval(acc_content_str))
+            )
 
-        print("| Fusing Loss: [%.4f, %.4f]\t" % (fusing_test_loss[0], fusing_test_loss[1])
-              + "Fusing Acc: [%.2f%%, %.2f%%]  " % (fusing_acc[0], fusing_acc[1]))
+        print("| s [%.4f] Fusing Acc: [%.2f%%]   " % (fusing_test_loss[0], fusing_acc[0]))
 
         for i in range(num_nets):
             if acc[i] > best_acc[i]:
@@ -264,7 +263,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
 def train_multi_nets(num_epochs, nets):
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing).to(device)
     lr0 = [args.lr] * num_nets
-    fusing_plan = [list(range(28)), list(range(5))]
+    fusing_plan = [list(range(num_nets))]
     fusing_num = len(fusing_plan)
 
     train_acc_list, train_loss_list = [], []
@@ -277,16 +276,15 @@ def train_multi_nets(num_epochs, nets):
     start_time = time.time()
 
     optimizers = []
-
     for i in range(num_nets):
         nets[i] = nets[i].to(device)
-        optimizer = []
+
         if args.opt == 'sgd':
-            optimizer.append(torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9, weight_decay=args.weight_decay))
+            optimizers.append(torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9, weight_decay=args.weight_decay))
         elif args.opt == 'adam':
-            optimizer.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
+            optimizers.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
         elif args.opt == "adamw":
-            optimizer.append(torch.optim.AdamW(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
+            optimizers.append(torch.optim.AdamW(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
 
     if args.scheduler is not None:
         scheduler = []
@@ -311,10 +309,10 @@ def train_multi_nets(num_epochs, nets):
             total = [0] * num_nets
             loss = [0] * num_nets
 
-            print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' % (epoch+1, current_lr[0], current_lr[1], current_lr[2], current_lr[3]))
+            print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' % (epoch+1, current_lr, current_lr, current_lr, current_lr))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
                 inputs, targets = inputs.to(device), targets.to(device)  # GPU settings
-                inputs = preprocess(inputs, block_size=(4, 7), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
+                inputs = preprocess(inputs, block_size=(blocks, blocks), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
 
                 for i in range(num_nets):
                     optimizers[i].zero_grad()
@@ -340,11 +338,12 @@ def train_multi_nets(num_epochs, nets):
             if scheduler:
                 for i in range(num_nets):
                     scheduler[i].step()
-                    current_lr[i] = optimizers[i].param_groups[0]["lr"]
+                current_lr = optimizers[0].param_groups[0]["lr"]
 
             fusing_weight = None
             if args.geo_p:
                 fusing_weight = fusing(num_nets, args.geo_p, train_loss)
+                fusing_weight[2] = 0.0
 
             best_acc, best_fusing_acc = test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list,
                                         fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_plan, fusing_num, criterion, fusing_weight=fusing_weight)
@@ -353,28 +352,13 @@ def train_multi_nets(num_epochs, nets):
             train_loss_list.append([train_loss[i] / num_train for i in range(num_nets)])
             now_time = time.time()
 
-            print("| Best Acc: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[0], best_acc[1], best_acc[2], best_acc[3])
-                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[4], best_acc[5], best_acc[6], best_acc[7])
-                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[8], best_acc[9], best_acc[10], best_acc[11])
-                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[12], best_acc[13], best_acc[14], best_acc[15])
-                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[16], best_acc[17], best_acc[18], best_acc[19])
-                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[20], best_acc[21], best_acc[22], best_acc[23])
-                    +"%.2f%%, %.2f%%, %.2f%%, %.2f%%]"%(best_acc[24], best_acc[25], best_acc[26], best_acc[27])
-                )
-            print("| Best Fusing Acc: [%.2f%%, %.2f%%] "%(best_fusing_acc[0], best_fusing_acc[1]))
+            print(("| Best Acc: [" + acc_format_str + "]")%(eval(best_acc_content_str)))
             print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
+
     except KeyboardInterrupt:
         pass
 
-    print("\nBest training accuracy overall: [%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[0], best_acc[1], best_acc[2], best_acc[3])
-            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[4], best_acc[5], best_acc[6], best_acc[7])
-            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[8], best_acc[9], best_acc[10], best_acc[11])
-            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[12], best_acc[13], best_acc[14], best_acc[15])
-            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[16], best_acc[17], best_acc[18], best_acc[19])
-            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%, "%(best_acc[20], best_acc[21], best_acc[22], best_acc[23])
-            +"%.2f%%, %.2f%%, %.2f%%, %.2f%%]"%(best_acc[24], best_acc[25], best_acc[26], best_acc[27])
-        )
-    print("| Best Fusing Acc: [%.2f%%] "%(best_fusing_acc[0]))
+    print(("\nBest training accuracy overall: [" + acc_format_str + "]")%(eval(best_acc_content_str)))
 
     os.makedirs("./fc_models", exist_ok=True)
     for i in range(num_nets):

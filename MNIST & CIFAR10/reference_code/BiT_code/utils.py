@@ -316,9 +316,8 @@ class ClassificationPresetTrain:
                 trans.append(autoaugment.TrivialAugmentWide(interpolation=interpolation))
             elif auto_augment_policy == "augmix":
                 trans.append(autoaugment.AugMix(interpolation=interpolation, severity=augmix_severity))
-            else:
-                aa_policy = autoaugment.AutoAugmentPolicy(auto_augment_policy)
-                trans.append(autoaugment.AutoAugment(policy=aa_policy, interpolation=interpolation))
+            elif auto_augment_policy == "cifar10":
+                trans.append(autoaugment.AutoAugment(policy=autoaugment.AutoAugmentPolicy.CIFAR10, interpolation=interpolation))
         trans.extend(
             [
                 transforms.ToTensor(),
