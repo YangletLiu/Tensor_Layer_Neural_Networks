@@ -33,7 +33,7 @@ Rank: 10.
 | FC-4L            | 98.64%        | 0.001         | -         |
 | FC-8L            |98.79%        | 0.001         | -         |
 | Spectral-FC-8L-subnets-4 |  98.39%  | 0.001 | 98.53% for sub0 |
-| Spectral-FC-8L-subnets-4 |  98.14%  | 0.001 with lr scheduler | 98.67% for sub0 |
+| Spectral-FC-8L-subnets-4 |  98.17%  | 0.001 with lr scheduler | 98.72% for sub0 |
 ```shell
 command :
 
