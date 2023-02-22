@@ -53,17 +53,13 @@ Batch size: 128.
 
 | Network     | Test accuracy | Learning rate | opt |
 | ----------- |  ------------- | ------------- | -------------- |
-| CNN-8-layer |  92.42% | 0.001          | adam        |
-| Spectral-CNN-9-layer-subnets-4  | 91.68% | 0.001 | adam with steplr scheduler |
-| Spectral-CNN-10-layer-subnets-4<br>(pretrained on ImageNet for 5 epochs)  | 93.98% | 0.001 | adam |
+| CNN |  92.42% | 0.001          | adam        |
+| Spectral-CNN-subnets-4  | 91.68% | 0.001 | adam with steplr scheduler |
+| Spectral-CNN-subnets-4<br>(pretrained on ImageNet for 5 epochs)  | 93.98% | 0.001 | adam |
 ```shell
 command :
 
-python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --lr 0.01
-python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --opt adam
-
-
 
 python train.py --dataset cifar10 --model-name CNN9CIFAR10 --epochs 300 --opt adam --scheduler steplr --lr-step-size 30 --lr-gamma 0.1 --trans dct --l_idx 0 --r_idx 4 --split downsample
 python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt adam --trans dct --l_idx 0 --r_idx 4 --split downsample --pretrain ./CNN8CIFAR10.pth
@@ -94,6 +90,7 @@ pretrained on ImageNet-21K
 | ----------- | ------------- | -------------- | -------------- | --- |
 | resnet-152x4| 99.03% | 0.003 | SGD | - |
 | resnet-152x4| 99.21% | 0.003 | SGD | 3 |
+| spectral-resnet-152x4| 99.04% | 0.003 | SGD | - |
 
 
 ```shell
@@ -101,8 +98,11 @@ command :
 
 1. cd ./reference_code/bit
 2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4 --no-save
-
 2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4 --no-save --label smoothing 0.5
+
+CUDA_VISIBLE_DEVICES=4,7 nohup python -u -m train_for_spectral --name cifar10_`date +%F_%H%M%S` --model BiT-M-R152x4 --logdir ./bit_logs --dataset cifar10 --datadir /xfs/home/tensor_zy/zhangjie/datasets --workers 16 --batch_split 4 --idx 1 
+python ensemble.py --r_idx 4 --checkpoint_path /colab_space/yanglet/model_weight/spectral-resnet152x4-subx.pth.tar
+
 ```
 | Network     | Layers                                                       | Test accuracy | Learning rate | opt |
 | ----------- | ------------------------------------------------------------ | ------------- | ------------- | -------------- |
@@ -110,7 +110,7 @@ command :
 ```shell
 cd ./reference_code
 ```
-training:
+Training:
 
 ```shell
 command :
@@ -122,7 +122,7 @@ python train.py --model resnext101_64x4d --batch-size 512 --lr 0.2 --lr-schedule
 // one times command gets one subnetwork, --idx i to gets i-th subnetwork
 ```
 
-ensemble:
+Ensemble:
 ```shell
 command :
 
@@ -140,26 +140,3 @@ command :
 
 ```
 
-### Spectral-resnet152x4 :
-
-| sub-network   | sub0 | sub1 | sub2 | sub3 |
-| -----------  | ------------- | ------------- | -------------- | --------|
-| acc | 99.00% | 97.47% | 89.18% | 97.45% |
-
-| Ensemble-network | sub0,1 | sub0~3 | sub0,1,3 |
-| -----------  | ------------- | ------------- | --- |
-| acc (p = 0.3)| 98.96% | 98.07% | 98.87% |
-|acc (p = 0.4) |-|-|98.96%|
-|acc (p = 0.5) |-|-|99.00%|
-|acc (p = 0.6) |99.01%|99.02%|99.04%|
-|acc (p = 0.7) |-|-|99.01%|
-
-
-```shell
-command :
-
-CUDA_VISIBLE_DEVICES=4,7 nohup python -u -m train_for_spectral --name cifar10_`date +%F_%H%M%S` --model BiT-M-R152x4 --logdir ./bit_logs --dataset cifar10 --datadir /xfs/home/tensor_zy/zhangjie/datasets --workers 16 --batch_split 4 --idx 1 
-
-python ensemble.py --r_idx 4 --checkpoint_path /colab_space/yanglet/model_weight/spectral-resnet152x4-subx.pth.tar
-
-```

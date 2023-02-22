@@ -105,16 +105,6 @@ pretrained on ImageNet-21K
 | resnet-152x4| 99.18% | 0.003 | SGD | 4 |
 | resnet-152x4| 99.04% | 0.003 | SGD | 1,2,3 |
 
-
-| Network     | Test accuracy | base_lr | opt | tricks |
-| ----------- | ------------- | -------------- | -------------- | --- |
-| resnet-152x4| 99.03% | 0.003 | SGD | - |
-| resnet-152x4| 99.07% | 0.003 | SGD | 1 |
-| resnet-152x4| 99.05% | 0.003 | SGD | 2 |
-| resnet-152x4| 99.21% | 0.003 | SGD | 3 |
-| resnet-152x4| 99.18% | 0.003 | SGD | 4 |
-| resnet-152x4| 99.04% | 0.003 | SGD | 1,2,3 |
-
 ```shell
 command :
 
@@ -198,5 +188,29 @@ command :
 1. python train.py --dataset cifar10 --model-name resnet50 --epochs 300 --trans dct --l_idx 0 --r_idx 4 --split downsample
 2. python train.py --dataset cifar10 --model-name resnet50 --epochs 300 --trans fft --l_idx 0 --r_idx 4 --split downsample
 3. python ensemble.py --model-name CNN9CIFAR10 --l_idx 0 --r_idx 8 --dct-nets 4 --checkpoint-path spectral_resnet50_subx.pth
+
+```
+
+### Spectral-resnet152x4 :
+
+| sub-network   | sub0 | sub1 | sub2 | sub3 |
+| -----------  | ------------- | ------------- | -------------- | --------|
+| acc | 99.00% | 97.47% | 89.18% | 97.45% |
+
+| Ensemble-network | sub0,1 | sub0~3 | sub0,1,3 |
+| -----------  | ------------- | ------------- | --- |
+| acc (p = 0.3)| 98.96% | 98.07% | 98.87% |
+|acc (p = 0.4) |-|-|98.96%|
+|acc (p = 0.5) |-|-|99.00%|
+|acc (p = 0.6) |99.01%|99.02%|99.04%|
+|acc (p = 0.7) |-|-|99.01%|
+
+
+```shell
+command :
+
+CUDA_VISIBLE_DEVICES=4,7 nohup python -u -m train_for_spectral --name cifar10_`date +%F_%H%M%S` --model BiT-M-R152x4 --logdir ./bit_logs --dataset cifar10 --datadir /xfs/home/tensor_zy/zhangjie/datasets --workers 16 --batch_split 4 --idx 1
+
+python ensemble.py --r_idx 4 --checkpoint_path /colab_space/yanglet/model_weight/spectral-resnet152x4-subx.pth.tar
 
 ```
