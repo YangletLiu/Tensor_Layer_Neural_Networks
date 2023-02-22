@@ -76,15 +76,26 @@ mixup: 0.1
 
 pretrained on ImageNet-21K
 
-| Network     | Test accuracy | base_lr | opt |
-| ----------- | ------------- | -------------- | -------------- |
-| resnet-152x4| 99.03% | 0.003 | SGD |
+| trick index | trick name | setting |
+| --- | --- | --- |
+| 1 | Random Erasing | 0.1 |
+| 2 | Auto Augment | CIFAR10 |
+| 3 | label smoothing | 0.05 |
+| 4 | TrivialAugment | - |
+
+| Network     | Test accuracy | base_lr | opt | tricks |
+| ----------- | ------------- | -------------- | -------------- | --- |
+| resnet-152x4| 99.03% | 0.003 | SGD | - |
+| resnet-152x4| 99.21% | 0.003 | SGD | 3 |
+
 
 ```shell
 command :
 
 1. cd ./reference_code/bit
-2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4 --no-save --label-smoothing 0.5 --auto-augment cifar10 --random-erase 0.1
+2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4 --no-save
+
+2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4 --no-save --label smoothing 0.5
 ```
 
 | Network     | Test accuracy | Learning rate | opt |

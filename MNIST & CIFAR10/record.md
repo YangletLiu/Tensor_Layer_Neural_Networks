@@ -34,9 +34,11 @@ Rank: 10.
 | FC-4L (low-rank) | [784, 10, 784, 10, 784, 10, 784, 10]                         | 96.33%        | 0.001         | -  |
 | FC-8L (low-rank) | [784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10, 784, 10] | 97.88%        | 0.001         | -  |
 | Spectral-FC-8L-subnets-28 | 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 94.70% | 0.001 | random |
+| Spectral-FC-8L-subnets-4 |  98.17%  | 0.001 with lr scheduler | 98.72% for sub0 |
 | Spectral-FC-8L-subnets-4(downsample)* | 4 subnetworks: <br>[196, 196, 196, 196, 196, 196, 196, 196, 10] for each subnetwork. | 98.39%  | 0.001 | 98.53% for sub0 |
 | Spectral-FC-8L-subnets-16(downsample) | 16 subnetworks: <br>[49, 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 97.84% | 0.001 | - |
 | Spectral-FC-8L-subnets-28(downsample) | 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 96.93% | 0.001 | - |
+
 
 ```shell
 command :
@@ -47,6 +49,7 @@ python train.py --opt adam --model-name FC4Net --decom
 python train.py --opt adam --model-name FC8Net --decom
 python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 28
 python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 4  --split downsample
+python train.py --model-name FC8Net --scheduler steplr --b 256 --lr 0.001 --trans dct --l_idx 0 --r_idx 4 --split downsample --opt adam
 python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 16  --split downsample
 python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 28  --split downsample
 ```
@@ -86,9 +89,31 @@ mixup: 0.1
 
 pretrained on ImageNet-21K
 
-| Network     | Test accuracy | base_lr | opt |
-| ----------- | ------------- | -------------- | -------------- |
-| resnet-152x4| 99.03% | 0.003 | SGD |
+| trick index | trick name | setting |
+| --- | --- | --- |
+| 1 | Random Erasing | 0.1 |
+| 2 | Auto Augment | CIFAR10 |
+| 3 | label smoothing | 0.05 |
+| 4 | TrivialAugment | - |
+
+| Network     | Test accuracy | base_lr | opt | tricks |
+| ----------- | ------------- | -------------- | -------------- | --- |
+| resnet-152x4| 99.03% | 0.003 | SGD | - |
+| resnet-152x4| 99.07% | 0.003 | SGD | 1 |
+| resnet-152x4| 99.05% | 0.003 | SGD | 2 |
+| resnet-152x4| 99.21% | 0.003 | SGD | 3 |
+| resnet-152x4| 99.18% | 0.003 | SGD | 4 |
+| resnet-152x4| 99.04% | 0.003 | SGD | 1,2,3 |
+
+
+| Network     | Test accuracy | base_lr | opt | tricks |
+| ----------- | ------------- | -------------- | -------------- | --- |
+| resnet-152x4| 99.03% | 0.003 | SGD | - |
+| resnet-152x4| 99.07% | 0.003 | SGD | 1 |
+| resnet-152x4| 99.05% | 0.003 | SGD | 2 |
+| resnet-152x4| 99.21% | 0.003 | SGD | 3 |
+| resnet-152x4| 99.18% | 0.003 | SGD | 4 |
+| resnet-152x4| 99.04% | 0.003 | SGD | 1,2,3 |
 
 ```shell
 command :
