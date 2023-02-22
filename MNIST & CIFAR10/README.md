@@ -54,12 +54,19 @@ Batch size: 128.
 | Network     | Test accuracy | Learning rate | opt |
 | ----------- |  ------------- | ------------- | -------------- |
 | CNN-8-layer |  92.42% | 0.001          | adam        |
+| Spectral-CNN-9-layer-subnets-4  | 91.68% | 0.001 | adam with steplr scheduler |
+| Spectral-CNN-10-layer-subnets-4<br>(pretrained on ImageNet for 5 epochs)  | 93.98% | 0.001 | adam |
 ```shell
 command :
 
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --lr 0.01
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --opt adam
+
+
+
+python train.py --dataset cifar10 --model-name CNN9CIFAR10 --epochs 300 --opt adam --scheduler steplr --lr-step-size 30 --lr-gamma 0.1 --trans dct --l_idx 0 --r_idx 4 --split downsample
+python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt adam --trans dct --l_idx 0 --r_idx 4 --split downsample --pretrain ./CNN8CIFAR10.pth
 ```
 
 Image size : training 160 x 160; validating 128 x 128.
@@ -96,17 +103,6 @@ command :
 2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4 --no-save
 
 2. CUDA_VISIBLE_DEVICES=1,2,3,4 python -m train --dataset cifar10 --model BiT-M-R152x4 --name cifar10_`date +%F_%H%M%S` --logdir ./bit_logs --batch_split 4 --no-save --label smoothing 0.5
-```
-
-| Network     | Test accuracy | Learning rate | opt |
-| -----------  | ------------- | ------------- | -------------- |
-| Spectral-CNN-9-layer-subnets-4  | 91.68% | 0.001 | adam with steplr scheduler |
-| Spectral-CNN-10-layer-subnets-4<br>(pretrained on ImageNet for 5 epochs)  | 93.98% | 0.001 | adam |
-```shell
-command :
-
-python train.py --dataset cifar10 --model-name CNN9CIFAR10 --epochs 300 --opt adam --scheduler steplr --lr-step-size 30 --lr-gamma 0.1 --trans dct --l_idx 0 --r_idx 4 --split downsample
-python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt adam --trans dct --l_idx 0 --r_idx 4 --split downsample --pretrain ./CNN8CIFAR10.pth
 ```
 | Network     | Layers                                                       | Test accuracy | Learning rate | opt |
 | ----------- | ------------------------------------------------------------ | ------------- | ------------- | -------------- |
