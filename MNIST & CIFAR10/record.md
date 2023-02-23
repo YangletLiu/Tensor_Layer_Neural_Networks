@@ -38,6 +38,9 @@ Rank: 10.
 | Spectral-FC-8L-subnets-4(downsample)* | 4 subnetworks: <br>[196, 196, 196, 196, 196, 196, 196, 196, 10] for each subnetwork. | 98.39%  | 0.001 | 98.53% for sub0 |
 | Spectral-FC-8L-subnets-16(downsample) | 16 subnetworks: <br>[49, 49, 49, 49, 49, 49, 49, 49, 10] for each subnetwork. | 97.84% | 0.001 | - |
 | Spectral-FC-8L-subnets-28(downsample) | 28 subnetworks: <br>[28, 28, 28, 28, 28, 28, 28, 28, 10] for each subnetwork. | 96.93% | 0.001 | - |
+| Spectral-FC-8L-subnets-4 |  98.17%  | 0.001 with lr scheduler | 98.72% for sub0 |
+| Spectral-FC-8L-subnets-4 |  98.67%  | 0.001 with lr scheduler | 98.75% for sub0 |
+![img.png](../figs/FC_MNIST.png)
 
 
 ```shell
@@ -196,14 +199,16 @@ command :
 | sub-network   | sub0 | sub1 | sub2 | sub3 |
 | -----------  | ------------- | ------------- | -------------- | --------|
 | acc | 99.00% | 97.47% | 89.18% | 97.45% |
+| acc(lab) | 99.18% | 98.12% | 91.84% | 98.21% |
 
 | Ensemble-network | sub0,1 | sub0~3 | sub0,1,3 |
 | -----------  | ------------- | ------------- | --- |
 | acc (p = 0.3)| 98.96% | 98.07% | 98.87% |
 |acc (p = 0.4) |-|-|98.96%|
 |acc (p = 0.5) |-|-|99.00%|
-|acc (p = 0.6) |99.01%|99.02%|99.04%|
+|acc (p = 0.6) |99.01%|99.02%|99.04% |
 |acc (p = 0.7) |-|-|99.01%|
+|acc (p = 0.9) |-|-|99.20% for lab|
 
 
 ```shell

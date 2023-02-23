@@ -33,15 +33,18 @@ Rank: 10.
 | FC-4L            | 98.64%        | 0.001         | -         |
 | FC-8L            |98.79%        | 0.001         | -         |
 | Spectral-FC-8L-subnets-4 |  98.39%  | 0.001 | 98.53% for sub0 |
-| Spectral-FC-8L-subnets-4 |  98.17%  | 0.001 with lr scheduler | 98.72% for sub0 |
+| Spectral-FC-8L-subnets-4 |  98.72%  | 0.001 with lr scheduler | 98.78% for sub0 |
 ```shell
 command :
 
 python train.py --opt adam --model-name FC4Net
 python train.py --model-name FC8Net --scheduler steplr --b 256 -j 8 --lr 0.001 --opt adam
 python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 4  --split downsample
-python train.py --model-name FC8Net --scheduler steplr --b 256 --lr 0.001 --trans dct --l_idx 0 --r_idx 4 --split downsample --opt adam
+python train.py --model-name FC8Net --scheduler steplr --b 256 --lr 0.001 --trans fft --l_idx 0 --r_idx 4 --split downsample --opt adam --filename spectral-fc --device 4 -j 8 --geo-p 0.9
 ```
+![img.png](../figs/FC_MNIST.png)
+
+![img.png](../figs/training_loss_on_MNIST.png)
 
 ## CIFAR 10 Dataset
 
@@ -90,7 +93,7 @@ pretrained on ImageNet-21K
 | ----------- | ------------- | -------------- | -------------- | --- |
 | resnet-152x4| 99.03% | 0.003 | SGD | - |
 | resnet-152x4| 99.21% | 0.003 | SGD | 3 |
-| spectral-resnet-152x4| 99.04% | 0.003 | SGD | - |
+| spectral-resnet-152x4| 99.20% | 0.003 | SGD | 3 |
 
 
 ```shell
