@@ -35,8 +35,8 @@ Rank: 10.
 | FC-4L            | 98.64%        | 7.10 MB | 1,496s |
 | FC-8L            |98.79%        | 16.54 MB | 1,553s |
 | t-NN             |-        | 0.63 MB | - |
-| Spectral-FC-8L-subnets-4 |  98.72%  | 1.06 MB| |
-| Spectral-FC-8L-subnets-16 |  97.84%  | 0.07 MB| |
+| Spectral-FC-8L-subnets-4 |  98.72%  | 1.06 MB| 1944s|
+| Spectral-FC-8L-subnets-16 |  97.84%  | 0.07 MB| - |
 ```shell
 command :
 
@@ -81,7 +81,7 @@ pretrained on ImageNet-21K
 | ----------- |  ------------- | --- | --- |
 |FC-8L| 61.27% | 252.52 MB | 3353s |
 |spectral-FC-sub4| 68.17% | 15.88 MB|3999s|
-|spectral-FC-sub16| - | 1.01 MB|-|
+|spectral-FC-sub16| 59.95% | 1.01 MB|6639s|
 | ResNet152x4 | 99.21% | 3541.64 MB| 15.2h |
 | spectral-ResNet152x4-subnets-4| 99.20 %| 3541.64 MB | 17.3 h |
 ```shell
