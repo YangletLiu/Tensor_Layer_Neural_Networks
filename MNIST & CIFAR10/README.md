@@ -36,7 +36,7 @@ Rank: 10.
 | FC-8L            |98.79%        | 16.54 MB | 1,553s |
 | t-NN             |-        | 0.63 MB | - |
 | Spectral-FC-8L-subnets-4 |  98.72%  | 1.06 MB| 1944s|
-| Spectral-FC-8L-subnets-16 |  97.84%  | 0.07 MB| - |
+| Spectral-FC-8L-subnets-16 |  97.84%  | 0.07 MB| 3495s |
 ```shell
 command :
 
