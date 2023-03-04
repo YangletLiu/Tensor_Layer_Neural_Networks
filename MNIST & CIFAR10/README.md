@@ -35,8 +35,8 @@ Rank: 10.
 | FC-4L            | 98.64%        | 7.10 MB | 1,496s |
 | FC-8L            |98.79%        | 16.54 MB | 1,553s |
 | t-NN             |-        | 0.63 MB | - |
-| Spectral-FC-8L-subnets-4 |  98.72%  | 1.06 MB| 1944s|
-| Spectral-FC-8L-subnets-16 |  97.84%  | 0.07 MB| 3495s |
+| Spectral-FC-8L-subnets-4 |  98.72%  | 1.06x4 MB| 1944s|
+| Spectral-FC-8L-subnets-16 |  97.84%  | 0.07x16 MB| 3470s |
 ```shell
 command :
 
@@ -80,10 +80,10 @@ pretrained on ImageNet-21K
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |FC-8L| 61.27% | 252.52 MB | 3353s |
-|spectral-FC-sub4| 68.17% | 15.88 MB|3999s|
-|spectral-FC-sub16| 59.95% | 1.01 MB|6639s|
+|spectral-FC-sub4| 68.17% | 15.88 MBx4|3999s|
+|spectral-FC-sub16| 59.95% | 1.01 MBx16|6639s|
 | ResNet152x4 | 99.21% | 3541.64 MB| 15.2h |
-| spectral-ResNet152x4-subnets-4| 99.20 %| 3541.64 MB | 17.3 h |
+| spectral-ResNet152x4-subnets-4| 99.20 %| 3541.64 MBx4 | 17.3 h |
 ```shell
 command :
 
@@ -94,11 +94,14 @@ python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt a
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |AlexNet|63.44%*|224 MB| 40.8h |
-|spectral-AlexNet|63.43%| 37.73 MB | 20.2h |
+|spectral-AlexNet|63.43%| 37.73 MBx4 | 20.2h |
 |VGG-16|73.21%|527.79 MB| 81.2h |
-|Spectral-VGG-16|72.82 %| 207.82 MB | 44.14h |
+|Spectral-VGG-16|72.82 %| 207.82 MBx4 | 44.14h |
 |ResNet-34|76.1%|83.15 MB| 43.66h |
-|spectral-ResNet34|74.13% | 83.15 MB | 76.02h |
+|spectral-ResNet34|74.13% | 83.15 MBx4 | 76.02h |
+|ResNet-50|80.3% |97.69 MB| - |
+|spectral-ResNet50 |77.84% | 97.69 MBx4 | - |
+
 
 ## ImageNet-21K result
 | Network     | Test accuracy | Model size | Training time|
