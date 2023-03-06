@@ -1,31 +1,31 @@
 # Classification on ImageNet-1K & ImageNet-21k Dataset
 
-## ImageNet-1K Dataset [1]
+## ImageNet-1K [1]
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |AlexNet [3]|59.3 %|224 MB| - |
 |AlexNet|63.44 %|224 MB| 40.8 h |
 |spectral-AlexNet-sub4|63.43 %| 37.73 MBx4 | 20.2 h |
-|VGG-16[4]|73.00 %|527.79 MB| - |
+|VGG-16 [4]|73.00 %|527.79 MB| - |
 |VGG-16|73.21 %|527.79 MB| 81.2 h |
 |Spectral-VGG-16-sub4|72.82 %| 207.82 MBx4 | 44.14 h |
 |Spectral-VGG-16-sub16|64.24 %| 128.05 MBx16 | 26.84 h |
-|ResNet-34[5]|75.48 %|83.15 MB| - |
-|ResNet-34|76.1 %[6]|83.15 MB| - |
+|ResNet-34 [5]|75.48 %|83.15 MB| - |
+|ResNet-34(SOTA)[6]|76.1 %|83.15 MB| - |
 |ResNet-34|73.51 % |83.15 MB | 43.66 h|
 |spectral-ResNet34-sub4|74.13% | 83.15 MBx4 | 20.02 h |
 |spectral-ResNet34-sub16|70.45 %|83.15 MBx16|20.02 h|
-|ResNet-50[5]|77.15 %|97.69 MB| - |
-|ResNet-50|80.3 %[7]|97.69 MB| - |
+|ResNet-50 [5]|77.15 %|97.69 MB| - |
+|ResNet-50(SOTA)[7]|80.3 %|97.69 MB| - |
 |ResNet-50|77.99 %|97.69 MB| - |
-|spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | - |
+|spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | 62.6 h |
 
 
-## ImageNet-21K result [2]
+## ImageNet-21K [2]
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45% | 122.35 MB | >246h  |
-|spectral-ResNet-34| 30.40% | 122.35 MB | 90h |  |
+|spectral-ResNet-34| 30.40% | 122.35 MB | 90h |
 
 [1] Russakovsky, O.Deng, J.Su, H.et al. ImageNet Large Scale Visual Recognition Challenge. Int J Comput Vis 115, 211–252 (2015). https://doi.org/10.1007/s11263-015-0816-y
 
