@@ -36,8 +36,8 @@ def get_dataset(dataset):
                 std=[0.2023, 0.1994, 0.2010])
         ])
 
-        trainset = datasets.CIFAR10(root="D:\\考研\\复试\\导师\\资料\\本周在看文献\\张量\\tensorForDNN\\实验\\Tensor_Layer_Neural_Networks-master\\datasets", train=True, transform=transform_train, download=True)
-        testset = datasets.CIFAR10(root="D:\\考研\\复试\\导师\\资料\\本周在看文献\\张量\\tensorForDNN\\实验\\Tensor_Layer_Neural_Networks-master\\datasets", train=False, transform=transform_test, download=True)
+        trainset = datasets.CIFAR10(root="/xfs/home/tensor_zy/zhangjie/datasets", train=True, transform=transform_train, download=True)
+        testset = datasets.CIFAR10(root="/xfs/home/tensor_zy/zhangjie/datasets", train=False, transform=transform_test, download=True)
 
     return trainset, testset
 

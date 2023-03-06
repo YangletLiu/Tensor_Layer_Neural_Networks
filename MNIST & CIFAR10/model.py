@@ -553,7 +553,7 @@ class CNN10ImageNet(nn.Module):
 
 class CNN9CIFAR10(nn.Module):
     def __init__(self):
-        super(CNN8CIFAR10,self).__init__()
+        super(CNN9CIFAR10,self).__init__()
 
         self.conv1 = nn.Sequential(
             nn.Conv2d(
@@ -658,8 +658,10 @@ class CNN9CIFAR10(nn.Module):
         x = self.pred(x)
         return x
 
-def build(model_name, num_nets=0, decomp=True):
+def build(model_name, num_nets=0, decomp=False):
     print("==> Building model..")
+
+    # weight = 1024*3 // num_nets if num_nets > 0 else 1024*3
     weight = 784 // num_nets if num_nets > 0 else 784
 
     if model_name == "FC4Net":

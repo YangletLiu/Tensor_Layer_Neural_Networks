@@ -210,6 +210,44 @@ command :
 |acc (p = 0.7) |-|-|99.01%|
 |acc (p = 0.9) |-|-|99.20% for lab|
 
+## ImageNet Dataset
+| Network     | Test accuracy | Model size | Training time|
+| ----------- |  ------------- | --- | --- |
+|AlexNet|63.44%*|224 MB| 40.8h |
+|spectral-AlexNet|63.43%| 37.73 MB | 20.2h |
+|VGG-16|73.21%|527.79 MB| 81.2h |
+|Spectral-VGG-16|72.82 %| 207.82 MB | 44.14h |
+|ResNet-34|76.1%|83.15 MB| 43.66h |
+|spectral-ResNet34|74.13% | 83.15 MB | 76.02h |
+
+
+### Spectral-resnet50 :
+
+| sub-network   | sub0 | sub1 | sub2 | sub3 |
+| -----------  | ------------- | ------------- | -------------- | --------|
+| acc | 77.53% | 73.42% | 61.21% | 73.44% |
+
+| Ensemble-network | sub0,1,3 |
+| -----------  | --- |
+| acc (p = 0.3)| 77.68% |
+|acc (p = 0.6) |77.83%|
+|acc (p = 0.8) |77.84%|
+|acc (p = 0.9) |77.76%|
+
+### Spectral-resnet34(236/600 epochs) :
+
+| sub-network   | sub0 | sub1 | sub2 | sub3 |
+| -----------  | ------------- | ------------- | -------------- | --------|
+| acc | 72.13% | 69.97% | 62.06% | 69.92% |
+
+
+## ImageNet-21K result
+| Network     | Test accuracy | Model size | Training time|
+| ----------- |  ------------- | --- | --- |
+|ResNet-34| 40.45% | 122.35 MB | >246h  |
+|spectral-ResNet-34| 30.40% | 122.35 MB | 90h |  |
+
+
 
 ```shell
 command :

@@ -273,8 +273,6 @@ def train_multi_nets(num_epochs, nets):
     fusing_test_acc_list, fusing_test_loss_list = [], []
     best_fusing_acc = [0.] * fusing_num
 
-    start_time = time.time()
-
     optimizers = []
     for i in range(num_nets):
         nets[i] = nets[i].to(device)
@@ -299,7 +297,8 @@ def train_multi_nets(num_epochs, nets):
                 ))
 
         current_lr = scheduler[0].get_last_lr()[0]
-
+    start_time = time.time()
+    preprocess_time = 0
     try:
         for epoch in range(num_epochs):
             for net in nets:
@@ -311,9 +310,10 @@ def train_multi_nets(num_epochs, nets):
 
             print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' % (epoch+1, current_lr, current_lr, current_lr, current_lr))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
+                pre_time = time.time()
                 inputs, targets = inputs.to(device), targets.to(device)  # GPU settings
                 inputs = preprocess(inputs, block_size=(blocks, blocks), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
-
+                preprocess_time += (time.time() - pre_time)
                 for i in range(num_nets):
                     optimizers[i].zero_grad()
                     outputs = nets[i](inputs[:, :, :, :, i])  # Forward Propagation
@@ -335,6 +335,8 @@ def train_multi_nets(num_epochs, nets):
                                    temp_acc_ary.min(), temp_acc_ary.max(), temp_acc_ary.mean())
                                 )
                 sys.stdout.flush()
+                # pre_time = time.time()
+
             if scheduler:
                 for i in range(num_nets):
                     scheduler[i].step()
@@ -353,7 +355,7 @@ def train_multi_nets(num_epochs, nets):
             now_time = time.time()
 
             print(("| Best Acc: [" + acc_format_str + "]")%(eval(best_acc_content_str)))
-            print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
+            print("Used:{}s\tWith out preprocess:{}s \t EST: {}s".format(now_time-start_time, now_time-start_time-preprocess_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
 
     except KeyboardInterrupt:
         pass

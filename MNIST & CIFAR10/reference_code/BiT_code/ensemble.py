@@ -20,7 +20,7 @@ parser.add_argument("--r_idx", default=4, type=int,
 parser.add_argument("--net_idx", default="0", type=str, help="subnetwork idx")
 parser.add_argument("--premodel", default="best", type=str)
 parser.add_argument("--checkpoint_path", default="spectral_resnet50_subx.pth", type=str)
-parser.add_argument("--dct_nets", default="4", type=int, help="the number of dct subnetworks")
+parser.add_argument("--dct_nets", default=4, type=int, help="the number of dct subnetworks")
 parser.add_argument("--ensemble", default="geo", type=str)
 parser.add_argument("--geo", default=0.3, type=float)
 parser.add_argument("--models_path", default=".", type=str)
@@ -42,18 +42,28 @@ tail_idx = args.r_idx
 num_nets = tail_idx - head_idx
 
 # data_root = "/xfs/colab_space/yanglet/imagenet21k/" if args.dataset == "ImageNet-21K" else "/xfs/imagenet/"
-val_tx = transforms.Compose([
-    transforms.Resize((128*2, 128*2)),
-    transforms.ToTensor(),
-    transforms.Normalize(
-        mean=[0.5, 0.5, 0.5],
-        std=[0.5, 0.5, 0.5])
-])
+if args.dataset == "cifar10":
+    val_tx = transforms.Compose([
+        transforms.Resize((128*2, 128*2)),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=[0.5, 0.5, 0.5],
+            std=[0.5, 0.5, 0.5])
+    ])
 
-testset = datasets.CIFAR10(
-            "/colab_space/yanglet/dataset", train=False,
-            transform=val_tx,
-        )
+    testset = datasets.CIFAR10(
+                "/colab_space/yanglet/dataset", train=False,
+                transform=val_tx,
+            )
+elif args.dataset == "imagenet":
+    val_tx = transforms.Compose([
+        transforms.Resize((448, 448)),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=[0.5, 0.5, 0.5],
+            std=[0.5, 0.5, 0.5])
+    ])
+    testset = datasets.ImageFolder("/colab_space/yanglet/imagenet/val", transform=val_tx)
 
 # testset = datasets.CIFAR10(
 #             "/xfs/home/tensor_zy/zhangjie/datasets", train=False,
@@ -70,8 +80,9 @@ testloader = torch.utils.data.DataLoader(
 def build(decomp=False):
     print('==> Building model..')
     # net = vgg16()
-    net = models.KNOWN_MODELS["BiT-M-R152x4"](head_size=len(testset.classes), zero_head=True)
-    net = torch.nn.DataParallel(net)
+    # net = models.KNOWN_MODELS["BiT-M-R152x4"](head_size=len(testset.classes), zero_head=True)
+    net = models.KNOWN_MODELS["BiT-M-R50x1"](head_size=len(testset.classes), zero_head=True)
+    # net = torch.nn.DataParallel(net)
     if decomp:
         raise ("No Tensor Neural Network decompostion implementation.")
     print('==> Done')

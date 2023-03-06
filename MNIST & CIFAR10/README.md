@@ -16,7 +16,7 @@ Training parameters
 
 
 
-## MNIST Dataset
+## MNIST Dataset [1]
 
 Image size: 28 x 28.  
 
@@ -48,7 +48,7 @@ python train.py --model-name FC8Net --scheduler steplr --b 256 --lr 0.001 --tran
 
 ![img.png](../figs/training_loss_on_MNIST.png)
 
-## CIFAR 10 Dataset
+## CIFAR 10 Dataset [2]
 
 Image size: 32 x 32 x 3.
 
@@ -90,21 +90,7 @@ command :
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --opt adam
 python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt adam --trans dct --l_idx 0 --r_idx 4 --split downsample --pretrain ./CNN8CIFAR10.pth
 ```
-## ImageNet Dataset
-| Network     | Test accuracy | Model size | Training time|
-| ----------- |  ------------- | --- | --- |
-|AlexNet|63.44%*|224 MB| 40.8h |
-|spectral-AlexNet|63.43%| 37.73 MBx4 | 20.2h |
-|VGG-16|73.21%|527.79 MB| 81.2h |
-|Spectral-VGG-16|72.82 %| 207.82 MBx4 | 44.14h |
-|ResNet-34|76.1%|83.15 MB| 43.66h |
-|spectral-ResNet34|74.13% | 83.15 MBx4 | 76.02h |
-|ResNet-50|80.3% |97.69 MB| - |
-|spectral-ResNet50 |77.84% | 97.69 MBx4 | - |
 
+[1] L. Deng, “The MNIST database of handwritten digit images for machine learning research,” IEEE Signal Processing Magazine, vol. 29, no. 6, pp. 141–142, 2012.
 
-## ImageNet-21K
-| Network     | Test accuracy | Model size | Training time|
-| ----------- |  ------------- | --- | --- |
-|ResNet-34| 40.45% | 122.35 MB | >246h  |
-|spectral-ResNet-34| 30.40% | 122.35 MB | 90h |  |
+[2] A. Krizhevsky and G. Hinton, “Learning multiple layers of features from tiny images,” Master’s thesis, University of Tront, 2009.

@@ -11,3 +11,5 @@
 ![img.png](figs/img_2.png)
 
 [MNIST & CIFAR10](./MNIST%20&%20CIFAR10)
+
+[ImageNet-1K & ImageNet-21K](./ImageNet-1K%20&%20ImageNet-21K)

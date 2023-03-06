@@ -306,9 +306,9 @@ class ClassificationPresetTrain:
         augmix_severity=3,
         random_erase_prob=0.0,
     ):
-        trans = [transforms.Resize(precrop, interpolation=interpolation)]
-        trans.append(transforms.RandomResizedCrop(crop_size, interpolation=interpolation))
-        trans.append(transforms.RandomHorizontalFlip())
+        trans = [transforms.Resize((precrop, precrop), interpolation=interpolation),
+                 transforms.RandomCrop((crop_size, crop_size)),
+                 transforms.RandomHorizontalFlip()]
         if auto_augment_policy is not None:
             if auto_augment_policy == "ra":
                 trans.append(autoaugment.RandAugment(interpolation=interpolation, magnitude=ra_magnitude))
@@ -349,7 +349,7 @@ class ClassificationPresetEval:
 
         self.transforms = transforms.Compose(
             [
-                transforms.Resize(crop_size, interpolation=interpolation),
+                transforms.Resize((crop_size, crop_size), interpolation=interpolation),
                 transforms.ToTensor(),
                 # transforms.PILToTensor(),
                 # transforms.ConvertImageDtype(torch.float),

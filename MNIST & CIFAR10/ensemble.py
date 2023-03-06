@@ -24,7 +24,7 @@ parser.add_argument("--r_idx", default=4, type=int,
                     help="the index of the last network")
 parser.add_argument("--net_idx", default="0", type=str, help="subnetwork idx")
 parser.add_argument("--premodel", default="best", type=str)
-parser.add_argument("--checkpoint_path", default="spectral_resnet50_subx.pth", type=str)
+parser.add_argument("--checkpoint_path", default="resnet50_subx.pth.tar", type=str)
 parser.add_argument("--dct_nets", default="4", type=int, help="the number of dct subnetworks")
 parser.add_argument("--ensemble", default="geo", type=str)
 parser.add_argument("--geo", default=0.3, type=float)
@@ -56,9 +56,9 @@ preprocessing = data_loader.ClassificationPresetEval(
             )
 
 testset = torchvision.datasets.CIFAR10(
-            "/xfs/home/tensor_zy/zhangjie/datasets", train=False,
-            transform=preprocessing,
-        )
+                "/xfs/home/tensor_zy/zhangjie/datasets", train=False,
+                transform=preprocessing,
+            )
 
 num_test = len(testset)
 
@@ -94,7 +94,7 @@ for __ in range(num_nets):
     best_acc_content_str += "best_acc[{}], ".format(__)
 
 
-def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusing_test_acc_list, test_loss_list,
+def test_fusing_nets(nets, best_acc, best_fusing_acc, test_acc_list, fusing_test_acc_list, test_loss_list,
                      fusing_test_loss_list, fusing_weight=None, is_best=None):
     for net in nets:
         net.eval()
@@ -162,7 +162,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
             fusing_test_loss[i] /= num_test
             fusing_acc[i] = 100. * fusing_correct[i] / fusing_total[i]
 
-        print("| Validation Epoch #%d\t\t"% (epoch+1)
+        print("| Validation \t\t"%
               + ("  Loss: [" + loss_format_str + "]" )%(eval(test_loss_content_str))
               + ("  Acc: [" + acc_format_str + "]")%(eval(acc_content_str))
             )
@@ -175,7 +175,7 @@ def ensemble(nets, checkpoint_path):
     acc = []
     for i in range(num_nets):
         if i >= args.dct_nets:
-            checkpoint = torch.load(checkpoint_path.replace("subx", f"fft_sub{i-args.dct_nets}"))
+            checkpoint = torch.load(checkpoint_path.replace("subx", f"sub{i-args.dct_nets}"))
         else:
             checkpoint = torch.load(checkpoint_path.replace("subx", f"sub{i}"))
         acc.append(checkpoint["acc"])
@@ -200,7 +200,7 @@ def ensemble(nets, checkpoint_path):
         for i in range(num_nets):
             fusing_weight[rank_list[i]] = p * np.power((1 - p), i)
 
-    test_fusing_nets(100, nets, acc, best_fusing_acc, test_acc_list, fusing_test_acc_list,
+    test_fusing_nets(nets, acc, best_fusing_acc, test_acc_list, fusing_test_acc_list,
                      test_loss_list, fusing_test_loss_list, fusing_weight=fusing_weight)
 
     now_time = time.time()
