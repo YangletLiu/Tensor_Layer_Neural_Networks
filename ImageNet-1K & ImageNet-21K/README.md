@@ -1,28 +1,49 @@
 # Classification on ImageNet-1K & ImageNet-21K Dataset
-
 ## ImageNet-1K [1]
+
+Experimental Parameters for Ours:
+
+Input size :
+
+    224 x 224 x 3 for baseline
+    112 x 112 x 3 for sub4
+    56 x 56 x 3 for sub16&sub36
+
+Epoch: 100
+
+Batch size: 256
+
+Optimizer: SGD (0.9 momentum，0.0001 weight-decay)
+
+initial lr: 0.01 
+
+lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min)
+
+
+
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
-|AlexNet [3]|59.3 %|224 MB| - |
-|AlexNet|63.44 %|224 MB| 40.8 h |
-|spectral-AlexNet-sub4|63.43 %| 37.73 MBx4 | 20.2 h |
-|VGG-16 [4]|73.00 %|527.79 MB| - |
-|VGG-16|73.21 %|527.79 MB| 81.2 h |
-|Spectral-VGG-16-sub4|72.82 %| 207.82 MBx4 | 44.14 h |
-|Spectral-VGG-16-sub16|64.24 %| 128.05 MBx16 | 26.84 h |
-|ResNet-34 [5]|75.48 %|83.15 MB| - |
-|ResNet-34(SOTA) [6]|76.1 %|83.15 MB| - |
-|ResNet-34|73.51 % |83.15 MB | 43.66 h|
-|spectral-ResNet34-sub4|74.13% | 83.15 MBx4 | 20.02 h |
-|spectral-ResNet34-sub16|70.45 %|83.15 MBx16|20.02 h|
-|spectral-ResNet34-sub36|69.83 %|83.15 MBx36|20.02 h|
-|ResNet-50 [5]|77.15 %|97.69 MB| - |
-|ResNet-50(SOTA) [7]|80.3 %|97.69 MB| - |
+|AlexNet [3]| 59.3 % | 224 MB | - |
+|AlexNet|63.44 %| 224 MB | 40.8 h |
+|spectral-AlexNet-sub4| 63.43 % | 37.73 MBx4 | 20.2 h |
+|VGG-16 [4]| 73.00 % | 527.79 MB | - |
+|VGG-16|73.21 %| 527.79 MB | 81.2 h |
+|Spectral-VGG-16-sub4| 72.82 % | 207.82 MBx4 | 44.14 h |
+|Spectral-VGG-16-sub16| 64.24 % | 128.05 MBx16 | 26.84 h |
+|ResNet-34 [5]| 75.48 % | 83.15 MB | - |
+|ResNet-34(SOTA) [6]| 76.1 % | 83.15 MB | - |
+|ResNet-34|73.51 % | 83.15 MB | 43.66 h |
+|spectral-ResNet34-sub4| 74.13% | 83.15 MBx4 | 20.02 h |
+|spectral-ResNet34-sub16| 70.45 % | 83.15 MBx16 | 20.02 h |
+|spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
+|ResNet-50 [5]|77.15 %| 97.69 MB | - |
+|ResNet-50(SOTA) [7]|80.3 %| 97.69 MB | - |
 |ResNet-50|77.99 %|97.69 MB| - |
 |spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | 62.6 h |
 
 
 ## ImageNet-21K [2]
+
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45% | 122.35 MB | >246h  |
