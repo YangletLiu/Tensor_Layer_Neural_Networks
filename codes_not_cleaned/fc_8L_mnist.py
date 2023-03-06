@@ -7,11 +7,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import sys
+import cProfile
+import re
 
 
 ########################## 1. load data ##################################
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-batch_size = 128
+batch_size = 256
 
 transform_train = transforms.Compose([
                                   transforms.ToTensor(),
@@ -25,11 +27,11 @@ transform_test = transforms.Compose([
                                       (0.1307,), (0.3081,))
                               ])
 
-trainset = datasets.MNIST(root="../datasets", train=True, download=True, transform=transform_train)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2, pin_memory=True)
+trainset = datasets.MNIST(root="/xfs/home/tensor_zy/zhangjie/datasets", train=True, download=True, transform=transform_train)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 
-testset = datasets.MNIST(root="../datasets", train=False, download=True, transform=transform_test)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2, pin_memory=True)
+testset = datasets.MNIST(root="/xfs/home/tensor_zy/zhangjie/datasets", train=False, download=True, transform=transform_test)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True)
 
 
 ########################### 2. define model ##################################
@@ -40,33 +42,41 @@ class FC8Net(nn.Module):
         # layer1
         self.layer1 = nn.Sequential(
             nn.Linear(in_dim, n_hidden_1),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer2 = nn.Sequential(
             nn.Linear(n_hidden_1, n_hidden_2),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer3 = nn.Sequential(
             nn.Linear(n_hidden_2, n_hidden_3),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer4 = nn.Sequential(
             nn.Linear(n_hidden_3, n_hidden_4),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer5 = nn.Sequential(
             nn.Linear(n_hidden_4, n_hidden_5),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer6 = nn.Sequential(
             nn.Linear(n_hidden_5, n_hidden_6),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer7 = nn.Sequential(
             nn.Linear(n_hidden_6, n_hidden_7),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer8 = nn.Sequential(
+            nn.Dropout(p=0.1),
             nn.Linear(n_hidden_7, out_dim),
         )
 
@@ -226,6 +236,7 @@ def main():
     net = build(decomp=False)
     print(net)
     train_loss, train_acc, test_loss, test_acc = train(100, net)
+    cProfile.run('re.compile("foo|bar")')
     save_record_and_draw(train_loss, train_acc, test_loss, test_acc)
 
 

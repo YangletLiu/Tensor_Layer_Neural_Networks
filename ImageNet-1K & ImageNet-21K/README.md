@@ -11,10 +11,7 @@ Input size :
 
 Epoch: 100;
 
-Batch size: 
-
-    256 for AlexNet and VGG16, 
-    512 for ResNet34 and ResNet36;
+Batch size: 256
 
 Optimizer: SGD (0.9 momentum，0.0001 weight-decay);
 

@@ -11,7 +11,7 @@ import sys
 
 ########################## 1. load data ##################################
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-batch_size = 128
+batch_size = 256
 
 transform_train = transforms.Compose([
                                   transforms.ToTensor(),
@@ -26,10 +26,10 @@ transform_test = transforms.Compose([
                               ])
 
 trainset = datasets.MNIST(root="../datasets", train=True, download=True, transform=transform_train)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
 
 testset = datasets.MNIST(root="../datasets", train=False, download=True, transform=transform_test)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True)
 
 
 ########################### 2. define model ##############################
@@ -39,15 +39,18 @@ class FC4Net(nn.Module):
         # layer1
         self.layer1 = nn.Sequential(
             nn.Linear(in_dim, n_hidden_1),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer2 = nn.Sequential(
             nn.Linear(n_hidden_1, n_hidden_2),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer3 = nn.Sequential(
             nn.Linear(n_hidden_2, n_hidden_3),
-            nn.ReLU(True)
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
         )
         self.layer4 = nn.Sequential(
             nn.Linear(n_hidden_3, out_dim),
