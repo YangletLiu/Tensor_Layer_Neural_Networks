@@ -41,7 +41,7 @@ lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min);
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50 [5]|77.15 %| 97.69 MB | - |
 |ResNet-50(SOTA) [7]|80.3 %| 97.69 MB | - |
-|ResNet-50| 77.99 % |97.69 MB| - |
+|ResNet-50| 77.99 % |97.69 MB| 43.8 h |
 |spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | 62.6 h |
 
 
