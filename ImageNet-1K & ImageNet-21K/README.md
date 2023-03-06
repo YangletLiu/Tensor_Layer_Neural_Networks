@@ -9,17 +9,20 @@ Input size :
     112 x 112 x 3 for sub4
     56 x 56 x 3 for sub16&sub36
 
-Epoch: 100
+Epoch: 100;
 
-Batch size: 256
+Batch size: 
 
-Optimizer: SGD (0.9 momentum，0.0001 weight-decay)
+    256 for AlexNet and VGG16, 
+    512 for ResNet34 and ResNet36;
 
-initial lr: 0.01 
+Optimizer: SGD (0.9 momentum，0.0001 weight-decay);
 
-lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min)
+initial lr: 0.01;
 
+lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min);
 
+10-crop testing for ResNet34 and ResNet50 in original paper.
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
@@ -38,11 +41,25 @@ lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min)
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50 [5]|77.15 %| 97.69 MB | - |
 |ResNet-50(SOTA) [7]|80.3 %| 97.69 MB | - |
-|ResNet-50|77.99 %|97.69 MB| - |
+|ResNet-50| 77.99 % |97.69 MB| - |
 |spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | 62.6 h |
 
 
 ## ImageNet-21K [2]
+
+split to 36 sub-datasets after resize to 336 x 336 x 3
+
+Input size : 56 x 56 x 3;
+
+Epoch: 100;
+
+Batch size: 512;
+
+Optimizer: SGD (0.9 momentum，0.0001 weight-decay);
+
+initial lr: 0.001;
+
+lr-scheduler: stepLR(30 step size，0.1 gamma);
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
