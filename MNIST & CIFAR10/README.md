@@ -103,7 +103,7 @@ python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt a
 |spectral-ResNet50 |77.84% | 97.69 MBx4 | - |
 
 
-## ImageNet-21K result
+## ImageNet-21K
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45% | 122.35 MB | >246h  |
