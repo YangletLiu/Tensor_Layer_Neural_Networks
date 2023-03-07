@@ -44,10 +44,10 @@ python train.py --opt adam --model-name FC4Net
 python train.py --model-name FC8Net --scheduler steplr --b 256 -j 8 --lr 0.001 --opt adam
 python train.py --model-name FC8Net --scheduler steplr --b 256 --lr 0.001 --trans fft --l_idx 0 --r_idx 4 --split downsample --opt adam --filename spectral-fc8l-sub4 --device 0 --geo-p 0.9
 ```
-![img.png](../figs/FC_MNIST.png)
 
-![img.png](../figs/training_loss_on_MNIST.png)
+![img.png](../figs/AccuracyOnMNIST.png)
 
+![img.png](../figs/TrainingLossOnMNIST.png)
 ## CIFAR 10 Dataset [2]
 
 Image size: 32 x 32 x 3.
@@ -90,7 +90,9 @@ command :
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --opt adam
 python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt adam --trans dct --l_idx 0 --r_idx 4 --split downsample --pretrain ./CNN8CIFAR10.pth
 ```
+![img.png](../figs/AccuracyOnCIFAR10.png)
 
+![img.png](../figs/TrainingLossonCIFAR10.png)
 [1] L. Deng, “The MNIST database of handwritten digit images for machine learning research,” IEEE Signal Processing Magazine, vol. 29, no. 6, pp. 141–142, 2012.
 
 [2] A. Krizhevsky and G. Hinton, “Learning multiple layers of features from tiny images,” Master’s thesis, University of Tront, 2009.
