@@ -4,7 +4,6 @@ import time
 import warnings
 
 import numpy as np
-
 import torch
 import torch.utils.data
 import torchvision
@@ -14,10 +13,6 @@ from sampler import RASampler
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from model import resnet34
-
-# os.environ['MASTER_ADDR'] = 'localhost'
-# os.environ['MASTER_PORT'] = '5678'
-
 
 def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema=None, scaler=None):
     model.train()
@@ -124,6 +119,7 @@ def load_data(traindir, valdir, args):
     # )
     # interpolation = InterpolationMode(args.interpolation)
     transform_train = torchvision.transforms.Compose([
+        # torchvision.transforms.Resize((112, 112)),
         torchvision.transforms.RandomCrop((56, 56)),
         torchvision.transforms.RandomHorizontalFlip(),
         # torchvision.transforms.PILToTensor(),
@@ -134,7 +130,7 @@ def load_data(traindir, valdir, args):
     ])
 
     transform_test = torchvision.transforms.Compose([
-        torchvision.transforms.CenterCrop(56),
+        torchvision.transforms.Resize((56, 56)),
         # torchvision.transforms.PILToTensor(),
         # torchvision.transforms.ConvertImageDtype(torch.float),
         torchvision.transforms.ToTensor(),
@@ -248,7 +244,11 @@ def main(args):
 
     print("Creating model")
     # model = torchvision.models.__dict__[args.model](num_classes=10450)
-    # model = torchvision.models.resnet34(pretrained=True)
+    # model = torchvision.models.resnet34()
+    # checkpoint = torch.load("/colab_space/yanglet/model_weight/resnet34.pth")
+    # model.load_state_dict(checkpoint['state_dict'])
+    # model.maxpool = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+    # model.fc = nn.linear(512, 10450)
     # model.fc = nn.Linear(512, 10450)
     model = resnet34(num_classes=10450)
     model.to(device)
