@@ -1,7 +1,8 @@
 # Classification on ImageNet-1K & ImageNet-21K Dataset
+
 ## ImageNet-1K [1]
 
-Experimental Parameters for Ours:
+Experimental parameters:
 
 Input size :
 
@@ -9,13 +10,11 @@ Input size :
     112 x 112 x 3 for sub4
     56 x 56 x 3 for sub16&sub36
 
-Epoch: 100;
-
-Batch size: 256
+Epoch: 100;   Batch size: 256
 
 Optimizer: SGD (0.9 momentum，0.0001 weight-decay);
 
-initial lr: 0.01;
+Initial lr: 0.01;
 
 lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min);
 
