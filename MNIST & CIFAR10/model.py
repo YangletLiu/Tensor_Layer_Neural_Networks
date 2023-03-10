@@ -141,6 +141,26 @@ class FC8Net(nn.Module):
             nn.BatchNorm1d(n_hidden_1)
         )
         self.layer8 = nn.Sequential(
+            nn.Linear(n_hidden_6, n_hidden_7),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer9 = nn.Sequential(
+            nn.Linear(n_hidden_6, n_hidden_7),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer10 = nn.Sequential(
+            nn.Linear(n_hidden_6, n_hidden_7),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.layer11 = nn.Sequential(
+            nn.Linear(n_hidden_6, n_hidden_7),
+            nn.ReLU(True),
+            nn.BatchNorm1d(n_hidden_1)
+        )
+        self.fc = nn.Sequential(
             nn.Dropout(p=0.1),
             nn.Linear(n_hidden_7, out_dim),
         )
@@ -156,6 +176,9 @@ class FC8Net(nn.Module):
         x = self.layer6(x)
         x = self.layer7(x)
         x = self.layer8(x)
+        x = self.layer9(x)
+        x = self.layer10(x)
+        x = self.fc(x)
         return x
 
 class tNN4MNIST(nn.Module):

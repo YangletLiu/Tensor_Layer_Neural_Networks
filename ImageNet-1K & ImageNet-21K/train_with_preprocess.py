@@ -249,7 +249,6 @@ def main(args):
     # model.load_state_dict(checkpoint['state_dict'])
     # model.maxpool = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
     # model.fc = nn.linear(512, 10450)
-    # model.fc = nn.Linear(512, 10450)
     model = resnet34(num_classes=10450)
     model.to(device)
 
