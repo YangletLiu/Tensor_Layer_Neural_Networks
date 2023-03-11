@@ -248,7 +248,12 @@ command :
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45% | 122.35 MB | >246 h  |
-|spectral-ResNet-34| 30.40% | 122.35 MB | 90 h |  |
+|spectral-ResNet-34| 30.40% | 122.35 MB | 90 h |
+
+| sub-network   | sub0 | sub1 | sub2 | sub3 |
+| -----------  | ------------- | ------------- | -------------- | --------|
+| acc | 28.74% | 21.84% | 11.68% | 10.45% |
+| acc | 2.38% | 25.56% |
 
 
 
