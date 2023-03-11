@@ -230,22 +230,25 @@ command :
 | Ensemble-network | sub0,1,3 |
 | -----------  | --- |
 | acc (p = 0.3)| 77.68% |
-|acc (p = 0.6) |77.83%|
-|acc (p = 0.8) |77.84%|
-|acc (p = 0.9) |77.76%|
+|acc (p = 0.6) | 77.83% |
+|acc (p = 0.8) | 77.84% |
+|acc (p = 0.9) | 77.76% |
 
-### Spectral-resnet34(236/600 epochs) :
+### Spectral-resnet34(600 epochs) :
 
 | sub-network   | sub0 | sub1 | sub2 | sub3 |
 | -----------  | ------------- | ------------- | -------------- | --------|
-| acc | 72.13% | 69.97% | 62.06% | 69.92% |
+| acc | 76.31% | 74.39% | 68.79% | 74.82% |
+| Ensemble-network | sub0,1,3 |
+| -----------  | --- |
+| acc (p = 0.3)| 78.29 % |
 
 
 ## ImageNet-21K result
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
-|ResNet-34| 40.45% | 122.35 MB | >246h  |
-|spectral-ResNet-34| 30.40% | 122.35 MB | 90h |  |
+|ResNet-34| 40.45% | 122.35 MB | >246 h  |
+|spectral-ResNet-34| 30.40% | 122.35 MB | 90 h |  |
 
 
 
