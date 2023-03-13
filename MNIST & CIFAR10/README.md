@@ -36,11 +36,13 @@ Rank: 10.
 | FC-8L            |98.79%        | 16.54 MB | 1,553s |
 | t-NN             |97.71% | 0.63 MB | 61,960s |
 | Spectral-FC-8L-subnets-4 |  98.88%  | 1.06x4 MB| 1,944s|
-| Spectral-FC-8L-subnets-16 |  97.84%  | 0.07x16 MB| 3,470s |
+| Spectral-FC-8L-subnets-16 |  97.92%  | 0.07x16 MB| 3,470s |
 ```shell
 command :
 
 python train.py --opt adam --model-name FC4Net
+python train.py --opt adam --model-name FC8Net
+python train.py --opt adam --model-name tnn
 python train.py --model-name FC8Net --scheduler steplr --b 256 -j 8 --lr 0.001 --opt adam
 python train.py --model-name FC8Net --scheduler steplr --b 256 --lr 0.001 --trans fft --l_idx 0 --r_idx 4 --split downsample --opt adam --filename spectral-fc8l-sub4 --device 0 --geo-p 0.9
 ```
