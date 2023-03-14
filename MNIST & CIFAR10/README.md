@@ -34,7 +34,7 @@ Rank: 10.
 | ---------------- | ------------- | --- | --- |
 | FC-4L            | 98.64%        | 7.10 MB | 1,496s |
 | FC-8L            |98.79%        | 16.54 MB | 1,553s |
-| t-NN             |97.71% | 0.63 MB | 61,960s |
+| t-NN [3]             |97.71% | 0.63 MB | 61,960s |
 | Spectral-FC-8L-subnets-4 |  98.88%  | 1.06x4 MB| 1,944s|
 | Spectral-FC-8L-subnets-16 |  97.92%  | 0.07x16 MB| 3,470s |
 ```shell
@@ -98,3 +98,5 @@ python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt a
 [1] L. Deng, “The MNIST database of handwritten digit images for machine learning research,” IEEE Signal Processing Magazine, vol. 29, no. 6, pp. 141–142, 2012.
 
 [2] A. Krizhevsky and G. Hinton, “Learning multiple layers of features from tiny images,” Master’s thesis, University of Tront, 2009.
+
+[3] Newman E, Horesh L, Avron H, et al. Stable tensor neural networks for rapid deep learning[J]. arXiv preprint arXiv:1811.06569, 2018.
