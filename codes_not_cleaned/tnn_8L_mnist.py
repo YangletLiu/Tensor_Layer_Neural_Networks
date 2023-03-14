@@ -28,11 +28,11 @@ transform_test = transforms.Compose([
 
 batch_size = 128
 trainset = datasets.MNIST(root='../datasets', train=True, download=True, transform=transform_train)
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=0, pin_memory=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
 num_train = len(trainset)
 
 testset = datasets.MNIST(root='../datasets', train=False, download=True, transform=transform_test)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=0, pin_memory=True)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
 num_test = len(testset)
 
 
@@ -335,6 +335,7 @@ def train(num_epochs, net):
                 optimizer.zero_grad()
 
                 outputs = net(img) / 1e14
+                # outputs = net(img)
                 # softmax function
                 outputs = torch.transpose(scalar_tubal_func(outputs), 0, 1)
 

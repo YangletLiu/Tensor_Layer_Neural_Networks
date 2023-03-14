@@ -119,7 +119,7 @@ class ResNetV2(nn.Module):
     self.root = nn.Sequential(OrderedDict([
         ('conv', StdConv2d(3, 64*wf, kernel_size=7, stride=1, padding=3, bias=False)),
         ('pad', nn.ConstantPad2d(1, 0)),
-        ('pool', nn.MaxPool2d(kernel_size=3, stride=2, padding=0)),
+        ('pool', nn.MaxPool2d(kernel_size=3, stride=1, padding=0)),
         # The following is subtly not the same!
         # ('pool', nn.MaxPool2d(kernel_size=3, stride=2, padding=1)),
     ]))
