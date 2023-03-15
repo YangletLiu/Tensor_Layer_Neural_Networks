@@ -1,20 +1,8 @@
 # Classification on MNIST & CIFAR-10 Dataset 
 
-The code will automatically download MNIST and CIFAR-10 datasets
+The code will automatically download MNIST and CIFAR-10 datasets.
 
-Training parameters
-
-| Parameters               | values  |
-| ------------------------ | ------ |
-| `-b`,`--batch_size`      | `128`   |
-| `--epochs`               | `100`   |
-| `--lr`                   | `0.001`  |
-| `--opt`                  | `SGD`  |
-| `--momentum`             | `0.9`  |
-| `--wd`, `--weight-decay` | `0` |
-| `--device`               | `cpu` |
-
-
+The precision in parentheses is the result in the references.
 
 ## MNIST Dataset [1]
 
@@ -27,8 +15,6 @@ Batch size: 256
 Optimizer: Adam.
 
 Learning rate: 0.001
-
-Rank: 10.
 
 | Networks         | Test accuracy | Model size | Training time|
 | ---------------- | ------------- | --- | --- |
@@ -81,9 +67,9 @@ pretrained on ImageNet-21K
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
-|FC-8L| 61.27% | 252.52 MB | 3353s |
-|spectral-FC-sub4| 68.17% | 15.88 MBx4|3999s|
-|spectral-FC-sub16| 59.95% | 1.01 MBx16|6639s|
+| FC-8L | 61.27% | 252.52 MB | 3353s |
+| spectral-FC-sub4 | 68.17% | 15.88 MBx4|3999s|
+| spectral-FC-sub16 | 59.95% | 1.01 MBx16|6639s|
 | ResNet152x4 | 99.21% | 3541.64 MB| 15.2h |
 | spectral-ResNet152x4-subnets-4| 99.20 %| 3541.64 MBx4 | 17.3 h |
 ```shell

@@ -1,5 +1,6 @@
 # Classification on ImageNet-1K & ImageNet-21K Dataset
 
+The precision in parentheses is the result in the references.
 ## ImageNet-1K [1]
 
 Experimental parameters:
@@ -20,7 +21,11 @@ Initial lr: 0.01;
 
 lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min);
 
+The precision in brackets is the result of the model in the reference paper
+
 10-crop testing for ResNet34 and ResNet50 in original paper.
+
+10-crop testing: crops 10 different regions from an image, then makes predictions for each region, and finally averages the predictions
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
@@ -31,7 +36,7 @@ lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min);
 |Spectral-VGG-16-sub16| 64.24 % | 128.05 MBx16 | 26.84 h |
 |ResNet-34 [5] |73.51 % <br> (75.48 % [5]) <br> (76.1 % [6])| 83.15 MB | 43.66 h |
 |spectral-ResNet34-sub4| 78.29% | 83.15 MBx4 | 281 h |
-|spectral-ResNet34-sub16| 70.45 % | 83.15 MBx16 | 20.02 h |
+|spectral-ResNet34-sub16(6/16 subnets)| 70.98 %| 83.15 MBx16 | 20.02 h |
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
 |spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | 62.6 h |
