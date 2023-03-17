@@ -73,7 +73,8 @@ pretrained on ImageNet-21K
 | CNN | 92.42 % | 6.79 MB | - |
 | spectral-CNN-sub4 | 91.68 % | 9.04 MBx4|-|
 | spectral-CNN-sub16 | 80.27 % | 9.04 MBx16|-|
-|resnet34|83.90 %| 81.27 MB |-|
+| resnet34 |83.90 % | 81.27 MB |-|
+| spectral-resnet34-sub16 |90.43 %| 81.27 MB |-|
 | ResNet152x4 | 99.21 % | 3541.64 MB| 15.2h |
 | spectral-ResNet152x4-sub4| 99.20 %| 3541.64 MBx4 | 17.3 h |
 ```shell
