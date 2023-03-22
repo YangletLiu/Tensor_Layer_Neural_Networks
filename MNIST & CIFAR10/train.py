@@ -24,27 +24,30 @@ parser.add_argument("--l_idx", default=0, type=int,
 parser.add_argument("--r_idx", default=0, type=int,
                     help="the index of the last network")
 parser.add_argument("--device", default="cuda:0", type=str, help="device (Use cuda or cpu Default: cuda)")
-parser.add_argument("-b", "--batch-size", default=128, type=int, help="images per gpu, the total batch size is $NGPU x batch_size")
+parser.add_argument("-b", "--batch-size", default=128, type=int,
+                    help="images per gpu, the total batch size is $NGPU x batch_size")
 parser.add_argument("--epochs", default=100, type=int, metavar="N", help="number of total epochs to run")
 parser.add_argument("--lr", default=0.001, type=float, help="initial learning rate")
-parser.add_argument("--wd","--weight-decay", default=0.0, type=float, metavar="W", help="weight decay (default: 1e-4)", dest="weight_decay",)
+parser.add_argument("--wd", "--weight-decay", default=0.0, type=float, metavar="W", help="weight decay (default: 1e-4)",
+                    dest="weight_decay", )
 parser.add_argument("--opt", default="sgd", type=str, help="optimizer")
 parser.add_argument("--scheduler", default=None, type=str, help="the lr scheduler")
 parser.add_argument("--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
 parser.add_argument("--lr-warmup-decay", default=0.01, type=float, help="the decay for lr")
 parser.add_argument("--lr-min", default=0.0, type=float, help="minimum lr of lr schedule (default: 0.0)")
 parser.add_argument("--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
-parser.add_argument("--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing")
+parser.add_argument("--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)",
+                    dest="label_smoothing")
 parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
-parser.add_argument("-j", "--workers", default=2, type=int, metavar="N", help="number of data loading workers (default: 16)")
+parser.add_argument("-j", "--workers", default=0, type=int, metavar="N",
+                    help="number of data loading workers (default: 16)")
 parser.add_argument("--decom", action="store_true", help="low rank decompose the net")
 parser.add_argument("--trans", default=None, help="the transform domain")
 parser.add_argument("--split", default=None, type=str, help="method of split datasets")
 parser.add_argument("--geo-p", default=0., type=float, help="the p of geo fusing method")
 parser.add_argument("--dataset", default="MNIST", type=str)
+parser.add_argument("--wandb-name", default=None, type=str)
 args = parser.parse_args()
-
-
 
 num_nets = args.r_idx - args.l_idx
 if num_nets:
@@ -62,20 +65,25 @@ for __ in range(num_nets):
 
 device = args.device if torch.cuda.is_available() else "cpu"
 batch_size = args.batch_size
+best_acc = 0.
 
 trainset, testset = get_dataset(args.dataset)
 
-trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=args.workers, pin_memory=True)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=args.workers,
+                                          pin_memory=True)
+testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=args.workers,
+                                         pin_memory=True)
 
 num_train = len(trainset)
 num_test = len(testset)
+
+
 ########################### train and test functions ##################
 def test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list):
     net.eval()
     test_loss = 0
-    correct = 0     # the number of correctly classified images
-    total = 0       # the number of images
+    correct = 0  # the number of correctly classified images
+    total = 0  # the number of images
 
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
@@ -88,21 +96,21 @@ def test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list):
             total += targets.size(0)
             correct += predicted.eq(targets.data).cpu().sum().item()
 
-        acc = 100.* correct / total
-        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " %(epoch + 1, loss.item(), acc))
+        acc = 100. * correct / total
+        print("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc: %.2f%%   " % (epoch + 1, loss.item(), acc))
 
         if acc > best_acc:
             best_acc = acc
             # Save checkpoint when best model
             checkpoint = {
-                    "epoch": epoch + 1,
-                    "state_dict": net.state_dict(),
-                    "best_acc": best_acc,
-                    }
-            torch.save(checkpoint, args.model_name+"_mnist.pth.tar")
+                "epoch": epoch + 1,
+                "state_dict": net.state_dict(),
+                "best_acc": best_acc,
+            }
+            torch.save(checkpoint, args.model_name + "_mnist.pth.tar")
         test_acc_list.append(acc)
         test_loss_list.append(test_loss / total)
-    return best_acc
+    return acc
 
 
 def train(num_epochs, net):
@@ -110,7 +118,6 @@ def train(num_epochs, net):
     # initialize some metrices
     train_acc_list, train_loss_list = [], []
     test_acc_list, test_loss_list = [], []
-    best_acc = 0.
 
     start_time = time.time()
 
@@ -118,7 +125,8 @@ def train(num_epochs, net):
     current_lr = lr0
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing).to(device)
     if args.opt == 'sgd':
-        optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
+        # optimizer = torch.optim.SGD(net.parameters(), lr=lr0, momentum=0.9, weight_decay=5e-4)
+        optimizer = torch.optim.SGD(net.parameters(), lr=lr0)
     elif args.opt == 'adam':
         optimizer = torch.optim.Adam(net.parameters(), lr=lr0, weight_decay=args.weight_decay)
     elif args.opt == "adamw":
@@ -127,25 +135,24 @@ def train(num_epochs, net):
     if args.scheduler == "steplr":
         lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.lr_step_size, gamma=args.lr_gamma)
     elif args.scheduler == "cos":
-        lr_scheduler=torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs - args.lr_warmup_epochs, eta_min=args.lr_min)
-
-
+        lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs - args.lr_warmup_epochs,
+                                                                  eta_min=args.lr_min)
 
     try:
         for epoch in range(num_epochs):
             net.train()
-            train_loss = 0      # training loss at this epoch
-            correct = 0         # the number of correctly classified images
-            total = 0           # the number of images
+            train_loss = 0  # training loss at this epoch
+            correct = 0  # the number of correctly classified images
+            total = 0  # the number of images
 
-            print("\n=> Training Epoch #%d, LR=%.4f" %(epoch+1, current_lr))
+            print("\n=> Training Epoch #%d, LR=%.4f" % (epoch + 1, current_lr))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
-                inputs, targets = inputs.to(device), targets.to(device) # GPU settings
+                inputs, targets = inputs.to(device), targets.to(device)  # GPU settings
                 optimizer.zero_grad()
-                outputs = net(inputs)               # Forward Propagation
+                outputs = net(inputs)  # Forward Propagation
                 loss = criterion(outputs, targets)  # Loss
-                loss.backward()                     # Backward Propagation
-                optimizer.step()                    # Optimizer update
+                loss.backward()  # Backward Propagation
+                optimizer.step()  # Optimizer update
 
                 train_loss += loss.item()
                 _, predicted = torch.max(outputs.data, 1)
@@ -154,30 +161,34 @@ def train(num_epochs, net):
 
                 sys.stdout.write('\r')
                 sys.stdout.write("| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc: %.3f%%   "
-                        %(epoch+1, num_epochs, batch_idx+1,
-                          (len(trainset) // batch_size) + 1, loss.item(), 100. * correct / total))
+                                 % (epoch + 1, num_epochs, batch_idx + 1,
+                                    (len(trainset) // batch_size) + 1, loss.item(), 100. * correct / total))
                 sys.stdout.flush()
 
             if args.scheduler is not None:
                 lr_scheduler.step()
                 current_lr = lr_scheduler.get_last_lr()[0]
 
-            best_acc = test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list)
-            train_acc_list.append(100. * correct / total)
-            train_loss_list.append(train_loss / total)
+            acc = test(epoch, net, criterion, best_acc, test_acc_list, test_loss_list)
+            train_acc = 100. * correct / total
+            train_acc_list.append(train_acc)
+            train_loss /= total
+            train_loss_list.append(train_loss)
             now_time = time.time()
-            print("| Best Acc: %.2f%% "%(best_acc))
-            print("Used:{}s \t EST: {}s".format(now_time-start_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
+            wandb.log({"test_acc": acc, "train_acc": train_acc, "train_loss": train_loss})
+            print("| Best Acc: %.2f%% " % best_acc)
+            print("Used:{}s \t EST: {}s".format(now_time - start_time,
+                                                (now_time - start_time) / (epoch + 1) * (num_epochs - epoch - 1)))
     except KeyboardInterrupt:
         pass
 
-    print("\nBest training accuracy overall: %.3f%%"%(best_acc))
-
+    print("\nBest training accuracy overall: %.3f%%" % best_acc)
+    wandb.finish()
     return train_loss_list, train_acc_list, test_loss_list, test_acc_list
 
 
 def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusing_test_acc_list, test_loss_list,
-                     fusing_test_loss_list,fusing_plan, fusing_num, criterion, fusing_weight=None):
+                     fusing_test_loss_list, fusing_plan, fusing_num, criterion, fusing_weight=None):
     for net in nets:
         net.eval()
     test_loss = [0] * num_nets
@@ -195,7 +206,8 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
     with torch.no_grad():
         for batch_idx, (img, targets) in enumerate(testloader):
             img, targets = img.to(device), targets.to(device)
-            img = preprocess(img, block_size=(blocks, blocks), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
+            img = preprocess(img, block_size=(blocks, blocks), method=args.split, num_nets=num_nets, trans=args.trans,
+                             device=device)
 
             for i in range(num_nets):
                 outputs[i] = nets[i](img[:, :, :, :, i])
@@ -237,10 +249,10 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
             fusing_test_loss[i] /= num_test
             fusing_acc[i] = 100. * fusing_correct[i] / fusing_total[i]
 
-        print("| Validation Epoch #%d\t\t"% (epoch+1)
-              + ("  Loss: [" + loss_format_str + "]" )%(eval(test_loss_content_str))
-              + ("  Acc: [" + acc_format_str + "]")%(eval(acc_content_str))
-            )
+        print("| Validation Epoch #%d\t\t" % (epoch + 1)
+              + ("  Loss: [" + loss_format_str + "]") % (eval(test_loss_content_str))
+              + ("  Acc: [" + acc_format_str + "]") % (eval(acc_content_str))
+              )
 
         print("| s [%.4f] Fusing Acc: [%.2f%%]   " % (fusing_test_loss[0], fusing_acc[0]))
 
@@ -254,11 +266,12 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
                 best_fusing_acc[i] = fusing_acc[i]
 
         test_acc_list.append(acc)
-        test_loss_list.append([test_loss[i] for i in range(num_nets)])
+        test_loss_list.append(test_loss)
 
         fusing_test_acc_list.append(fusing_acc)
-        fusing_test_loss_list.append([fusing_test_loss[i] for i in range(fusing_num)])
-    return best_acc, best_fusing_acc
+        fusing_test_loss_list.append(fusing_test_loss)
+    return best_acc, best_fusing_acc, acc, test_loss, fusing_acc[0], fusing_test_loss[0]
+
 
 def train_multi_nets(num_epochs, nets):
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing).to(device)
@@ -278,7 +291,8 @@ def train_multi_nets(num_epochs, nets):
         nets[i] = nets[i].to(device)
 
         if args.opt == 'sgd':
-            optimizers.append(torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9, weight_decay=args.weight_decay))
+            optimizers.append(
+                torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9, weight_decay=args.weight_decay))
         elif args.opt == 'adam':
             optimizers.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
         elif args.opt == "adamw":
@@ -308,11 +322,13 @@ def train_multi_nets(num_epochs, nets):
             total = [0] * num_nets
             loss = [0] * num_nets
 
-            print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' % (epoch+1, current_lr, current_lr, current_lr, current_lr))
+            print('\n=> Training Epoch #%d, LR=[%.4f, %.4f, %.4f, %.4f, ...]' % (
+                epoch + 1, current_lr, current_lr, current_lr, current_lr))
             for batch_idx, (inputs, targets) in enumerate(trainloader):
                 pre_time = time.time()
                 inputs, targets = inputs.to(device), targets.to(device)  # GPU settings
-                inputs = preprocess(inputs, block_size=(blocks, blocks), method=args.split, num_nets=num_nets, trans=args.trans, device=device)
+                inputs = preprocess(inputs, block_size=(blocks, blocks), method=args.split, num_nets=num_nets,
+                                    trans=args.trans, device=device)
                 preprocess_time += (time.time() - pre_time)
                 for i in range(num_nets):
                     optimizers[i].zero_grad()
@@ -327,13 +343,14 @@ def train_multi_nets(num_epochs, nets):
                     correct[i] += predicted.eq(targets.data).cpu().sum().item()
 
                 temp_loss_ary = np.array([loss[idx].item() for idx in range(num_nets)])
-                temp_acc_ary = np.array([100.*correct[idx]/total[idx] for idx in range(num_nets)])
+                temp_acc_ary = np.array([100. * correct[idx] / total[idx] for idx in range(num_nets)])
                 sys.stdout.write('\r')
-                sys.stdout.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\tLoss: [%.4f ~ %.4f] mean: %.4f Acc: [%.3f%% ~ %.3f%%] mean: %.3f%%   '
-                                 %(epoch+1, num_epochs, batch_idx+1, math.ceil(len(trainset)/batch_size),
-                                   temp_loss_ary.min(), temp_loss_ary.max(), temp_loss_ary.mean(),
-                                   temp_acc_ary.min(), temp_acc_ary.max(), temp_acc_ary.mean())
-                                )
+                sys.stdout.write(
+                    '| Epoch [%3d/%3d] Iter[%3d/%3d]\tLoss: [%.4f ~ %.4f] mean: %.4f Acc: [%.3f%% ~ %.3f%%] mean: %.3f%%   '
+                    % (epoch + 1, num_epochs, batch_idx + 1, math.ceil(len(trainset) / batch_size),
+                       temp_loss_ary.min(), temp_loss_ary.max(), temp_loss_ary.mean(),
+                       temp_acc_ary.min(), temp_acc_ary.max(), temp_acc_ary.mean())
+                )
                 sys.stdout.flush()
                 # pre_time = time.time()
 
@@ -345,27 +362,50 @@ def train_multi_nets(num_epochs, nets):
             fusing_weight = None
             if args.geo_p:
                 fusing_weight = fusing(num_nets, args.geo_p, train_loss)
-                fusing_weight[2] = 0.0
 
-            best_acc, best_fusing_acc = test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list,
-                                        fusing_test_acc_list, test_loss_list, fusing_test_loss_list, fusing_plan, fusing_num, criterion, fusing_weight=fusing_weight)
+            best_acc, best_fusing_acc, test_acc, test_loss, fusing_acc, fusing_test_loss = \
+                test_fusing_nets(epoch, nets,
+                                 best_acc,
+                                 best_fusing_acc,
+                                 test_acc_list,
+                                 fusing_test_acc_list,
+                                 test_loss_list,
+                                 fusing_test_loss_list,
+                                 fusing_plan,
+                                 fusing_num,
+                                 criterion,
+                                 fusing_weight=fusing_weight)
 
-            train_acc_list.append([100.*correct[i]/total[i] for i in range(num_nets)])
-            train_loss_list.append([train_loss[i] / num_train for i in range(num_nets)])
-            now_time = time.time()
+            train_acc = [100. * correct[i] / total[i] for i in range(num_nets)]
+            train_acc_list.append(train_acc)
+            train_loss = [train_loss[i] / num_train for i in range(num_nets)]
+            train_loss_list.append(train_loss)
 
-            print(("| Best Acc: [" + acc_format_str + "]")%(eval(best_acc_content_str)))
-            print("Used:{}s\tWith out preprocess:{}s \t EST: {}s".format(now_time-start_time, now_time-start_time-preprocess_time, (now_time-start_time)/(epoch+1)*(num_epochs-epoch-1)))
+            wandb_dir = {"test_acc": fusing_acc, "test_loss": fusing_test_loss}
+            for i in range(num_nets):
+                wandb_dir.update({f"train_acc_sub{i}": train_acc[i],
+                                  f"train_loss_sub{i}": train_loss[i],
+                                  f"test_acc_sub{i}": test_acc[i],
+                                  f"test_loss_sub{i}": test_loss[i]})
+            wandb.log(wandb_dir)
+
+            all_time = time.time() - start_time
+
+            print(("| Best Acc: [" + acc_format_str + "]") % (eval(best_acc_content_str)))
+            print("Used:{}s\tWith out preprocess:{}s \t EST: {}s".format(all_time,
+                                                                         all_time - preprocess_time,
+                                                                         all_time / (epoch + 1) * (
+                                                                                 num_epochs - epoch - 1)))
 
     except KeyboardInterrupt:
         pass
 
-    print(("\nBest training accuracy overall: [" + acc_format_str + "]")%(eval(best_acc_content_str)))
+    print(("\nBest training accuracy overall: [" + acc_format_str + "]") % (eval(best_acc_content_str)))
 
     os.makedirs("./fc_models", exist_ok=True)
     for i in range(num_nets):
-        torch.save(nets[i], "./"+args.filename+"_{}.pth".format(i))
-
+        torch.save(nets[i], "./" + args.filename + "_{}.pth".format(i))
+    wandb.finish()
     return train_loss_list, train_acc_list, test_loss_list, test_acc_list, fusing_test_loss_list, fusing_test_acc_list, fusing_plan, fusing_num
 
 
@@ -379,8 +419,32 @@ def main():
         nets = []
         for _ in range(num_nets):
             nets.append(build(args.model_name, num_nets, decomp=False))
-        train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_, fusing_plan, fusing_num = train_multi_nets(args.epochs, nets)
-        save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_, num_nets, fusing_plan, fusing_num, args.filename)
+        train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_, fusing_plan, fusing_num = train_multi_nets(
+            args.epochs, nets)
+        save_record_and_draw(train_loss_, train_acc_, test_loss_, test_acc_, fusing_test_loss_, fusing_test_acc_,
+                             num_nets, fusing_plan, fusing_num, args.filename)
+
 
 if __name__ == "__main__":
+    import wandb
+
+    wandb.init(
+        project='zj-spectral-TNN-MNIST',
+        # sync_tensorboard=True,
+        name=args.wandb_name,
+        config={
+            "learning_rate": args.lr,
+            "architecture": args.model_name,
+            "dataset": args.dataset,
+            "epochs": args.epochs,
+            "batch_size": args.batch_size,
+            "optimizer": args.opt,
+            "lr_scheduler": args.scheduler,
+            "sub-nums": num_nets,
+            "workers": args.workers,
+            "gep-p": args.geo_p,
+            "device": args.device
+        }
+    )
+
     main()
