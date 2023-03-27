@@ -86,6 +86,8 @@ python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt a
 ![img.png](../figs/AccuracyOnCIFAR10.png)
 
 ![img.png](../figs/TrainingLossonCIFAR10.png)
+
+
 [1] L. Deng, “The MNIST database of handwritten digit images for machine learning research,” IEEE Signal Processing Magazine, vol. 29, no. 6, pp. 141–142, 2012.
 
 [2] A. Krizhevsky and G. Hinton, “Learning multiple layers of features from tiny images,” Master’s thesis, University of Tront, 2009.
