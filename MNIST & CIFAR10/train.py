@@ -175,7 +175,8 @@ def train(num_epochs, net):
             train_loss /= total
             train_loss_list.append(train_loss)
             now_time = time.time()
-            wandb.log({"test_acc": acc, "train_acc": train_acc, "train_loss": train_loss})
+            if args.wandb_name is not None:
+                wandb.log({"test_acc": acc, "train_acc": train_acc, "train_loss": train_loss})
             print("| Best Acc: %.2f%% " % best_acc)
             print("Used:{}s \t EST: {}s".format(now_time - start_time,
                                                 (now_time - start_time) / (epoch + 1) * (num_epochs - epoch - 1)))
@@ -183,7 +184,8 @@ def train(num_epochs, net):
         pass
 
     print("\nBest training accuracy overall: %.3f%%" % best_acc)
-    wandb.finish()
+    if args.wandb_name is not None:
+        wandb.finish()
     return train_loss_list, train_acc_list, test_loss_list, test_acc_list
 
 
@@ -275,7 +277,7 @@ def test_fusing_nets(epoch, nets, best_acc, best_fusing_acc, test_acc_list, fusi
 
 def train_multi_nets(num_epochs, nets):
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing).to(device)
-    lr0 = [args.lr] * num_nets
+    lr0 = args.lr
     fusing_plan = [list(range(num_nets))]
     fusing_num = len(fusing_plan)
 
@@ -287,16 +289,17 @@ def train_multi_nets(num_epochs, nets):
     best_fusing_acc = [0.] * fusing_num
 
     optimizers = []
+    current_lr = lr0
     for i in range(num_nets):
         nets[i] = nets[i].to(device)
 
         if args.opt == 'sgd':
             optimizers.append(
-                torch.optim.SGD(nets[i].parameters(), lr=lr0[i], momentum=0.9, weight_decay=args.weight_decay))
+                torch.optim.SGD(nets[i].parameters(), lr=lr0, momentum=0.9, weight_decay=args.weight_decay))
         elif args.opt == 'adam':
-            optimizers.append(torch.optim.Adam(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
+            optimizers.append(torch.optim.Adam(nets[i].parameters(), lr=lr0, weight_decay=args.weight_decay))
         elif args.opt == "adamw":
-            optimizers.append(torch.optim.AdamW(nets[i].parameters(), lr=lr0[i], weight_decay=args.weight_decay))
+            optimizers.append(torch.optim.AdamW(nets[i].parameters(), lr=lr0, weight_decay=args.weight_decay))
 
     if args.scheduler is not None:
         scheduler = []
@@ -354,7 +357,7 @@ def train_multi_nets(num_epochs, nets):
                 sys.stdout.flush()
                 # pre_time = time.time()
 
-            if scheduler:
+            if args.scheduler:
                 for i in range(num_nets):
                     scheduler[i].step()
                 current_lr = optimizers[0].param_groups[0]["lr"]
@@ -380,14 +383,14 @@ def train_multi_nets(num_epochs, nets):
             train_acc_list.append(train_acc)
             train_loss = [train_loss[i] / num_train for i in range(num_nets)]
             train_loss_list.append(train_loss)
-
-            wandb_dir = {"test_acc": fusing_acc, "test_loss": fusing_test_loss}
-            for i in range(num_nets):
-                wandb_dir.update({f"train_acc_sub{i}": train_acc[i],
-                                  f"train_loss_sub{i}": train_loss[i],
-                                  f"test_acc_sub{i}": test_acc[i],
-                                  f"test_loss_sub{i}": test_loss[i]})
-            wandb.log(wandb_dir)
+            if args.wandb_name is not None:
+                wandb_dir = {"test_acc": fusing_acc, "test_loss": fusing_test_loss}
+                for i in range(num_nets):
+                    wandb_dir.update({f"train_acc_sub{i}": train_acc[i],
+                                      f"train_loss_sub{i}": train_loss[i],
+                                      f"test_acc_sub{i}": test_acc[i],
+                                      f"test_loss_sub{i}": test_loss[i]})
+                wandb.log(wandb_dir)
 
             all_time = time.time() - start_time
 
@@ -405,7 +408,8 @@ def train_multi_nets(num_epochs, nets):
     os.makedirs("./fc_models", exist_ok=True)
     for i in range(num_nets):
         torch.save(nets[i], "./" + args.filename + "_{}.pth".format(i))
-    wandb.finish()
+    if args.wandb_name is not None:
+        wandb.finish()
     return train_loss_list, train_acc_list, test_loss_list, test_acc_list, fusing_test_loss_list, fusing_test_acc_list, fusing_plan, fusing_num
 
 
@@ -426,25 +430,25 @@ def main():
 
 
 if __name__ == "__main__":
-    import wandb
-
-    wandb.init(
-        project='zj-spectral-TNN-MNIST',
-        # sync_tensorboard=True,
-        name=args.wandb_name,
-        config={
-            "learning_rate": args.lr,
-            "architecture": args.model_name,
-            "dataset": args.dataset,
-            "epochs": args.epochs,
-            "batch_size": args.batch_size,
-            "optimizer": args.opt,
-            "lr_scheduler": args.scheduler,
-            "sub-nums": num_nets,
-            "workers": args.workers,
-            "gep-p": args.geo_p,
-            "device": args.device
-        }
-    )
+    if args.wandb_name is not None:
+        import wandb
+        wandb.init(
+            project='zj-spectral-TNN-CIFAR',
+            # sync_tensorboard=True,
+            name=args.wandb_name,
+            config={
+                "learning_rate": args.lr,
+                "architecture": args.model_name,
+                "dataset": args.dataset,
+                "epochs": args.epochs,
+                "batch_size": args.batch_size,
+                "optimizer": args.opt,
+                "lr_scheduler": args.scheduler,
+                "sub-nums": num_nets,
+                "workers": args.workers,
+                "gep-p": args.geo_p,
+                "device": args.device
+            }
+        )
 
     main()
