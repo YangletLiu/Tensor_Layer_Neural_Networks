@@ -29,8 +29,8 @@ command :
 python train.py --opt adam --model-name FC4Net
 python train.py --opt adam --model-name FC8Net
 python train.py --opt adam --model-name tnn
-python train.py --model-name FC8Net --scheduler steplr --b 256 -j 8 --lr 0.001 --opt adam
-python train.py --model-name FC8Net --scheduler steplr --b 256 --lr 0.001 --trans fft --l_idx 0 --r_idx 4 --split downsample --opt adam --filename spectral-fc8l-sub4 --device 0 --geo-p 0.9
+python train.py --model-name FC8Net --scheduler steplr -b 256 -j 8  --lr 0.001 --opt adam --trains fft
+python train.py --model-name FC8Net --scheduler steplr -b 256 --lr 0.001 --trans fft --l_idx 0 --r_idx 4 --split downsample --opt adam --filename spectral-fc8l-sub4 --device 0 --geo-p 0.9
 ```
 
 ![img.png](../figs/AccuracyOnMNIST.png)
@@ -74,7 +74,7 @@ pretrained on ImageNet-21K
 | spectral-CNN-sub4 | 91.68 % | 9.04 MBx4|-|
 | spectral-CNN-sub16 | 80.27 % | 9.04 MBx16|-|
 | resnet34 |83.90 % | 81.27 MB |-|
-| spectral-resnet34-sub16 |91.2917955 %| 81.27 MB |4.9 h|
+| spectral-resnet34-sub16 |91.29 %| 81.27 MB |4.9 h|
 | ResNet152x4 | 99.21 % | 3541.64 MB| 15.2h |
 | spectral-ResNet152x4-sub4| 99.20 %| 3541.64 MBx4 | 17.3 h |
 ```shell

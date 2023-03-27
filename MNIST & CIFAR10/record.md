@@ -55,6 +55,9 @@ python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 4  
 python train.py --model-name FC8Net --scheduler steplr --b 256 --lr 0.001 --trans dct --l_idx 0 --r_idx 4 --split downsample --opt adam
 python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 16  --split downsample
 python train.py --opt adam --model-name FC8Net --trans dct --l_idx 0 --r_idx 28  --split downsample
+
+
+
 ```
 
 ## CIFAR 10 Dataset
@@ -218,7 +221,10 @@ command :
 |VGG-16|73.21%|527.79 MB| 81.2h |
 |Spectral-VGG-16|72.82 %| 207.82 MB | 44.14h |
 |ResNet-34|76.1%|83.15 MB| 43.66h |
-|spectral-ResNet34|74.13% | 83.15 MB | 76.02h |
+|spectral-ResNet34-sub4|78.29% | 83.15 MB | 76.02h |
+|spectral-ResNet34-sub16| 71.13 %| 83.15 MBx16 | 20.02 h |
+
+### spectral-ResNet-sub4:
 
 
 ### Spectral-resnet50 :
@@ -249,11 +255,12 @@ command :
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45% | 122.35 MB | >246 h  |
 |spectral-ResNet-34| 30.40% | 122.35 MB | 90 h |
+|spectral-ResNet-34| 32.45% | 122.35 MB | - |
 
 | sub-network   | sub0 | sub1 | sub2 | sub3 |
 | -----------  | ------------- | ------------- | -------------- | --------|
 | acc | 28.74% | 21.84% | 11.68% | 10.45% |
-| acc | 2.38% | 25.56% | 21.33% | 28.23% |
+| acc | 2.38% | 25.56% | 25.17% | 28.71% |
 
 
 

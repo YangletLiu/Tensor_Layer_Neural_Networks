@@ -36,7 +36,7 @@ The precision in brackets is the result of the model in the reference paper
 |Spectral-VGG-16-sub16| 64.24 % | 128.05 MBx16 | 26.84 h |
 |ResNet-34 [5] |73.51 % <br> (75.48 % [5]) <br> (76.1 % [6])| 83.15 MB | 43.66 h |
 |spectral-ResNet34-sub4| 78.29% | 83.15 MBx4 | 281 h |
-|spectral-ResNet34-sub16(6/16 subnets)| 70.98 %| 83.15 MBx16 | 20.02 h |
+|spectral-ResNet34-sub16| 71.13 %| 83.15 MBx16 | 20.02 h |
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
 |spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | 62.6 h |
@@ -61,7 +61,7 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45% | 122.35 MB | >246h  |
-|spectral-ResNet-34-sub36| 30.83% | 122.35 MB | 90h |
+|spectral-ResNet-34-sub36| 32.45% | 122.35 MB | 90h |
 
 [1] Russakovsky, O.Deng, J.Su, H.et al. ImageNet Large Scale Visual Recognition Challenge. Int J Comput Vis 115, 211–252 (2015). https://doi.org/10.1007/s11263-015-0816-y
 
