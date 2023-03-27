@@ -67,7 +67,7 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 
 [2] J. Deng, W. Dong, R. Socher, L.-J. Li, K. Li, and F.-F. Li,
 “ImageNet: A large-scale hierarchical image database,” in IEEE
-CVPR. Ieee, 2009, pp. 248–255.
+CVPR, 2009, pp. 248–255.
 
 [3] Alex Krizhevsky, Ilya Sutskever, and Geoffrey E. Hinton. 2012. ImageNet classification with deep convolutional neural networks. In Proceedings of the 25th International Conference on Neural Information Processing Systems - Volume 1 (NIPS'12). Curran Associates Inc., Red Hook, NY, USA, 1097–1105..
 
