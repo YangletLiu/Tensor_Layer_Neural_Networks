@@ -68,12 +68,12 @@ pretrained on ImageNet-21K
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 | FC-8L | 61.27 % | 252.52 MB | 3353s |
-| spectral-FC-sub4 | 68.17 % | 15.88 MBx4|3999s|
-| spectral-FC-sub16 | 59.95 % | 1.01 MBx16|6639s|
+| spectral-FC-sub4 | 68.17 % | 15.88 MBx4| 3999s |
+| spectral-FC-sub16 | 59.95 % | 1.01 MBx16| 6639s |
 | CNN | 92.42 % | 6.79 MB | - |
 | spectral-CNN-sub4 | 91.68 % | 9.04 MBx4|-|
 | spectral-CNN-sub16 | 80.27 % | 9.04 MBx16|-|
-| resnet34 |83.90 % | 81.27 MB |-|
+| resnet34 | 83.90 % | 81.27 MB | - |
 | spectral-resnet34-sub16 |91.29 %| 81.27 MB |4.9 h|
 | ResNet152x4 | 99.21 % | 3541.64 MB| 15.2h |
 | spectral-ResNet152x4-sub4| 99.20 %| 3541.64 MBx4 | 17.3 h |
