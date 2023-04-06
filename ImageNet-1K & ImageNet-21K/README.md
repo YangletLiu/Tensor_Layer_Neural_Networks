@@ -41,7 +41,7 @@ The precision in brackets is the result of the model in the reference paper
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
 |spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | 62.6 h |
-|spectral-ResNet50-sub4 | - | 97.69 MBx16 | - |
+|spectral-ResNet50-sub16 | - | 97.69 MBx16 | - |
 
 
 ## ImageNet-21K [2]
