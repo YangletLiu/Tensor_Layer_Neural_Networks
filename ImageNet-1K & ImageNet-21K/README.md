@@ -65,7 +65,7 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 |ResNet-34| 40.45% | 122.35 MB | >246h  |
 |spectral-ResNet-34-sub36| 35.12% | 122.35 MB | 90h |
 |ResNet-50| - | 171.56 MB | - |
-|spectral-ResNet-50-sub36| - | 122.35 MB | - |
+|spectral-ResNet-50-sub36| - | 171.56 MB | - |
 
 
 [1] Russakovsky, O.Deng, J.Su, H.et al. ImageNet Large Scale Visual Recognition Challenge. Int J Comput Vis 115, 211–252 (2015). 
