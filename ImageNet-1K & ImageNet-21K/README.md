@@ -30,7 +30,8 @@ The precision in brackets is the result of the model in the reference paper
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |AlexNet [3]|63.44 % <br> (59.3 % [3])| 224 MB | 40.8 h |
-|spectral-AlexNet-sub4| 63.43 % | 37.73 MBx4 | 20.2 h |
+|Spectral-AlexNet-sub4| 63.43 % | 37.73 MB x 4 | 20.2 h |
+|Spectral-AlexNet-sub16| - % | - MB x 16 | - h |
 |VGG-16 [4]|73.21 % <br> (73.00 % [4])| 527.79 MB | 81.2 h |
 |Spectral-VGG-16-sub4| 72.82 % | 207.82 MBx4 | 44.14 h |
 |Spectral-VGG-16-sub16| 64.24 % | 128.05 MBx16 | 26.84 h |
