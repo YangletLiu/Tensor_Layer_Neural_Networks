@@ -27,10 +27,12 @@ The precision in brackets is the result of the model in the reference paper
 
 10-crop testing: crops 10 different regions from an image, then makes predictions for each region, and finally averages the predictions
 
+
+
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |AlexNet [3]|63.44 % <br> (59.3 % [3])| 224 MB | 40.8 h |
-|Spectral-AlexNet-sub4| 63.43 % | 37.73 MB x 4 | 20.2 h |
+|Spectral-AlexNet-sub4| 63.43 % | 61.04 MB x 4 | 20.2 h |
 |spectral-AlexNet-sub16| 62.18 % | 37.73 MB x 16 | 9.7 h |
 |VGG-16 [4]|73.21 % <br> (73.00 % [4])| 527.79 MB | 81.2 h |
 |Spectral-VGG-16-sub4| 72.82 % | 207.82 MBx4 | 44.14 h |
@@ -40,7 +42,7 @@ The precision in brackets is the result of the model in the reference paper
 |spectral-ResNet34-sub16| 74.13 %| 83.15 MBx16 | 20.02 h |
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
-|spectral-ResNet50-sub4 |77.84% | 97.69 MBx4 | 62.6 h |
+|spectral-ResNet50-sub4 | 77.84% | 97.69 MBx4 | 62.6 h |
 |spectral-ResNet50-sub16 | - | 97.69 MBx16 | - |
 
 
