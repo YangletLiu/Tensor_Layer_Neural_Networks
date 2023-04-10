@@ -92,4 +92,4 @@ python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt a
 
 [2] A. Krizhevsky and G. Hinton, “Learning multiple layers of features from tiny images,” Master’s thesis, University of Tront, 2009.
 
-[3] Newman E, Horesh L, Avron H, et al. Stable tensor neural networks for rapid deep learning[J]. arXiv preprint arXiv:1811.06569, 2018.
+[3] Newman E, Horesh L, Avron H, et al. Stable tensor neural networks for rapid deep learning. arXiv preprint arXiv:1811.06569, 2018.
