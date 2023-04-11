@@ -46,6 +46,19 @@ The precision in brackets is the result of the model in the reference paper
 |spectral-ResNet50-sub4 | 77.84% | 97.69 MBx4 | 62.6 h |
 |spectral-ResNet50-sub16 | (*77.00 %)) | 97.69 MBx16 | - |
 
+使用 AlexNet 与 VGG 的实验可以表现出该方法在模型压缩与训练时间上的优势。
+
+（VGG的实验结果较久未更新，预计后面可以在 sub4 与 sub16 上均达到或超越目前的baseline，sub4目标为 75 %， sub16目标为73 %）
+
+ResNet 网络为全卷积网络，除最后的分类器外整个网络由卷积层堆叠而成，因此没有压缩效果。但该方法降低了训练期间的显存使用，实现模型压缩想要达到的效果。
+以 ResNet34 为例，同样设置下，我们的方法可以把训练期间的显存占用从31GB降低为约10GB，这将降低我们对训练设备的要求。
+另一方面，同样设备下，我们的方法可以把 ResNet34 训练期间的 batch size 上限从 512 最高提高为2048。这将带了更训练时间的降低和更灵活的超参数搜索空间[8]
+
+ResNet34 SOTA精度为76.1% [6]，在类似精度(76.4 %)的实验设置上，需要372小时训练时间[9]，我们使用相同实验设置，在 281 小时得到了78.29 % 的结果，表明我们的方法可以和各种类型实验方法适配以达到 SOTA 级别的精度。在 16 个子网络的实验中采用和baseline 73.51% 同样成本的实验方案，也能够在更快的时间上得到了更高的精度。
+
+(ResNet50 baseline的 77.99 % 与 77.15 %[5] 使用了 10-crop的验证方式, 这种方式不涉及训练技巧，单纯在验证阶段处理，结果提升1.5%左右, 
+我们可以使用同样的验证方法, 77.84 % 的结果能够提升到约 79 % 左右，该方法正在编写代码)
+
 
 ## ImageNet-21K [2]
 
@@ -69,11 +82,24 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45 % | 122.35 MB | >246 h  |
 |spectral-ResNet-34-sub36| 38.12 % | 122.35 MB | 90 h |
-|ResNet-50|  | 171.56 MB | - |
-|spectral-ResNet-50-sub36| 36.31 % | 171.56 MB | 33.5 h(8 GPUs) |
+|ResNet-50| - | 171.56 MB | - |
+|spectral-ResNet-50-sub36| 38.80 % | 171.56 MB | 33.5 h (8 GPUs) |
 
+图像在内存或显存中以三维张量形式存储，每个像素点为一个 int 类型整数或 float类型的浮点数。14 m 张 $ 224 * 224 * 3 $ 的图片，在内存中实际占用大小为：
 
+$$
 
+224 * 224 * 3 * 14000000 * 4 / (1024 / 1024 / 1024) = 7,850.64 GB 
+
+$$
+
+分成36份时，单个子数据集大小约为:
+
+$$
+
+672.91 / 36 = 218.07 GB
+
+$$ 
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
 
@@ -90,3 +116,7 @@ You can use these weights to obtain our results：[Weight Link](https://pan.baid
 [6] Liu Z, Li S, Wu D, et al. Automix: Unveiling the power of mixup for stronger classifiers. European Conference Computer Vision–ECCV 2022.
 
 [7] Pham H, Le Q. Autodropout: Learning dropout patterns to regularize deep networks. AAAI Conference on Artificial Intelligence. 2021, 35(11): 9351-9359
+
+[8] Smith S L, Kindermans P J, Ying C, et al. Don't Decay the Learning Rate, Increase the Batch Size. International Conference on Learning Representations.
+
+[9] Wightman R, Touvron H, Jégou H. Resnet strikes back: An improved training procedure in timm. arXiv preprint arXiv:2110.00476, 2021.

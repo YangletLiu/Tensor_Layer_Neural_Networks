@@ -21,8 +21,8 @@ Learning rate: 0.001
 | FC-4L            | 98.64%        | 7.10 MB | 1,496s |
 | FC-8L            |98.79%        | 16.54 MB | 1,553s |
 | t-NN [3]             |97.71% (97%~98% [3]) | 0.63 MB | 61,960s |
-| Spectral-FC-8L-subnets-4 |  98.88%  | 1.06x4 MB| 1,944s|
-| Spectral-FC-8L-subnets-16 |  97.92%  | 0.07x16 MB| 3,470s |
+| Spectral-FC-8L-subnets-4 |  98.88%  | 1.06x4 MB| 872s|
+| Spectral-FC-8L-subnets-16 |  97.92%  | 0.07x16 MB| 328s |
 ```shell
 command :
 
@@ -67,14 +67,14 @@ pretrained on ImageNet-21K
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
-| FC-8L | 61.27 % | 252.52 MB | 3353s |
-| spectral-FC-sub4 | 68.17 % | 15.88 MBx4| 3999s |
-| spectral-FC-sub16 | 59.95 % | 1.01 MBx16| 6639s |
-| CNN | 92.42 % | 6.79 MB | - |
-| spectral-CNN-sub4 | 91.68 % | 9.04 MBx4|-|
-| spectral-CNN-sub16 | 80.27 % | 9.04 MBx16|-|
+| FC-8L | 61.27 % | 252.52 MB | 3,353s |
+| spectral-FC-sub4 | 68.17 % | 15.88 MBx4| 3,999s |
+| spectral-FC-sub16 | 59.95 % | 1.01 MBx16| 6,639s |
+| CNN | 92.42 % | 6.79 MB | 2,211s |
+| spectral-CNN-sub4 | 91.68 % | 9.04 MBx4| - |
+| spectral-CNN-sub16 | 80.27 % | 9.04 MBx16| - |
 | resnet34 | 83.90 % | 81.27 MB | - |
-| spectral-resnet34-sub16 |91.29 %| 81.27 MB |4.9 h|
+| spectral-resnet34-sub16 |91.29 %| 81.27 MB | 4.9 h |
 | ResNet152x4 | 99.21 % | 3541.64 MB| 15.2h |
 | spectral-ResNet152x4-sub4| 99.20 %| 3541.64 MBx4 | 17.3 h |
 ```shell
@@ -82,6 +82,11 @@ command :
 
 python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --opt adam
 python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt adam --trans dct --l_idx 0 --r_idx 4 --split downsample --pretrain ./CNN8CIFAR10.pth
+```
+
+```buildoutcfg
+spectral
+
 ```
 ![img.png](../figs/AccuracyOnCIFAR10.png)
 
