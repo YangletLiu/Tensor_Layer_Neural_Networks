@@ -27,7 +27,7 @@ The precision in brackets is the result of the model in the reference paper
 
 10-crop testing: crops 10 different regions from an image, then makes predictions for each region, and finally averages the predictions
 
-
+" * " is the target accuracy
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
@@ -35,20 +35,22 @@ The precision in brackets is the result of the model in the reference paper
 |Spectral-AlexNet-sub4| 63.43 % | 61.04 MB x 4 | 20.2 h |
 |spectral-AlexNet-sub16| 62.18 % | 37.73 MB x 16 | 9.7 h |
 |VGG-16 [4]|73.21 % <br> (73.00 % [4])| 527.79 MB | 81.2 h |
-|Spectral-VGG-16-sub4| 72.82 % | 207.82 MBx4 | 44.14 h |
-|Spectral-VGG-16-sub16| 64.24 % | 128.05 MBx16 | 26.84 h |
-|ResNet-34 [5] |73.51 % <br> (75.48 % [5]) <br> (76.1 % [6])| 83.15 MB | 43.66 h |
+|Spectral-VGG-16-sub4| 72.82 % (*75.00 %) | 207.82 MBx4 | 44.14 h |
+|Spectral-VGG-16-sub16| 64.24 % (*73.00 %)| 128.05 MBx16 | 26.84 h |
+|ResNet-34 [5] |73.51 % <br> (75.48 % [5]) <br> (76.1 % [6])| 83.15 MB | 43.66 h <br> (372 h for 76.1 %)|
 |spectral-ResNet34-sub4| 78.29% | 83.15 MBx4 | 281 h |
 |spectral-ResNet34-sub16| 74.13 %| 83.15 MBx16 | 20.02 h |
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
 |spectral-ResNet50-sub4 | 77.84% | 97.69 MBx4 | 62.6 h |
-|spectral-ResNet50-sub16 | - | 97.69 MBx16 | - |
+|spectral-ResNet50-sub16 | (*77.00 %)) | 97.69 MBx16 | - |
 
 
 ## ImageNet-21K [2]
 
 split to 36 sub-datasets after resize to 336 x 336 x 3
+
+The size of individual sub-datasets after splitting has been reduced from 1.3 TB to 27.27 GB.
 
 Input size : 56 x 56 x 3;
 
@@ -64,11 +66,15 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
-|ResNet-34| 40.45% | 122.35 MB | >246h  |
-|spectral-ResNet-34-sub36| 38.12% | 122.35 MB | 90h |
-|ResNet-50| - | 171.56 MB | - |
-|spectral-ResNet-50-sub36| - | 171.56 MB | - |
+|ResNet-34| 40.45 % | 122.35 MB | >246 h  |
+|spectral-ResNet-34-sub36| 38.12 % | 122.35 MB | 90 h |
+|ResNet-50|  | 171.56 MB | - |
+|spectral-ResNet-50-sub36| 36.31 % | 171.56 MB | 33.5 h(8 GPUs) |
 
+
+
+
+You can use these weights to obtain our results：[Weight Link] (https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
 
 [1] Russakovsky, O.Deng, J.Su, H.et al. ImageNet Large Scale Visual Recognition Challenge. Int J Comput Vis 115, 211–252 (2015). 
 
