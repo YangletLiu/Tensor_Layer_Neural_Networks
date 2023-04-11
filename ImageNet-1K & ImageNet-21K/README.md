@@ -1,6 +1,7 @@
 # Classification on ImageNet-1K & ImageNet-21K Dataset
 
 The precision in parentheses is the result in the references.
+
 ## ImageNet-1K [1]
 
 Experimental parameters:
@@ -74,7 +75,7 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 
 
 
-You can use these weights to obtain our results：[Weight Link] (https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
+You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
 
 [1] Russakovsky, O.Deng, J.Su, H.et al. ImageNet Large Scale Visual Recognition Challenge. Int J Comput Vis 115, 211–252 (2015). 
 

@@ -11,7 +11,7 @@ Optimizer: Adam.
 Rank: 10.
 
 |Networks|Layers|Test accuracy|Learning rate|Initialization|
-|-|-|-|-|-|
+|---|---|---|---|---|
 |FC-4L |[784, 784, 784, 784, 10]|98.64%|0.001|random
 |FC-8L |[784, 784, 784, 784, 784, 784, 784, 784, 10]|98.71%|0.001|random
 |FC-4L (low-rank)|[784, 10, 784, 10, 784, 10, 784, 10]| 96.42%|0.001|xavier normal
@@ -129,7 +129,7 @@ Rank: 16.
 Optimizer: SGD with momentum = 0.9.
 
 |Network|Layers|Test accuracy|Learning rate|Initialization
-|-|-|-|-|-|
+|---|---|---|---|---|
 |FC-4-layer|[3072, 3072, 3072, 3072, 10]|59.40%|0.01|random
 |FC-8-layer|[3072, 3072, 3072, 3072, 3072, 3072, 3072, 3072, 10]|59.19%|0.01|random
 |FC-4-layer (low-rank)|[3072, 16, 3072, 16, 3072, 16, 3072, 10]|51.25%(need to be tuned)|0.01|xavier normal
@@ -152,7 +152,7 @@ Batch size: 128.
 Optimizer: SGD with momentum = 0.9 for CNN; Adam for spectral convolutional tensor network.
 
 |Network|Layers|Test accuracy|Learning rate|Initialization
-|-|-|-|-|-|
+|---|---|---|---|---|
 |CNN-4-layer|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU, MaxPool, Dropout), (Dropout, Linear)] | 87.04% | 0.05 | random
 |CNN-8-layer|[(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] | 92.07% | 0.01 | random
 |Spectral-convolutional-tensor-9-layer-subnets-2|2 subnetworks: <br> [(Conv, BatchNorm(BN), ReLU), (Conv, ReLU, BN, MaxPool), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool, Dropout), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU), (Conv, BN, ReLU, MaxPool), (Dropout, Linear)] for each subnetwork. | 91.37% | 0.001 | random
