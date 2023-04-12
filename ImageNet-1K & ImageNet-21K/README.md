@@ -48,6 +48,18 @@ The precision in brackets is the result of the model in the reference paper
 
 Experimental results on AlexNet and VGG demonstrate the advantages of this method in terms of model compression and training time.
 
+The architecture of AlexNet is composed of 5 convolutional layers and 3 fully connected layers, containing a total of approximately 60 million trainable parameters.
+Notably, the fully connected layers contribute significantly to the overall parameter count, with over 58 million, representing approximately 96 % of the total. 
+
+VGG16 is composed of 13 convolutional layers and 3 fully connected layers, with a total of approximately 138 million trainable parameters. 
+The parameter of fully connected layers more than 123 million, representing approximately 89% of the total.
+
+The parameter count of a fully connected layer is closely related to the size of the feature maps that are input to that layer. 
+Our proposed method can effectively reduce the size of feature maps during training, leading to a reduction in the number of parameters in the fully connected layers.
+
+Taking VGG16 as an example, when we split the dataset into 4 spectral domains, the parameter count in the fully connected layers of VGG16 is reduced from 123 million to 39 million. 
+This allows us to reduce the size of the model from 527 MB to 207 MB.
+
 The ResNet network is a fully convolutional network, composed of a stack of convolutional layers except for the last layer ———— classifier, therefore it cannot be compressed. 
 However, this method reduces the usage of GPU memory during training, achieving the effect of model compression.
 Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB. 
