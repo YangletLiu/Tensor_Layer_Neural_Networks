@@ -84,10 +84,6 @@ python train.py --dataset cifar10 --model-name CNN8CIFAR10 --epochs 300 --opt ad
 python train.py --dataset cifar10 --model-name CNN10CIFAR10 --epochs 300 --opt adam --trans dct --l_idx 0 --r_idx 4 --split downsample --pretrain ./CNN8CIFAR10.pth
 ```
 
-```buildoutcfg
-spectral
-
-```
 ![img.png](../figs/AccuracyOnCIFAR10.png)
 
 ![img.png](../figs/TrainingLossonCIFAR10.png)

@@ -46,15 +46,19 @@ The precision in brackets is the result of the model in the reference paper
 |spectral-ResNet50-sub4 | 77.84% | 97.69 MBx4 | 62.6 h |
 |spectral-ResNet50-sub16 | (*77.00 %) | 97.69 MBx16 | - |
 
-使用 AlexNet 与 VGG 的实验可以表现出该方法在模型压缩与训练时间上的优势。
+Experimental results on AlexNet and VGG demonstrate the advantages of this method in terms of model compression and training time.
 
-（VGG的实验结果较久未更新，预计后面可以在 sub4 与 sub16 上均达到或超越目前的baseline，sub4目标为 75 %， sub16目标为73 %）
+The ResNet network is a fully convolutional network, composed of a stack of convolutional layers except for the last layer ———— classifier, therefore it cannot be compressed. 
+However, this method reduces the usage of GPU memory during training, achieving the effect of model compression.
+Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB. 
+This will lower the requirements for our training devices. 
+On the other hand, using the same device, our method can increase the upper limit of batch size during training of ResNet34 from 512 to a maximum of 2048. 
+This brings about reduced training time and a more flexible hyperparameter search space.[8]
 
-ResNet 网络为全卷积网络，除最后的分类器外整个网络由卷积层堆叠而成，因此没有压缩效果。但该方法降低了训练期间的显存使用，实现模型压缩想要达到的效果。
-以 ResNet34 为例，同样设置下，我们的方法可以把训练期间的显存占用从31GB降低为约10GB，这将降低我们对训练设备的要求。
-另一方面，同样设备下，我们的方法可以把 ResNet34 训练期间的 batch size 上限从 512 最高提高为2048。这将带了更训练时间的降低和更灵活的超参数搜索空间[8]
-
-ResNet34 SOTA精度为76.1% [6]，在类似精度(76.4 %)的实验设置上，需要372小时训练时间[9]，我们使用相同实验设置，在 281 小时得到了78.29 % 的结果，表明我们的方法可以和各种类型实验方法适配以达到 SOTA 级别的精度。在 16 个子网络的实验中采用和baseline 73.51% 同样成本的实验方案，也能够在更快的时间上得到了更高的精度。
+The 76.1% [6]accuracy for ResNet34 current is state-of-the-art (SOTA), which requires 372 hours of training time under a setting of similar accuracy(76.4%)[9]. 
+Using the same experimental setting, we achieved a result of 78.29 % in 281 hours, demonstrating that our method can be adapted to various experimental setups to achieve SOTA-level accuracy. 
+For lighter training methods, we conducted experiments on 16 subnetworks using an experimental setup with the same cost as the baseline (73.51%). 
+We were able to achieve higher accuracy in less time with this approach.
 
 (ResNet50 baseline的 77.99 % 与 77.15 %[5] 使用了 10-crop的验证方式, 这种方式不涉及训练技巧，单纯在验证阶段处理，结果提升1.5%左右, 
 我们可以使用同样的验证方法, 77.84 % 的结果能够提升到约 79 % 左右，该方法正在编写代码)
@@ -85,20 +89,19 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 |ResNet-50| - | 171.56 MB | - |
 |spectral-ResNet-50-sub36| 38.80 % | 171.56 MB | 33.5 h (8 GPUs) |
 
-图像在内存或显存中以三维张量形式存储，每个像素点为一个 int 类型整数或 float类型的浮点数。14 m 张 $ 224 * 224 * 3 $ 的图片，在内存中实际占用大小为：
+Images are stored in CPU or GPU memory as three-dimensional tensors, where a grayscale image is represented as a two-dimensional matrix. 
+Each pixel is represented as an integer of type int or a floating-point number of type float. 
+For instance, in the PyTorch framework, once an image is loaded, it is saved in the format of "torch.FloatTensor", where each data point occupies 4 bytes.
+For 14 million $224 \times 224 \times 3$ pixel color images , The actual memory size occupied by：
 
 $$
-
-224 * 224 * 3 * 14000000 * 4 / (1024 / 1024 / 1024) = 7,850.64 GB 
-
+224 * 224 * 3 * 14000000 * 4 / (1024 / 1024 / 1024) = 7,850.64 GB
 $$
 
-分成36份时，单个子数据集大小约为:
+When divided into 36 parts, the size of each sub-dataset is approximately:
 
 $$
-
 672.91 / 36 = 218.07 GB
-
 $$ 
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
