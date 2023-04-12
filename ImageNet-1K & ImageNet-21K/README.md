@@ -95,7 +95,7 @@ For instance, in the PyTorch framework, once an image is loaded, it is saved in 
 For 14 million $224 \times 224 \times 3$ pixel color images , The actual memory size occupied by：
 
 $$
-224 * 224 * 3 * 14000000 * 4 / (1024 / 1024 / 1024) = 7,850.64 GB
+224 \times 224 \times 3 \times 14000000 \times 4 / (1024 / 1024 / 1024) = 7,850.64 GB
 $$
 
 When divided into 36 parts, the size of each sub-dataset is approximately:
