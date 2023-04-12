@@ -60,7 +60,7 @@ Our proposed method can effectively reduce the size of feature maps during train
 Taking VGG16 as an example, when we split the dataset into 4 spectral domains, the parameter count in the fully connected layers of VGG16 is reduced from 123 million to 39 million. 
 This allows us to reduce the size of the model from 527 MB to 207 MB.
 
-The ResNet network is a fully convolutional network, composed of a stack of convolutional layers except for the last layer ———— classifier, therefore it cannot be compressed. 
+The ResNet network is a fully convolutional network, composed of a stack of convolutional layers except for the last layer —— classifier, therefore it cannot be compressed. 
 However, this method reduces the usage of GPU memory during training, achieving the effect of model compression.
 Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB. 
 This will lower the requirements for our training devices. 
