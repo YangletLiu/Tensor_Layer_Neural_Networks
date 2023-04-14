@@ -72,7 +72,7 @@ Using the same experimental setting, we achieved a result of 78.29 % in 281 hour
 For lighter training methods, we conducted experiments on 16 subnetworks using an experimental setup with the same cost as the baseline (73.51%). 
 We were able to achieve higher accuracy in less time with this approach.
 
-(ResNet50 baseline的 77.99 % 与 77.15 %[5] 使用了 10-crop的验证方式, 这种方式不涉及训练技巧，单纯在验证阶段处理，结果提升1.5%左右, 
+(ResNet50 baseline的 77.99 % 与 77.15 %[5] 使用了 10-crop 的验证方式, 这种方式不涉及训练技巧，单纯在验证阶段处理，结果提升1.5%左右, 
 我们可以使用同样的验证方法, 77.84 % 的结果能够提升到约 79 % 左右，该方法正在编写代码)
 
 
@@ -113,7 +113,7 @@ $$
 When divided into 36 parts, the size of each sub-dataset is approximately:
 
 $$
-\frac{672.91} {36} = 218.07 GB
+\frac{7,850.64} {36} = 218.07 GB
 $$ 
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
