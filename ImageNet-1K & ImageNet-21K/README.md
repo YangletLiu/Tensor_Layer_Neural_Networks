@@ -43,7 +43,7 @@ The precision in brackets is the result of the model in the reference paper
 |spectral-ResNet34-sub16| 74.13 %| 83.15 MBx16 | 20.02 h |
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
-|spectral-ResNet50-sub4 | 77.84% | 97.69 MBx4 | 62.6 h |
+|spectral-ResNet50-sub4 | 78.63% | 97.69 MBx4 | 62.6 h |
 |spectral-ResNet50-sub16 | (*77.00 %) | 97.69 MBx16 | - |
 
 Experimental results on AlexNet and VGG demonstrate the advantages of this method in terms of model compression and training time.
@@ -72,10 +72,6 @@ Using the same experimental setting, we achieved a result of 78.29 % in 281 hour
 For lighter training methods, we conducted experiments on 16 subnetworks using an experimental setup with the same cost as the baseline (73.51%). 
 We were able to achieve higher accuracy in less time with this approach.
 
-(ResNet50 baseline的 77.99 % 与 77.15 %[5] 使用了 10-crop 的验证方式, 这种方式不涉及训练技巧，单纯在验证阶段处理，结果提升1.5%左右, 
-我们可以使用同样的验证方法, 77.84 % 的结果能够提升到约 79 % 左右，该方法正在编写代码)
-
-
 ## ImageNet-21K [2]
 
 split to 36 sub-datasets after resize to 336 x 336 x 3
@@ -97,7 +93,7 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45 % | 122.35 MB | >246 h  |
-|spectral-ResNet-34-sub36| 39.86 % | 122.35 MB | 90 h |
+|spectral-ResNet-34-sub36| 40.07 % | 122.35 MB | 90 h |
 |ResNet-50| - | 171.56 MB | - |
 |spectral-ResNet-50-sub36| 38.80 % | 171.56 MB | 33.5 h (8 GPUs) |
 
