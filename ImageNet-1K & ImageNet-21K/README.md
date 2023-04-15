@@ -46,31 +46,34 @@ The precision in brackets is the result of the model in the reference paper
 |spectral-ResNet50-sub4 | 78.63% | 97.69 MBx4 | 62.6 h |
 |spectral-ResNet50-sub16 | (*77.00 %) | 97.69 MBx16 | - |
 
-Experimental results on AlexNet and VGG demonstrate the advantages of this method in terms of model compression and training time.
+Experimental results on AlexNet and VGG demonstrate the advantages of this method in model compression and training time.
 
-The architecture of AlexNet is composed of 5 convolutional layers and 3 fully connected layers, containing a total of approximately 60 million trainable parameters.
-Notably, the fully connected layers contribute significantly to the overall parameter count, with over 58 million, representing approximately 96 % of the total. 
+AlexNet has 5 convolutional layers and 3 fully connected layers, containing more than 60 million trainable parameters.
+the fully connected layers containing more than 58 million parameters, approximately 96 % of the total parameters. 
 
-VGG16 is composed of 13 convolutional layers and 3 fully connected layers, with a total of approximately 138 million trainable parameters. 
-The parameter of fully connected layers more than 123 million, representing approximately 89% of the total.
+VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. 
+the fully connected layers containing more than 123 million parameters, approximately 89% of the total parameters.
 
-The parameter count of a fully connected layer is closely related to the size of the feature maps that are input to that layer. 
-Our proposed method can effectively reduce the size of feature maps during training, leading to a reduction in the number of parameters in the fully connected layers.
+The parameter count of fully connected layer is related to the size of the feature maps. 
+Our method can reduce the size of feature maps during training.
+Therefore we can reduce the number of parameters in the fully connected layers.
 
-Taking VGG16 as an example, when we split the dataset into 4 spectral domains, the parameter count in the fully connected layers of VGG16 is reduced from 123 million to 39 million. 
-This allows us to reduce the size of the model from 527 MB to 207 MB.
+Taking VGG16 as an example, when we split the dataset into 4 spectral domains, the number of parameter in the fully connected layers is reduced from 123 million to 39 million. 
+The size of VGG16 is reduced from 527 MB to 207 MB.
 
-The ResNet network is a fully convolutional network, composed of a stack of convolutional layers except for the last layer —— classifier, therefore it cannot be compressed. 
-However, this method reduces the usage of GPU memory during training, achieving the effect of model compression.
-Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB. 
-This will lower the requirements for our training devices. 
-On the other hand, using the same device, our method can increase the upper limit of batch size during training of ResNet34 from 512 to a maximum of 2048. 
-This brings about reduced training time and a more flexible hyperparameter search space.[8]
+The ResNet network is a fully convolutional network. It does not have fully connected layers that can be compressed.
+This method can reduce the usage of GPU memory during training, achieving the effect of model compression.
+Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB.
+The method supports training these networks on devices with less memory.
 
-The 76.1% [6]accuracy for ResNet34 current is state-of-the-art (SOTA), which requires 372 hours of training time under a setting of similar accuracy(76.4%)[9]. 
-Using the same experimental setting, we achieved a result of 78.29 % in 281 hours, demonstrating that our method can be adapted to various experimental setups to achieve SOTA-level accuracy. 
-For lighter training methods, we conducted experiments on 16 subnetworks using an experimental setup with the same cost as the baseline (73.51%). 
-We were able to achieve higher accuracy in less time with this approach.
+Using the same device, The method supports larger batch size during training.
+For ResNet34, this method increased the upper limit of batch size from 512 to 2048. 
+This brings about reduced training time or more flexible hyperparameter search space.[8]
+
+The 76.1% [6]accuracy for ResNet34 is state-of-the-art (SOTA). A setting of similar accuracy(76.4%)[9] requires 372 hours for training. 
+Using the same experimental setting of [9], we achieve the 78.29 % accuracy in 281 hours. Our method can be adapted to various experimental setting to achieve SOTA-level accuracy. 
+For lighter training methods, spectral-ResNet34-sub16 using same experimental setting as the baseline (73.51%). 
+We also achieve higher accuracy in less training time.
 
 ## ImageNet-21K [2]
 
@@ -97,16 +100,16 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 |ResNet-50| - | 171.56 MB | - |
 |spectral-ResNet-50-sub36| 38.80 % | 171.56 MB | 33.5 h (8 GPUs) |
 
-Images are stored in CPU or GPU memory as three-dimensional tensors, where a grayscale image is represented as a two-dimensional matrix. 
-Each pixel is represented as an integer of type int or a floating-point number of type float. 
-For instance, in the PyTorch framework, once an image is loaded, it is saved in the format of "torch.FloatTensor", where each data point occupies 4 bytes.
-For 14 million $224 \times 224 \times 3$ pixel color images , The actual memory size occupied by：
+Color image in CPU or GPU memory is a three-dimensional tensors, Grayscale image is a two-dimensional matrix. 
+Each pixel is int type or float type. 
+For instance, in the PyTorch framework, image is saved as "torch.FloatTensor", that memory consumption of each pixel is 4 bytes.
+For 14 million $224 \times 224 \times 3$ size color images , its memory consumption is:
 
 $$
 \frac{224 \times 224 \times 3 \times 14000000 \times 4} {1024 \times 1024 \times 1024} = 7,850.64 GB
 $$
 
-When divided into 36 parts, the size of each sub-dataset is approximately:
+When divided into 36 sub datasets, the memory consumption of each sub-dataset is approximately:
 
 $$
 \frac{7,850.64} {36} = 218.07 GB
