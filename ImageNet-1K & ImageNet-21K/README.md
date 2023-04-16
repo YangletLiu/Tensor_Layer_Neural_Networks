@@ -54,11 +54,11 @@ the fully connected layers containing more than 58 million parameters, approxima
 VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. 
 the fully connected layers containing more than 123 million parameters, approximately 89% of the total parameters.
 
-The parameter count of fully connected layer is related to the size of the feature maps. 
+The number of parameters of fully connected layer is related to the size of the feature maps. 
 Our method can reduce the size of feature maps during training.
 Therefore we can reduce the number of parameters in the fully connected layers.
 
-Taking VGG16 as an example, when we split the dataset into 4 spectral domains, the number of parameter in the fully connected layers is reduced from 123 million to 39 million. 
+Taking VGG16 as an example, when we split the dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million. 
 The size of VGG16 is reduced from 527 MB to 207 MB.
 
 The ResNet network is a fully convolutional network. It does not have fully connected layers that can be compressed.
@@ -77,9 +77,10 @@ We also achieve higher accuracy in less training time.
 
 ## ImageNet-21K [2]
 
-split to 36 sub-datasets after resize to 336 x 336 x 3
+ImageNet-21K has 14,197,122 images for 21,841 classes.
 
-The size of individual sub-datasets after splitting has been reduced from 1.3 TB to 27.27 GB.
+We resize this iamges of different sizes to 336 x 336 x 3.
+For spectral method, we split the dataset into 36 sub-datasets.
 
 Input size : 56 x 56 x 3;
 
@@ -103,16 +104,16 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 Color image in CPU or GPU memory is a three-dimensional tensors, Grayscale image is a two-dimensional matrix. 
 Each pixel is int type or float type. 
 For instance, in the PyTorch framework, image is saved as "torch.FloatTensor", that memory consumption of each pixel is 4 bytes.
-For 14 million $224 \times 224 \times 3$ size color images , its memory consumption is:
+For 14 million $H \times W \times C$ size color images , its memory consumption is :
 
 $$
-\frac{224 \times 224 \times 3 \times 14000000 \times 4} {1024 \times 1024 \times 1024} = 7,850.64 GB
+\frac{336 \times 336 \times 3 \times 14,197,122 \times 4} {1,024 \times 1,024 \times 1,024} = 17,912.66 GB
 $$
 
-When divided into 36 sub datasets, the memory consumption of each sub-dataset is approximately:
+When splitted into 36 sub datasets, the memory consumption of each sub-dataset is approximately :
 
 $$
-\frac{7,850.64} {36} = 218.07 GB
+\frac{17,912.66} {36} = 497.57 GB
 $$ 
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
