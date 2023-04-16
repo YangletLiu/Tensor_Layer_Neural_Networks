@@ -14,7 +14,9 @@ Most of neural networks consists of convolutional layers and fully connected lay
 The size of fully connected layers is related to the size of inputs. A intritive thought for the compression of  the fully conected layer is to reduce the size of inputs. However, it can lead to a drop of performance by directly splitting the images into blocks for processing by networks, due to the loss of information. To mitigate the influnce of the splitting on the loss of image information, we propose to train neural networks on images represented in the spectral domain. Specifically,  in our method, we   
 1) first represent the original dataset in the spectral domain;
 2) then split the spectral dataset into different subsets;
-3) feedforward by independent different neural networks for training/inference.   
+3) feedforward by independent different neural networks for training/inference.     
+
+
 There are three advanteges using our method:   
 
 ___Due to the reduced input size, the number of parameters in each neural network can be largely reduced, especially the fully connected layer (which dominates the most part of the number of parameters).___       
