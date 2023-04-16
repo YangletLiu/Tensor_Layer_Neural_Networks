@@ -1,6 +1,8 @@
 ######################### 0. import packages #############################
 import time
 import torch
+
+
 import bit_pytorch.models as models
 from torch import nn
 from torchvision import datasets, transforms
@@ -35,8 +37,8 @@ parser.add_argument("--draw", default=False, action='store_true')
 
 args = parser.parse_args()
 
-device = 'cuda:'+args.device if torch.cuda.is_available() else "cpu"
-
+# device = 'cuda:'+args.device if torch.cuda.is_available() else "cpu"
+device = 'cuda'
 head_idx = args.l_idx
 tail_idx = args.r_idx
 num_nets = tail_idx - head_idx
@@ -59,11 +61,15 @@ elif args.dataset == "imagenet":
     val_tx = transforms.Compose([
         transforms.Resize((448, 448)),
         transforms.ToTensor(),
+
         transforms.Normalize(
             mean=[0.5, 0.5, 0.5],
             std=[0.5, 0.5, 0.5])
+            # mean=[0.4914, 0.4822, 0.4465],
+            # std=[0.2023, 0.1994, 0.2010])
     ])
-    testset = datasets.ImageFolder("/colab_space/yanglet/imagenet/val", transform=val_tx)
+
+testset = datasets.ImageFolder("/colab_space/yanglet/imagenet/val", transform=val_tx)
 
 # testset = datasets.CIFAR10(
 #             "/xfs/home/tensor_zy/zhangjie/datasets", train=False,
@@ -73,7 +79,7 @@ num_test = len(testset)
 
 testloader = torch.utils.data.DataLoader(
       testset, batch_size=args.batch, shuffle=False,
-      num_workers=args.workers, pin_memory=True, drop_last=False)
+      num_workers=args.workers, pin_memory=True)
 
 ########################### 2. define model ##################################
 # build model
@@ -128,7 +134,7 @@ def test_fusing_nets(nets, best_acc, best_fusing_acc, test_acc_list, fusing_test
 
             if num_nets > args.dct_nets:
                 fft_img = preprocess(img, block_size=(2, 2), device=device, trans="fft")
-            img = preprocess(img, block_size=(2, 2), device=device, trans="dct")
+            img = preprocess(img, block_size=(2, 2), device=device, trans="fft")
 
             if fft_img is not None:
                 img = torch.cat((img, fft_img), dim=-1)

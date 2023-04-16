@@ -43,7 +43,7 @@ The precision in brackets is the result of the model in the reference paper
 |spectral-ResNet34-sub16| 74.13 %| 83.15 MBx16 | 20.02 h |
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
-|spectral-ResNet50-sub4 | 78.63% | 97.69 MBx4 | 62.6 h |
+|spectral-ResNet50-sub4 | 78.63 % | 97.69 MBx4 | 62.6 h |
 |spectral-ResNet50-sub16 | (*77.00 %) | 97.69 MBx16 | - |
 
 Experimental results on AlexNet and VGG demonstrate the advantages of this method in model compression and training time.
@@ -81,7 +81,10 @@ networks testing on the 10 parts images to get 10 result vectors, and average th
 
 10-crop testing will increase the accuracy about 1%~2%, but increase inference cost by 10 times. 
 Most works does not use it in their experiment. 
-We just use 10-crop testing in our experiment of resnet50.
+In our experiment, we just use 10-crop testing for resnet50. 
+spectral-ResNet50-sub4 achieve a relative high accuracy that 78.63 %. 
+Without 10-crop testing, the accuracy of spectral-ResNet34-sub16 close to baseline, 
+and drop of 1.35 % to accuracy with 10-crop testing.
 
 ## ImageNet-21K [2]
 

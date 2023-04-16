@@ -350,9 +350,9 @@ class ClassificationPresetEval:
         self.transforms = transforms.Compose(
             [
                 transforms.Resize((crop_size, crop_size), interpolation=interpolation),
-                transforms.ToTensor(),
-                # transforms.PILToTensor(),
-                # transforms.ConvertImageDtype(torch.float),
+                # transforms.ToTensor(),
+                transforms.PILToTensor(),
+                transforms.ConvertImageDtype(torch.float),
                 transforms.Normalize(mean=mean, std=std),
             ]
         )
