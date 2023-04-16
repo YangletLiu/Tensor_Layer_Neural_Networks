@@ -121,7 +121,7 @@ $$
 \frac{17,912.66} {36} = 497.57 GB
 $$ 
 
-Our device, DGX-A100[10], has 2 TB memory. ___It is able to store the whole sub-dataset in memory.____ 
+Our device, DGX-A100[10], has 2 TB memory. ___It is able to store the whole sub-dataset in memory.___  
 We can directly transfer images from CPU memory to GPU memory during the training. For each batch images that batch size is 512, this process takes 0.003 seconds.
 The same batch data load in CPU memory from disk, that takes average 0.43 seconds, about 39 % of the training time;
 
