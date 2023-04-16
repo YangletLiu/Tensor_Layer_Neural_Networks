@@ -68,18 +68,26 @@ The method supports training these networks on devices with less memory.
 
 Using the same device, The method supports larger batch size during training.
 For ResNet34, this method increased the upper limit of batch size from 512 to 2048. 
-This brings about reduced training time or more flexible hyperparameter search space.[8]
+This brings about reduced training time or more flexible hyper-parameter search space.[8]
 
 The 76.1% [6]accuracy for ResNet34 is state-of-the-art (SOTA). A setting of similar accuracy(76.4%)[9] requires 372 hours for training. 
 Using the same experimental setting of [9], we achieve the 78.29 % accuracy in 281 hours. Our method can be adapted to various experimental setting to achieve SOTA-level accuracy. 
 For lighter training methods, spectral-ResNet34-sub16 using same experimental setting as the baseline (73.51%). 
 We also achieve higher accuracy in less training time.
 
+The 75.48 % [5] and 77.15 % [5] accuracy for ResNet34 and ResNet50 using the 10-crop testing method. 
+It takes the center crop and 4 corner crops of images and its horizontal reflection.
+networks testing on the 10 parts images to get 10 result vectors, and average these vectors to get the final result.
+
+10-crop testing will increase the accuracy about 1%~2%, but increase inference cost by 10 times. 
+Most works does not use it in their experiment. 
+We just use 10-crop testing in our experiment of resnet50.
+
 ## ImageNet-21K [2]
 
 ImageNet-21K has 14,197,122 images for 21,841 classes.
 
-We resize this iamges of different sizes to 336 x 336 x 3.
+We resize this images of different sizes to 336 x 336 x 3.
 For spectral method, we split the dataset into 36 sub-datasets.
 
 Input size : 56 x 56 x 3;
@@ -118,7 +126,7 @@ $$
 \frac{17,912.66} {36} = 497.57 GB
 $$ 
 
-Our device—DGX A100[10], has 2 TB memory. It is able to store the sub-dataset in memory. 
+Our device, DGX-A100[10], has 2 TB memory. It is able to store the sub-dataset in memory. 
 We can directly transfer images from CPU memory to GPU memory during the training. For each batch images that batch size is 512, this process takes 0.003 seconds.
 The same batch data load in CPU memory from disk, that takes average 0.43 seconds, about 39 % of the training time;
 
