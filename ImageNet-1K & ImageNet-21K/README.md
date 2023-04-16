@@ -19,8 +19,7 @@ The size of fully connected layers is related to the size of inputs. A intritive
 
 There are three advanteges using our method:   
 
-___Due to the reduced input size, the number of parameters in each neural network can be largely reduced, especially the fully connected layer (which dominates the most part of the number of parameters).___       
-
+___Due to the reduced input size, the number of parameters in each neural network can be largely reduced, especially the fully connected layer (which dominates the most part of the number of parameters).___         
 Taking VGG16 as an example, when we split the ImageNet-1K dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million.  The size of VGG16 is reduced from 527 MB to 207 MB.     
 
 ___This method can reduce the usage of GPU memory during training, achieving the effect of model compression.___   
