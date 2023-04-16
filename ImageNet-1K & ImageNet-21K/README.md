@@ -2,6 +2,32 @@
 
 The precision in parentheses is the result in the references.
 
+
+## Motivation and method  
+Most of neural networks consists of convolutional layers and fully connected layers, among which the number of parameters in fully connected layers dominates the total number of parameters of netwroks. For examples,  
+
+(1) AlexNet has 5 convolutional layers and 3 fully connected layers, containing more than 60 million trainable parameters.  It should be noted that the fully connected layers containing more than 58 million parameters, approximately 96 % of the total parameters. 
+
+(2) VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. There are  more than 123 million parameters in the fully connected layers containing, approximately 89% of the total parameters.
+
+
+The size of fully connected layers is related to the size of inputs. A intritive thought for the compression of  the fully conected layer is to reduce the size of inputs. However, it can lead to a drop of performance by directly splitting the images into blocks for processing by networks, due to the loss of information. To mitigate the influnce of the splitting on the loss of image information, we propose to train neural networks on images represented in the spectral domain. Specifically,  in our method, we   
+1) first represent the original dataset in the spectral domain;
+2) then split the spectral dataset into different subsets;
+3) feedforward by independent different neural networks for training/inference.   
+There are three advanteges using our method:   
+
+___Due to the reduced input size, the number of parameters in each neural network can be largely reduced, especially the fully connected layer (which dominates the most part of the number of parameters). ___       
+
+Taking VGG16 as an example, when we split the ImageNet-1K dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million.  The size of VGG16 is reduced from 527 MB to 207 MB.     
+
+___This method can reduce the usage of GPU memory during training, achieving the effect of model compression.___   
+Take ResNet34 as an example. Although the number of parameters in ResNet-34 can not be reduced due to the limited number of linear layer,  our method can still reduce the GPU memory consumption with reduced input size during training from 31 GB to approximately 10 GB.   
+
+___Using the same device, The method supports larger batch size during training.___  
+For ResNet34, this method increased the upper limit of batch size from 512 to 2048.  This brings about reduced training time or more flexible hyper-parameter search space.[8]  
+
+
 ## ImageNet-1K [1]
 
 ### Experimental setting:  
@@ -44,20 +70,6 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 " * " is the target accuracy
 
 Experimental results on AlexNet and VGG demonstrate the advantages of this method in model compression and training time.
-
-(1) AlexNet has 5 convolutional layers and 3 fully connected layers, containing more than 60 million trainable parameters.  It should be noted that the fully connected layers containing more than 58 million parameters, approximately 96 % of the total parameters. 
-
-(2) VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. There are  more than 123 million parameters in the fully connected layers containing, approximately 89% of the total parameters.
-
-In our work, we propose to first represent the original dataset in the spectral domain, then split the spectral dataset into different subsets, and feedforward by independent different neural networks for training/inference. ___Due to the reduced input size, the number of parameters in each neural network can be largely reduced, especially the fully connected layer (which dominates the most part of the number of parameters). ___       
-
-Taking VGG16 as an example, when we split the ImageNet-1K dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million.  The size of VGG16 is reduced from 527 MB to 207 MB.     
-
-___This method can reduce the usage of GPU memory during training, achieving the effect of model compression.___   
-Take ResNet34 as an example. Although the number of parameters in ResNet-34 can not be reduced due to the limited number of linear layer,  our method can still reduce the GPU memory consumption with reduced input size during training from 31 GB to approximately 10 GB.   
-
-___Using the same device, The method supports larger batch size during training.___  
-For ResNet34, this method increased the upper limit of batch size from 512 to 2048.  This brings about reduced training time or more flexible hyper-parameter search space.[8]  
 
 The 76.1% [6]accuracy for ResNet34 is state-of-the-art (SOTA). A setting of similar accuracy(76.4%)[9] requires 372 hours for training.   Using the same experimental setting of [9], we achieve the 78.29 % accuracy in 281 hours. Our method can be adapted to various experimental setting to achieve SOTA-level accuracy.  For lighter training methods, spectral-ResNet34-sub16 using same experimental setting as the baseline (73.51%).  We also achieve higher accuracy in less training time.
 
