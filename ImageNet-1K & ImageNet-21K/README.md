@@ -103,18 +103,25 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 
 Color image in CPU or GPU memory is a three-dimensional tensors, Grayscale image is a two-dimensional matrix. 
 Each pixel is int type or float type. 
-For instance, in the PyTorch framework, image is saved as "torch.FloatTensor", that memory consumption of each pixel is 4 bytes.
-For 14 million $H \times W \times C$ size color images , its memory consumption is :
+For instance, in the PyTorch framework, image is saved as "torch.FloatTensor", that size of each pixel is 4 bytes.
+The memory size for storing this dataset after resize is :
 
 $$
 \frac{336 \times 336 \times 3 \times 14,197,122 \times 4} {1,024 \times 1,024 \times 1,024} = 17,912.66 GB
 $$
 
-When splitted into 36 sub datasets, the memory consumption of each sub-dataset is approximately :
+It is a huge number for memory capacity.
+
+We split the dataset into 36 sub datasets. The size of each sub-dataset is approximately :
 
 $$
 \frac{17,912.66} {36} = 497.57 GB
 $$ 
+
+Our device—DGX A100[10], has 2 TB memory. It is able to store the sub-dataset in memory. 
+We can directly transfer images from CPU memory to GPU memory during the training. For each batch images that batch size is 512, this process takes 0.003 seconds.
+The same batch data load in CPU memory from disk, that takes average 0.43 seconds, about 39 % of the training time;
+
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
 
@@ -135,3 +142,5 @@ You can use these weights to obtain our results：[Weight Link](https://pan.baid
 [8] Smith S L, Kindermans P J, Ying C, et al. Don't Decay the Learning Rate, Increase the Batch Size. International Conference on Learning Representations.
 
 [9] Wightman R, Touvron H, Jégou H. Resnet strikes back: An improved training procedure in timm. arXiv preprint arXiv:2110.00476, 2021.
+
+[10] J. Choquette et al., “NVIDIA A100 tensor core GPU: Performance and innovation,” IEEE Micro, vol. 41, no. 2, pp. 29–35, 2021.
