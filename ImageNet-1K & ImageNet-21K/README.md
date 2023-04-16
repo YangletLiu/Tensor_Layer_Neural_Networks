@@ -11,7 +11,9 @@ Most of neural networks consists of convolutional layers and fully connected lay
 (2) VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. There are  more than 123 million parameters in the fully connected layers containing, approximately 89% of the total parameters.
 
 
-The size of fully connected layers is related to the size of inputs. A intritive thought for the compression of  the fully conected layer is to reduce the size of inputs. However, it can lead to a drop of performance by directly splitting the images into blocks for processing by networks, due to the loss of information. To mitigate the influnce of the splitting on the loss of image information, we propose to train neural networks on images represented in the spectral domain. Specifically,  in our method, we   
+The size of fully connected layers in neural networks is typically determined by the size of the input data. Although it may seem intuitive to compress the fully connected layer by reducing the size of the inputs, this approach can often lead to a decrease in performance due to the loss of information. In many cases, researchers have attempted to address this issue by splitting large images into smaller blocks for processing by the network. However, this approach can also result in a loss of information and negatively impact the performance of the network. To mitigate the negative impact of splitting on image information loss, we propose a novel approach to training neural networks on images represented in the spectral domain. By leveraging the spectral properties of images, we can reduce the impact of information loss during the splitting process and improve the overall performance of the network. 
+
+Specifically,  in our method, we   
 1) first represent the original dataset in the spectral domain;
 2) then split the spectral dataset into different subsets;
 3) feedforward by independent different neural networks for training/inference.     
