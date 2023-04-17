@@ -13,11 +13,10 @@ Most of neural networks consists of convolutional layers and fully connected lay
 The number of parameters in fully connected layer is related to the input size. Taking VGG16 as an example, when we split the ImageNet-1K dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million.  
 The size of VGG16 is reduced from 527 MB to 207 MB.     
 
-The ResNet network is fully convolutional neural networks. It does not have fully connected layers that can be compressed.
+The ResNet network has convolutional layers. It does not have fully connected layers.
 
 This method can reduce the usage of GPU memory during training. 
-Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB.
-Using the same device, The method supports larger batch size during training.
+Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB. Using the same device, The method supports larger batch size during training.
 For ResNet34, this method increased the upper limit of batch size from 512 to 2048.  This brings about reduced training time or more flexible hyper-parameter search space.[8]
 
 ## ImageNet-1K [1]
