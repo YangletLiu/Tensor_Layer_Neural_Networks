@@ -2,9 +2,38 @@
 
 The precision in parentheses is the result in the references.
 
+
+## Motivation and method  
+Most of neural networks consists of convolutional layers and fully connected layers, among which the number of parameters in fully connected layers dominates the total number of parameters of netwroks. For examples,  
+
+(1) AlexNet has 5 convolutional layers and 3 fully connected layers, containing more than 60 million trainable parameters.  It should be noted that the fully connected layers containing more than 58 million parameters, approximately 96 % of the total parameters. 
+
+(2) VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. There are  more than 123 million parameters in the fully connected layers containing, approximately 89% of the total parameters.
+
+
+The size of fully connected layers in neural networks is typically determined by the size of the input data. Although it may seem intuitive to compress the fully connected layer by reducing the size of the inputs, this approach can often lead to a decrease in performance due to the loss of information. In many cases, researchers have attempted to address this issue by splitting large images into smaller blocks for processing by the network. However, this approach can also result in a loss of information and negatively impact the performance of the network. To mitigate the negative impact of splitting on image information loss, we propose a novel approach to training neural networks on images represented in the spectral domain. By leveraging the spectral properties of images, we can reduce the impact of information loss during the splitting process and improve the overall performance of the network. 
+
+Specifically,  in our method, we   
+1) first represent the original dataset in the spectral domain;
+2) then split the spectral dataset into different subsets;
+3) feedforward by independent different neural networks for training/inference.     
+
+
+There are three advanteges using our method:   
+
+___Due to the reduced input size, the number of parameters in each neural network can be largely reduced, especially the fully connected layer (which dominates the most part of the number of parameters).___         
+Taking VGG16 as an example, when we split the ImageNet-1K dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million.  The size of VGG16 is reduced from 527 MB to 207 MB.     
+
+___This method can reduce the usage of GPU memory during training, achieving the effect of model compression.___   
+Take ResNet34 as an example. Although the number of parameters in ResNet-34 can not be reduced due to the limited number of linear layer,  our method can still reduce the GPU memory consumption with reduced input size during training from 31 GB to approximately 10 GB.   
+
+___Using the same device, The method supports larger batch size during training.___  
+For ResNet34, this method increased the upper limit of batch size from 512 to 2048.  This brings about reduced training time or more flexible hyper-parameter search space.[8]  
+
+
 ## ImageNet-1K [1]
 
-Experimental parameters:
+### Experimental setting:  
 
 Input size :
 
@@ -16,19 +45,14 @@ Input size :
 
 Epoch: 100;   Batch size: 256
 
-Optimizer: SGD (0.9 momentum，0.0001 weight-decay);
+Optimizer: SGD with momentum as 0.9, and weight-decay as 1e-4;  
 
 Initial lr: 0.01;
 
-lr-scheduler: cosineannealingLR (100 T_max，0.0001 lr_min);
+lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
-The precision in brackets is the result of the model in the reference paper
+### Numeric results:  
 
-10-crop testing for ResNet34 and ResNet50 in original paper.
-
-10-crop testing: crops 10 different regions from an image, then makes predictions for each region, and finally averages the predictions
-
-" * " is the target accuracy
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
@@ -46,45 +70,15 @@ The precision in brackets is the result of the model in the reference paper
 |spectral-ResNet50-sub4 | 78.63 % | 97.69 MBx4 | 62.6 h |
 |spectral-ResNet50-sub16 | (*77.00 %) | 97.69 MBx16 | - |
 
+" * " is the target accuracy
+
 Experimental results on AlexNet and VGG demonstrate the advantages of this method in model compression and training time.
 
-AlexNet has 5 convolutional layers and 3 fully connected layers, containing more than 60 million trainable parameters.
-the fully connected layers containing more than 58 million parameters, approximately 96 % of the total parameters. 
+The 76.1% [6] accuracy for ResNet34 is state-of-the-art (SOTA). A setting of similar accuracy(76.4%)[9] requires 372 hours for training.   Using the same experimental setting of [9], we achieve the 78.29 % accuracy in 281 hours. Our method can be adapted to various experimental setting to achieve SOTA-level accuracy.  For lighter training methods, spectral-ResNet34-sub16 using same experimental setting as the baseline (73.51%).  We also achieve higher accuracy in less training time.
 
-VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. 
-the fully connected layers containing more than 123 million parameters, approximately 89% of the total parameters.
+The 75.48 % [5] and 77.15% [5] accuracy for ResNet34 and ResNet50 using the 10-crop testing method.  It takes the center crop and 4 corner crops of images and its horizontal reflection. networks testing on the 10 parts images to get 10 result vectors, and average these vectors to get the final result.
 
-The number of parameters of fully connected layer is related to the size of the feature maps. 
-Our method can reduce the size of feature maps during training.
-Therefore we can reduce the number of parameters in the fully connected layers.
-
-Taking VGG16 as an example, when we split the dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million. 
-The size of VGG16 is reduced from 527 MB to 207 MB.
-
-The ResNet network is a fully convolutional network. It does not have fully connected layers that can be compressed.
-This method can reduce the usage of GPU memory during training, achieving the effect of model compression.
-Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB.
-The method supports training these networks on devices with less memory.
-
-Using the same device, The method supports larger batch size during training.
-For ResNet34, this method increased the upper limit of batch size from 512 to 2048. 
-This brings about reduced training time or more flexible hyper-parameter search space.[8]
-
-The 76.1% [6]accuracy for ResNet34 is state-of-the-art (SOTA). A setting of similar accuracy(76.4%)[9] requires 372 hours for training. 
-Using the same experimental setting of [9], we achieve the 78.29 % accuracy in 281 hours. Our method can be adapted to various experimental setting to achieve SOTA-level accuracy. 
-For lighter training methods, spectral-ResNet34-sub16 using same experimental setting as the baseline (73.51%). 
-We also achieve higher accuracy in less training time.
-
-The 75.48 % [5] and 77.15 % [5] accuracy for ResNet34 and ResNet50 using the 10-crop testing method. 
-It takes the center crop and 4 corner crops of images and its horizontal reflection.
-networks testing on the 10 parts images to get 10 result vectors, and average these vectors to get the final result.
-
-10-crop testing will increase the accuracy about 1%~2%, but increase inference cost by 10 times. 
-Most works does not use it in their experiment. 
-In our experiment, we just use 10-crop testing for resnet50. 
-spectral-ResNet50-sub4 achieve a relative high accuracy that 78.63 %. 
-Without 10-crop testing, the accuracy of spectral-ResNet34-sub16 close to baseline, 
-and drop of 1.35 % to accuracy with 10-crop testing.
+10-crop testing will increase the accuracy about 1%~2%, but increase inference cost by 10 times. Most works does not use it in their experiment.  In our experiment, we just use 10-crop testing for resnet50.  spectral-ResNet50-sub4 achieve a relative high accuracy that 78.63 %.  Without 10-crop testing, the accuracy of spectral-ResNet34-sub16 close to baseline, and drop of 1.35 % to accuracy with 10-crop testing.
 
 ## ImageNet-21K [2]
 
@@ -95,15 +89,13 @@ For spectral method, we split the dataset into 36 sub-datasets.
 
 Input size : 56 x 56 x 3;
 
-Epoch: 100;
+Epoch: 100;   Batch size: 256
 
-Batch size: 512;
+Optimizer: SGD with momentum as 0.9, and weight-decay as 1e-4;  
 
-Optimizer: SGD (0.9 momentum，0.0001 weight-decay);
+Initial lr: 0.01;
 
-initial lr: 0.001;
-
-lr-scheduler: stepLR(30 step size，0.1 gamma);
+lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
@@ -129,7 +121,7 @@ $$
 \frac{17,912.66} {36} = 497.57 GB
 $$ 
 
-Our device, DGX-A100[10], has 2 TB memory. It is able to store the sub-dataset in memory. 
+Our device, DGX-A100[10], has 2 TB memory. ___It is able to store the whole sub-dataset in memory.___  
 We can directly transfer images from CPU memory to GPU memory during the training. For each batch images that batch size is 512, this process takes 0.003 seconds.
 The same batch data load in CPU memory from disk, that takes average 0.43 seconds, about 39 % of the training time;
 
