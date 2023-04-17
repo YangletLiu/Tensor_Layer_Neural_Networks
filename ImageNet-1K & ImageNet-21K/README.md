@@ -92,7 +92,7 @@ The time to transfer images from CPU memory to GPU memory is much smaller than f
 For example, our device, DGX-A100 [10], has 2 TB memory and 8 A100 GPU, each GPU has 40 GB memory.
 
 We load each batch images in pipeline. When a batch images be training, we well preload many other batch data in CPU memory. 
-After a iteration, we directly transfer a new batch images from CPU memory to GPU memory
+After a iteration, we directly transfer a new batch images from CPU memory to GPU memory for training.
 
 For each batch images that batch size is 512, this process takes 0.003 seconds.
 The same batch data load in CPU memory from disk, that takes average 0.43 seconds, about 39 % of the training time;
