@@ -90,6 +90,7 @@ During training, images need loaded from disk to CPU memory at first, then be tr
 
 The time to transfer images from CPU memory to GPU memory is much smaller than from disk to CPU. And the CPU memory capacity is much larger than GPU.
 For example, our device, DGX-A100 [10], has 2 TB memory and 8 A100 GPU, each GPU has 40 GB memory.
+
 We load each batch images in pipeline. When a batch images be training, we well preload many other batch data in CPU memory. 
 After a iteration, we directly transfer a new batch images from CPU memory to GPU memory
 
