@@ -83,7 +83,7 @@ Initial lr: 0.01;
 lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
 
-The size of images in this dataset is different. We resize this original images to 336 x 336 x 3.
+The image size varies in this dataset. We resize this original images to 336 x 336 x 3.
 For spectral method, we split the dataset into 36 sub-datasets after resize, that input size for spectral networks is 56 x 56 x 3.
 
 During training, images need loaded from disk to CPU memory at first, then be transferred from CPU memory to GPU memory.
