@@ -29,7 +29,7 @@ Input size :
     112 x 112 x 3 for sub4
     56 x 56 x 3 for sub16&sub36
 
-    for sub36, resize the original image to 336 x 336 x3
+    for sub36, resize the original image to 336 x 336 x 3
 
 Epoch: 100;   Batch size: 256
 
@@ -72,19 +72,19 @@ The 75.48 % [5] and 77.15% [5] accuracy for ResNet34 and ResNet50 using the 10-c
 
 ImageNet-21K has 14,197,122 images for 21,841 classes.
 
-The size of images in this dataset is different.
-We resize this original images to 336 x 336 x 3.
-For spectral method, we split the dataset into 36 sub-datasets after resize, that input size for spectral networks is 56 x 56 x 3.
-
 Epoch: 100;   
 
-Batch size: 256
+Batch size: 512
 
 Optimizer: SGD with momentum as 0.9, and weight-decay as 1e-4;  
 
 Initial lr: 0.01;
 
 lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
+
+
+The size of images in this dataset is different. We resize this original images to 336 x 336 x 3.
+For spectral method, we split the dataset into 36 sub-datasets after resize, that input size for spectral networks is 56 x 56 x 3.
 
 | Network     | Top-1 Acc. | Top-5 Acc.| Model size | Training time |
 | ----------- |  -------------| --- | --- | --- |
@@ -93,23 +93,14 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 | ResNet-50 | 42.2 % [11] | |  171.56 MB | - |
 | spectral-ResNet-50-sub36 | 40.74 %  | 69.05 % | 171.56 MB | 33.5 h (8 GPUs) |
 
+During training, images need loaded from disk to CPU memory at first, then be transferred from CPU memory to GPU memory.
+
+Image can be storing in CPU memory, 
+We load each batch data in pipeline. When a batch data be training, we well preload many batch data in CPU memory.
+
 Color image in CPU or GPU memory is a three-dimensional tensors, Grayscale image is a two-dimensional matrix. 
 Each pixel is int type or float type. 
 For instance, in the PyTorch framework, image is saved as "torch.FloatTensor", that size of each pixel is 4 bytes.
-
-The memory size for storing this dataset after resize is :
-
-$$
-\frac{336 \times 336 \times 3 \times 14,197,122 \times 4} {1,024 \times 1,024 \times 1,024} = 17,912.66 GB
-$$
-
-It is a huge number for memory capacity.
-
-We split the dataset into 36 sub datasets. The size of each sub-dataset is approximately :
-
-$$
-\frac{17,912.66} {36} = 497.57 GB
-$$
 
 Our device, DGX-A100 [10], has 2 TB memory. ___It is able to store the whole sub-dataset in memory.___  
 We can directly transfer images from CPU memory to GPU memory during the training. For each batch images that batch size is 512, this process takes 0.003 seconds.
