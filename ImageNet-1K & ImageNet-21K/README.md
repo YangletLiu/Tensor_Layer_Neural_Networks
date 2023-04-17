@@ -89,7 +89,7 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 | Network     | Top-1 Acc. | Top-5 Acc.| Model size | Training time|
 | ----------- |  -------------| --- | --- | --- |
 | ResNet-34 | 40.45 % [11] | | 122.35 MB | >246 h  |
-| spectral-ResNet-34-sub36| |   40.74 % | 122.35 MB | 90 h |
+| spectral-ResNet-34-sub36|  40.74 % | | 122.35 MB | 90 h |
 | ResNet-50 | 42.2 % [11] | |  171.56 MB | - |
 | spectral-ResNet-50-sub36 | 38.80 %  | | 171.56 MB | 33.5 h (8 GPUs) |
 
