@@ -64,7 +64,7 @@ Experimental results on AlexNet and VGG demonstrate the advantages of this metho
 
 The 76.1% [6] accuracy for ResNet34 is state-of-the-art (SOTA). A setting of similar accuracy(76.4%)[9] requires 372 hours for training.   Using the same experimental setting of [9], we achieve the 78.29 % accuracy in 281 hours. Our method can be adapted to various experimental setting to achieve SOTA-level accuracy.  For lighter training methods, spectral-ResNet34-sub16 using same experimental setting as the baseline (73.51%).  We also achieve higher accuracy in less training time.
 
-The 75.48 % [5] and 77.15% [5] accuracy for ResNet34 and ResNet50 using the 10-crop testing method.  It takes the center crop and 4 corner crops of images and its horizontal reflection. networks testing on the 10 images to get 10 result vectors, and average these vectors to get the final result.
+The 75.48 % [5] and 77.15% [5] accuracy for ResNet34 and ResNet50 using the 10-crop testing method.  It takes the center crop and 4 corner crops of images and its horizontal reflection, that we get $ (1 + 4) \times 2 $ images from original image. Networks testing on the 10 images to get 10 result vectors, and average these vectors to get the final result.
 
 10-crop testing will increase the accuracy about 1%~2%, but increase inference cost by 10 times. Most works does not use it in their experiment.  In our experiment, we just use 10-crop testing for resnet50.  spectral-ResNet50-sub4 achieve a relative high accuracy that 78.63 %.  Without 10-crop testing, the accuracy of spectral-ResNet34-sub16 close to baseline, and drop of 1.35 % to accuracy with 10-crop testing.
 
