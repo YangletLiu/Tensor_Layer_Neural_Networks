@@ -64,7 +64,7 @@ Experimental results on AlexNet and VGG demonstrate the advantages of this metho
 
 The 76.1% [6] accuracy for ResNet34 is state-of-the-art (SOTA). A setting of similar accuracy(76.4%)[9] requires 372 hours for training.   Using the same experimental setting of [9], we achieve the 78.29 % accuracy in 281 hours. Our method can be adapted to various experimental setting to achieve SOTA-level accuracy.  For lighter training methods, spectral-ResNet34-sub16 using same experimental setting as the baseline (73.51%).  We also achieve higher accuracy in less training time.
 
-The 75.48 % [5] and 77.15% [5] accuracy for ResNet34 and ResNet50 using the 10-crop testing method.  It takes the center crop and 4 corner crops of images and its horizontal reflection. networks testing on the 10 parts images to get 10 result vectors, and average these vectors to get the final result.
+The 75.48 % [5] and 77.15% [5] accuracy for ResNet34 and ResNet50 using the 10-crop testing method.  It takes the center crop and 4 corner crops of images and its horizontal reflection. networks testing on the 10 images to get 10 result vectors, and average these vectors to get the final result.
 
 10-crop testing will increase the accuracy about 1%~2%, but increase inference cost by 10 times. Most works does not use it in their experiment.  In our experiment, we just use 10-crop testing for resnet50.  spectral-ResNet50-sub4 achieve a relative high accuracy that 78.63 %.  Without 10-crop testing, the accuracy of spectral-ResNet34-sub16 close to baseline, and drop of 1.35 % to accuracy with 10-crop testing.
 
@@ -86,6 +86,16 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 The size of images in this dataset is different. We resize this original images to 336 x 336 x 3.
 For spectral method, we split the dataset into 36 sub-datasets after resize, that input size for spectral networks is 56 x 56 x 3.
 
+During training, images need loaded from disk to CPU memory at first, then be transferred from CPU memory to GPU memory.
+
+The time to transfer images from CPU memory to GPU memory is much smaller than from disk to CPU. And the CPU memory capacity is much larger than GPU.
+For example, our device, DGX-A100 [10], has 2 TB memory and 8 A100 GPU, each GPU has 40 GB memory.
+We load each batch images in pipeline. When a batch images be training, we well preload many other batch data in CPU memory. 
+After a iteration, we directly transfer a new batch images from CPU memory to GPU memory
+
+For each batch images that batch size is 512, this process takes 0.003 seconds.
+The same batch data load in CPU memory from disk, that takes average 0.43 seconds, about 39 % of the training time;
+
 | Network     | Top-1 Acc. | Top-5 Acc.| Model size | Training time |
 | ----------- |  -------------| --- | --- | --- |
 | ResNet-34 | 40.45 % [11] | | 122.35 MB | >246 h  |
@@ -93,18 +103,6 @@ For spectral method, we split the dataset into 36 sub-datasets after resize, tha
 | ResNet-50 | 42.2 % [11] | |  171.56 MB | - |
 | spectral-ResNet-50-sub36 | 40.74 %  | 69.05 % | 171.56 MB | 33.5 h (8 GPUs) |
 
-During training, images need loaded from disk to CPU memory at first, then be transferred from CPU memory to GPU memory.
-
-Image can be storing in CPU memory, 
-We load each batch data in pipeline. When a batch data be training, we well preload many batch data in CPU memory.
-
-Color image in CPU or GPU memory is a three-dimensional tensors, Grayscale image is a two-dimensional matrix. 
-Each pixel is int type or float type. 
-For instance, in the PyTorch framework, image is saved as "torch.FloatTensor", that size of each pixel is 4 bytes.
-
-Our device, DGX-A100 [10], has 2 TB memory. ___It is able to store the whole sub-dataset in memory.___  
-We can directly transfer images from CPU memory to GPU memory during the training. For each batch images that batch size is 512, this process takes 0.003 seconds.
-The same batch data load in CPU memory from disk, that takes average 0.43 seconds, about 39 % of the training time;
 
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
