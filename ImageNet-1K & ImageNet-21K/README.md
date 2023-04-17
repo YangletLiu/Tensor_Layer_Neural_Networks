@@ -8,28 +8,17 @@ Most of neural networks consists of convolutional layers and fully connected lay
 
 (1) AlexNet has 5 convolutional layers and 3 fully connected layers, containing more than 60 million trainable parameters.  It should be noted that the fully connected layers containing more than 58 million parameters, approximately 96 % of the total parameters. 
 
-(2) VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. There are  more than 123 million parameters in the fully connected layers containing, approximately 89% of the total parameters.
+(2) VGG16 has 13 convolutional layers and 3 fully connected layers, containing more than 138 million trainable parameters. There are more than 123 million parameters in the fully connected layers containing, approximately 89% of the total parameters.
+ 
+The number of parameters in fully connected layer is related to the input size. Taking VGG16 as an example, when we split the ImageNet-1K dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million.  
+The size of VGG16 is reduced from 527 MB to 207 MB.     
 
+The ResNet network is fully convolutional neural networks. It does not have fully connected layers that can be compressed.
 
-The size of fully connected layers in neural networks is typically determined by the size of the input data. Although it may seem intuitive to compress the fully connected layer by reducing the size of the inputs, this approach can often lead to a decrease in performance due to the loss of information. In many cases, researchers have attempted to address this issue by splitting large images into smaller blocks for processing by the network. However, this approach can also result in a loss of information and negatively impact the performance of the network. To mitigate the negative impact of splitting on image information loss, we propose a novel approach to training neural networks on images represented in the spectral domain. By leveraging the spectral properties of images, we can reduce the impact of information loss during the splitting process and improve the overall performance of the network. 
-
-Specifically,  in our method, we   
-1) first represent the original dataset in the spectral domain;
-2) then split the spectral dataset into different subsets;
-3) feedforward by independent different neural networks for training/inference.     
-
-
-There are three advanteges using our method:   
-
-___Due to the reduced input size, the number of parameters in each neural network can be largely reduced, especially the fully connected layer (which dominates the most part of the number of parameters).___         
-Taking VGG16 as an example, when we split the ImageNet-1K dataset into 4 sub datasets, the number of parameter in the fully connected layers is reduced from 123 million to 39 million.  The size of VGG16 is reduced from 527 MB to 207 MB.     
-
-___This method can reduce the usage of GPU memory during training, achieving the effect of model compression.___   
-Take ResNet34 as an example. Although the number of parameters in ResNet-34 can not be reduced due to the limited number of linear layer,  our method can still reduce the GPU memory consumption with reduced input size during training from 31 GB to approximately 10 GB.   
-
-___Using the same device, The method supports larger batch size during training.___  
-For ResNet34, this method increased the upper limit of batch size from 512 to 2048.  This brings about reduced training time or more flexible hyper-parameter search space.[8]  
-
+This method can reduce the usage of GPU memory during training. 
+Taking ResNet34 as an example, using the same settings, our method can reduce the GPU memory consumption during training from 31 GB to approximately 10 GB.
+Using the same device, The method supports larger batch size during training.
+For ResNet34, this method increased the upper limit of batch size from 512 to 2048.  This brings about reduced training time or more flexible hyper-parameter search space.[8]
 
 ## ImageNet-1K [1]
 
@@ -99,10 +88,10 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
-|ResNet-34| 40.45 % | 122.35 MB | >246 h  |
-|spectral-ResNet-34-sub36| 40.74 % | 122.35 MB | 90 h |
-|ResNet-50| - | 171.56 MB | - |
-|spectral-ResNet-50-sub36| 38.80 % | 171.56 MB | 33.5 h (8 GPUs) |
+| ResNet-34 | 40.45 % | 122.35 MB | >246 h  |
+| spectral-ResNet-34-sub36|  40.74 % | 122.35 MB | 90 h |
+| ResNet-50 | - | 171.56 MB | - |
+| spectral-ResNet-50-sub36 | 38.80 % | 171.56 MB | 33.5 h (8 GPUs) |
 
 Color image in CPU or GPU memory is a three-dimensional tensors, Grayscale image is a two-dimensional matrix. 
 Each pixel is int type or float type. 
@@ -119,7 +108,7 @@ We split the dataset into 36 sub datasets. The size of each sub-dataset is appro
 
 $$
 \frac{17,912.66} {36} = 497.57 GB
-$$ 
+$$
 
 Our device, DGX-A100[10], has 2 TB memory. ___It is able to store the whole sub-dataset in memory.___  
 We can directly transfer images from CPU memory to GPU memory during the training. For each batch images that batch size is 512, this process takes 0.003 seconds.
