@@ -138,4 +138,4 @@ You can use these weights to obtain our results：[Weight Link](https://pan.baid
 
 [10] J. Choquette et al., “NVIDIA A100 tensor core GPU: Performance and innovation,” IEEE Micro, vol. 41, no. 2, pp. 29–35, 2021.
 
-[11] Ridnik T, Ben-Baruch E, Noy A, et al. ImageNet-21K Pretraining for the Masses//Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 1).
+[11] Ridnik T, Ben-Baruch E, Noy A, et al. ImageNet-21K Pretraining for the Masses. Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 1).
