@@ -108,7 +108,7 @@ lr-scheduler: stepLR(30 step size，0.1 gamma);
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
 |ResNet-34| 40.45 % | 122.35 MB | >246 h  |
-|spectral-ResNet-34-sub36| 40.07 % | 122.35 MB | 90 h |
+|spectral-ResNet-34-sub36| 40.74 % | 122.35 MB | 90 h |
 |ResNet-50| - | 171.56 MB | - |
 |spectral-ResNet-50-sub36| 38.80 % | 171.56 MB | 33.5 h (8 GPUs) |
 
