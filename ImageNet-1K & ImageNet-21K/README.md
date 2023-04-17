@@ -83,7 +83,7 @@ Initial lr: 0.01;
 lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
 
-The image size varies in this dataset. For example, there are same iamges has size of 600 x 426, 1600 x 1200, 150 x 113, 500 x 333 respectively
+The image size varies in this dataset. For example, there are same images has size of 600 x 426, 1600 x 1200, 150 x 113, 500 x 333 respectively.
 We resize this original images to 336 x 336 x 3.
 For spectral method, we split the dataset into 36 sub-datasets after resize, that input size for spectral networks is 56 x 56 x 3.
 
