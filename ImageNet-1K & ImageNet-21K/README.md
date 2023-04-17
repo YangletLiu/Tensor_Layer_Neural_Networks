@@ -72,12 +72,13 @@ The 75.48 % [5] and 77.15% [5] accuracy for ResNet34 and ResNet50 using the 10-c
 
 ImageNet-21K has 14,197,122 images for 21,841 classes.
 
-We resize this images of different sizes to 336 x 336 x 3.
-For spectral method, we split the dataset into 36 sub-datasets.
+The size of images in this dataset is different.
+We resize this original images to 336 x 336 x 3.
+For spectral method, we split the dataset into 36 sub-datasets after resize, that input size for spectral networks is 56 x 56 x 3.
 
-Input size : 56 x 56 x 3;
+Epoch: 100;   
 
-Epoch: 100;   Batch size: 256
+Batch size: 256
 
 Optimizer: SGD with momentum as 0.9, and weight-decay as 1e-4;  
 
@@ -87,7 +88,7 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
 | Network     | Test accuracy | Model size | Training time|
 | ----------- |  ------------- | --- | --- |
-| ResNet-34 | 40.45 % | 122.35 MB | >246 h  |
+| ResNet-34 | 40.45 % [11]| 122.35 MB | >246 h  |
 | spectral-ResNet-34-sub36|  40.74 % | 122.35 MB | 90 h |
 | ResNet-50 | - | 171.56 MB | - |
 | spectral-ResNet-50-sub36 | 38.80 % | 171.56 MB | 33.5 h (8 GPUs) |
@@ -95,6 +96,7 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 Color image in CPU or GPU memory is a three-dimensional tensors, Grayscale image is a two-dimensional matrix. 
 Each pixel is int type or float type. 
 For instance, in the PyTorch framework, image is saved as "torch.FloatTensor", that size of each pixel is 4 bytes.
+
 The memory size for storing this dataset after resize is :
 
 $$
@@ -135,3 +137,5 @@ You can use these weights to obtain our results：[Weight Link](https://pan.baid
 [9] Wightman R, Touvron H, Jégou H. Resnet strikes back: An improved training procedure in timm. arXiv preprint arXiv:2110.00476, 2021.
 
 [10] J. Choquette et al., “NVIDIA A100 tensor core GPU: Performance and innovation,” IEEE Micro, vol. 41, no. 2, pp. 29–35, 2021.
+
+[11] Ridnik T, Ben-Baruch E, Noy A, et al. ImageNet-21K Pretraining for the Masses//Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 1).
