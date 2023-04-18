@@ -83,8 +83,9 @@ Initial lr: 0.01;
 lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
 
-The image size varies in this dataset. For example, there are same images has size of 600 x 426, 1600 x 1200, 150 x 113, 500 x 333 respectively.
+The image size varies in this dataset, e.g., 600 x 426 x 3, 1600 x 1200 x 3, 150 x 113 x 3, 500 x 333 x 3.
 We resize this original images to 336 x 336 x 3.
+
 For spectral method, we split the dataset into 36 sub-datasets in spectral domain after resize, that
 
 1. 分割大小为 336 x 336 x 3 的原始图像. 将图像分为多个 6 * 6 大小的像素块, 把不同像素块中位置相同的像素组合，得到新的子图像. 
