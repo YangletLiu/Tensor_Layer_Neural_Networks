@@ -82,6 +82,9 @@ Initial lr: 0.01;
 
 lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
+ImageNet-21K dataset has no official train-validation split. And images in each class is not balanced. 
+The whole dataset averages more than 1,000 images per classes. Some classes have fewer than 10 images.
+We allocate 50 images per class for a validation split referred [11]. 
 
 The image size varies in this dataset. For example, there are same images has size of 600 x 426, 1600 x 1200, 150 x 113, 500 x 333 respectively.
 We resize this original images to 336 x 336 x 3.
@@ -92,7 +95,10 @@ For spectral method, we split the dataset into 36 sub-datasets in spectral domai
 2. 每张图片有 RGB 三个通道, 堆叠 36 份子图像相同通道的像素. 得到 3 份 56 x 56 x 36 大小的数据张量.
 3. 分别对这三份数据张量沿最后一维进行 DCT 变换, 再重新组合每份子图像的 RGB 通道, 得到 spectral domain 下的36份子图像.
 4. 我们把每份子图像单独存储,最终得到 36 份子数据集.
+
 that final input size for spectral networks is 56 x 56 x 3.
+
+原始数据以 "JPEG" 的格式储存在硬盘中, 
 
 During training, images need loaded from disk to CPU memory at first, then be transferred from CPU memory to GPU memory.
 
