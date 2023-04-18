@@ -84,7 +84,8 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
 ImageNet-21K dataset has no official train-validation split. And images in each class is not balanced. 
 The whole dataset averages more than 1,000 images per classes. Some classes have fewer than 10 images.
-We allocate 50 images per class for a validation split referred [11]. 
+refer to [11], we remove same classes that contain less than 500 images, and allocate 50 images per class for a validation split.
+Then the dataset contains 12,358,688 images from 11,221 classes. We will compare our results with [11].
 
 The image size varies in this dataset. For example, there are same images has size of 600 x 426, 1600 x 1200, 150 x 113, 500 x 333 respectively.
 We resize this original images to 336 x 336 x 3.
