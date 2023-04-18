@@ -116,7 +116,7 @@ Our device that A100 GPUs are connected to the PCI switch infrastructure over x1
 The peak time to transfer this images from CPU memory to GPU memory is :
 
 $$
-\frac{ 9.18 MB / 1024 } {252 Gb/s * 8} = 0.00028s
+\frac{ 9.18 MB / 1024 } {252 Gb/s \times 8} = 0.00028s
 $$
 
 We load each batch images in pipeline. When a batch images be training, we well preload many other batch data in CPU memory. 
