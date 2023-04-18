@@ -86,7 +86,7 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 The image size varies in this dataset, e.g., 600 x 426 x 3, 1600 x 1200 x 3, 150 x 113 x 3, 500 x 333 x 3.
 We resize this original images to 336 x 336 x 3.
 
-For spectral method, we split the dataset into 36 sub-datasets in spectral domain after resize, that
+For our spectral method, we split the original dataset into 36 sub-datasets in spectral domain as follows
 
 1. 分割大小为 336 x 336 x 3 的原始图像. 将图像分为多个 6 * 6 大小的像素块, 把不同像素块中位置相同的像素组合，得到新的子图像. 
 一共可以得到 6 x 6 份子图像, 每份子图像的大小为 56 x 56 x 3. 数据由 336 x 336 x 3 变为 56 x 56 x 3 x 36.
@@ -95,7 +95,7 @@ For spectral method, we split the dataset into 36 sub-datasets in spectral domai
 4. 我们把每份子图像单独存储,最终得到 36 份子数据集.
 that final input size for spectral networks is 56 x 56 x 3.
 
-During training, images need loaded from disk to CPU memory at first, then be transferred from CPU memory to GPU memory.
+During training, images were loaded from disk to CPU memory, then be transferred from CPU memory to GPU memory.
 
 The time to transfer images from CPU memory to GPU memory is much smaller than from disk to CPU. And the CPU memory capacity is much larger than GPU.
 For example, our device, DGX-A100 [10], has 2 TB memory and 8 A100 GPU, each GPU has 40 GB memory.
