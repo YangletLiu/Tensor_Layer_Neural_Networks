@@ -102,25 +102,30 @@ The original dataset has 1.1 TB size in disk, and this sub datasets has differen
 
 During training, images were loaded from disk to CPU memory, then be transferred from CPU memory to GPU memory.
 
-An image in sub dataset is about 2 KB in disk. A batch data with 512 batch size is about 1024 KB.
-
 Images in CPU or GPU memory is a tensor with size of H x W x C, that is the height, width, and channel of the image.
 Each pixel is int type or float type, that both have 4 bytes size.
 
-Our device that A100 GPUs are connected to the PCI switch infrastructure over x16 PCI Express Gen 4
-buses that provide 31.5 Gb/s each for a total of 252 Gb/s bandwidth.
+For spectral-ResNet-50-sub36 experiment, we take 256 images for a batch, that the memory size for storing is :
 
-The time to transfer images from CPU memory to GPU memory is much smaller than from disk to CPU. 
-And the CPU memory capacity is much larger than GPU.
-For example, our device, DGX-A100 [10], has 2 TB memory and 8 A100 GPU, each GPU has 40 GB memory.
+$$
+\frac{ 56 \times 56 \times 3 \times 256 \times 4} {1024 \times 1024} = 9.18 MB
+$$
 
+Our device that A100 GPUs are connected to the PCI switch infrastructure over x16 PCI Express Gen 4 buses that provide 31.5 Gb/s each for a total of 252 Gb/s bandwidth.
 
+The peak time to transfer this images from CPU memory to GPU memory is :
+
+$$
+\frac{ 9.18 MB / 1024 } {252Gb/s * 8} = 0.00028s
+$$
 
 We load each batch images in pipeline. When a batch images be training, we well preload many other batch data in CPU memory. 
-After a iteration, we directly transfer a new batch images from CPU memory to GPU memory for training.
+After an iteration, we directly transfer a new batch images from CPU memory to GPU memory for training.
 
-For each batch images that batch size is 512, this process takes 0.003 seconds.
+The network only has to wait the time that data transfer from CPU memory to GPU memory, 
+In our experiment, this process takes 0.0003 seconds.
 The same batch data load in CPU memory from disk, that takes average 0.43 seconds, about 39 % of the training time;
+
 
 | Network     | Top-1 Acc. | Top-5 Acc.| Model size | Training time |
 | ----------- |  -------------| --- | --- | --- |
