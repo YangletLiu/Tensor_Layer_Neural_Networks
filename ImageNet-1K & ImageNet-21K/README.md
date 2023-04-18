@@ -107,12 +107,6 @@ An image in sub dataset is about 2 KB in disk. A batch data with 512 batch size 
 Images in CPU or GPU memory is a tensor with size of H x W x C, that is the height, width, and channel of the image.
 Each pixel is int type or float type, that both have 4 bytes size.
 
-For a batch images with 512 batch size, the memory size for storing is :
-
-$$
-\frac{ 56 \times 56 \times 3 \times 512 \times 4 } {1024 \times 1024} = 18.375 MB
-$$
-
 Our device that A100 GPUs are connected to the PCI switch infrastructure over x16 PCI Express Gen 4
 buses that provide 31.5 Gb/s each for a total of 252 Gb/s bandwidth.
 
