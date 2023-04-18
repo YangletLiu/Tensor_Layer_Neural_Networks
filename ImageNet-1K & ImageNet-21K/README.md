@@ -87,9 +87,10 @@ The whole dataset averages more than 1,000 images per classes. Some classes have
 refer to [11], we remove same classes that contain less than 500 images, and allocate 50 images per class for a validation split.
 Then the dataset contains 12,358,688 images from 11,221 classes. We will compare our results with [11].
 
-The image size varies in this dataset. For example, there are same images has size of 600 x 426, 1600 x 1200, 150 x 113, 500 x 333 respectively.
+The image size varies in this dataset, e.g., 600 x 426 x 3, 1600 x 1200 x 3, 150 x 113 x 3, 500 x 333 x 3.
 We resize this original images to 336 x 336 x 3.
-For spectral method, we split the dataset into 36 sub-datasets in spectral domain after resize, that
+
+For our spectral method, we split the original dataset into 36 sub-datasets in spectral domain as follows
 
 1. 分割大小为 336 x 336 x 3 的原始图像. 将图像分为多个 6 * 6 大小的像素块, 把不同像素块中位置相同的像素组合，得到新的子图像. 
 一共可以得到 6 x 6 份子图像, 每份子图像的大小为 56 x 56 x 3. 数据由 336 x 336 x 3 变为 56 x 56 x 3 x 36.
@@ -99,9 +100,7 @@ For spectral method, we split the dataset into 36 sub-datasets in spectral domai
 
 that final input size for spectral networks is 56 x 56 x 3.
 
-原始数据以 "JPEG" 的格式储存在硬盘中, 
-
-During training, images need loaded from disk to CPU memory at first, then be transferred from CPU memory to GPU memory.
+During training, images were loaded from disk to CPU memory, then be transferred from CPU memory to GPU memory.
 
 The time to transfer images from CPU memory to GPU memory is much smaller than from disk to CPU. And the CPU memory capacity is much larger than GPU.
 For example, our device, DGX-A100 [10], has 2 TB memory and 8 A100 GPU, each GPU has 40 GB memory.
