@@ -94,11 +94,8 @@ For our spectral method, we split the original dataset into 36 sub-datasets in s
 
 1. 分割大小为 336 x 336 x 3 的原始图像. 将图像分为多个 6 * 6 大小的像素块, 把不同像素块中位置相同的像素组合，得到新的子图像. 
 一共可以得到 6 x 6 份子图像, 每份子图像的大小为 56 x 56 x 3. 数据由 336 x 336 x 3 变为 56 x 56 x 3 x 36.
-2. 每张图片有 RGB 三个通道, 堆叠 36 份子图像相同通道的像素. 得到 3 份 56 x 56 x 36 大小的数据张量.
-3. 分别对这三份数据张量沿最后一维进行 DCT 变换, 再重新组合每份子图像的 RGB 通道, 得到 spectral domain 下的36份子图像.
-4. 我们把每份子图像单独存储,最终得到 36 份子数据集.
-
-that final input size for spectral networks is 56 x 56 x 3.
+2. 对数据张量沿最后一维进行 DCT 变换, 有 56 x 56 x 3 条向量分别进行 DCT 变换, DCT 变换对应的向量长度为 36 .在 spectral domain 下得到不同频段的36份子图像.
+3. 我们把每份子图像单独存储,最终得到 36 份子数据集. 该数据集由 56 x 56 x 3 大小的 spectral domain 图像组成.
 
 During training, images were loaded from disk to CPU memory, then be transferred from CPU memory to GPU memory.
 
