@@ -94,13 +94,33 @@ For our spectral method, we split the original dataset into 36 sub-datasets in s
 
 1. 分割大小为 336 x 336 x 3 的原始图像. 将图像分为多个 6 * 6 大小的像素块, 把不同像素块中位置相同的像素组合，得到新的子图像. 
 一共可以得到 6 x 6 份子图像, 每份子图像的大小为 56 x 56 x 3. 数据由 336 x 336 x 3 变为 56 x 56 x 3 x 36.
-2. 对数据张量沿最后一维进行 DCT 变换, 有 56 x 56 x 3 条向量分别进行 DCT 变换, DCT 变换对应的向量长度为 36 .在 spectral domain 下得到不同频段的36份子图像.
-3. 我们把每份子图像单独存储,最终得到 36 份子数据集. 该数据集由 56 x 56 x 3 大小的 spectral domain 图像组成.
+2. 对数据张量沿最后一维进行 DCT 变换. 有 56 x 56 x 3 条向量分别进行 DCT 变换, DCT 变换对应的向量长度为 36 .在 spectral domain 下得到不同频段的36份子图像.
+3. 我们把每份子图像单独存储, 最终得到 36 份子数据集. 该数据集由 56 x 56 x 3 大小的 spectral domain 图像组成.
+
+In disk, images in ImageNet-21K are stored in "JPEG" type. 
+The original dataset has 1.1 TB size in disk, and this sub datasets has different size, e.g. 45 GB for sub0, 79 GB for sub1, 64 GB for sub2.
 
 During training, images were loaded from disk to CPU memory, then be transferred from CPU memory to GPU memory.
 
-The time to transfer images from CPU memory to GPU memory is much smaller than from disk to CPU. And the CPU memory capacity is much larger than GPU.
+An image in sub dataset is about 2 KB in disk. A batch data with 512 batch size is about 1024 KB.
+
+Images in CPU or GPU memory is a tensor with size of H x W x C, that is the height, width, and channel of the image.
+Each pixel is int type or float type, that both have 4 bytes size.
+
+For a batch images with 512 batch size, the memory size for storing is :
+
+$$
+\frac{ 56 \times 56 \times 3 \times 512 \times 4 } {1024 \times 1024} = 18.375 MB
+$$
+
+Our device that A100 GPUs are connected to the PCI switch infrastructure over x16 PCI Express Gen 4
+buses that provide 31.5 Gb/s each for a total of 252 Gb/s bandwidth.
+
+The time to transfer images from CPU memory to GPU memory is much smaller than from disk to CPU. 
+And the CPU memory capacity is much larger than GPU.
 For example, our device, DGX-A100 [10], has 2 TB memory and 8 A100 GPU, each GPU has 40 GB memory.
+
+
 
 We load each batch images in pipeline. When a batch images be training, we well preload many other batch data in CPU memory. 
 After a iteration, we directly transfer a new batch images from CPU memory to GPU memory for training.
