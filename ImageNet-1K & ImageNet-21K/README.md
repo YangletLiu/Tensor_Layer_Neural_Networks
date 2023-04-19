@@ -66,8 +66,10 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 |spectral-ResNet50-sub16 | (*77.00 %) | 97.69 MBx16 | - |
 
 " * " is the target accuracy
-![img.png](../figs/TrainLossOnForAlextnet.png)
 
+![img.png](../figs/TrainLossOnForAlextnetsub4.png)
+
+![img.png](../figs/TrainLossOnForAlextnetsub16.png)
 Experimental results on AlexNet and VGG demonstrate the advantages of this method in model compression and training time.
 
 The 76.1% [6] accuracy for ResNet34 is state-of-the-art (SOTA). A setting of similar accuracy(76.4%)[9] requires 372 hours for training.   Using the same experimental setting of [9], we achieve the 78.29 % accuracy in 281 hours. Our method can be adapted to various experimental setting to achieve SOTA-level accuracy.  For lighter training methods, spectral-ResNet34-sub16 using same experimental setting as the baseline (73.51%).  We also achieve higher accuracy in less training time.
