@@ -46,16 +46,23 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 | ----------- |  ------------- | --- | --- |
 |AlexNet [3]|63.44 % <br> (59.3 % [3])| 224 MB | 40.8 h |
 |Spectral-AlexNet-sub4| 63.43 % | 61.04 MB x 4 | 20.2 h |
+|Spectral-AlexNet-sub4-best| 59.35 % | 61.04 MB | 20.2 h |
 |spectral-AlexNet-sub16| 62.18 % | 37.73 MB x 16 | 9.7 h |
+|spectral-AlexNet-sub16-best| 57.39 % | 37.73 MB | 9.7 h |
 |VGG-16 [4]|73.21 % <br> (73.00 % [4])| 527.79 MB | 81.2 h |
 |Spectral-VGG-16-sub4| 72.82 % (*75.00 %) | 207.82 MBx4 | 44.14 h |
-|Spectral-VGG-16-sub16| 64.24 % (*73.00 %)| 128.05 MBx16 | 26.84 h |
+|Spectral-VGG-16-sub4-best| 70.80 %| 207.82 MB | 44.14 h |
+|Spectral-VGG-16-sub16| 65.02 % (*73.00 %)| 128.05 MBx16 | 26.84 h |
+|Spectral-VGG-16-sub16-best| 61.32% % | 128.05 MB | 26.84 h |
 |ResNet-34 [5] |73.51 % <br> (75.48 % [5]) <br> (76.1 % [6])| 83.15 MB | 43.66 h <br> (372 h for 76.1 %)|
-|spectral-ResNet34-sub4| 78.29% | 83.15 MBx4 | 28.1 h |
+|spectral-ResNet34-sub4| 78.29 % | 83.15 MBx4 | 28.1 h |
+|spectral-ResNet34-sub4-best| 76.71 % | 83.15 MB | 28.1 h |
 |spectral-ResNet34-sub16| 74.13 %| 83.15 MBx16 | 20.02 h |
+|spectral-ResNet34-sub16-best| 70.45 %| 83.15 MB | 20.02 h |
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
 |spectral-ResNet50-sub4 | 78.63 % | 97.69 MBx4 | 62.6 h |
+|spectral-ResNet50-sub4-best | 77.53 % | 97.69 MB | 62.6 h |
 |spectral-ResNet50-sub16 | (*77.00 %) | 97.69 MBx16 | - |
 
 " * " is the target accuracy
@@ -84,7 +91,7 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 
 ImageNet-21K dataset has no official train-validation split. And images in each class is not balanced. 
 The whole dataset averages more than 1,000 images per classes. Some classes have fewer than 10 images.
-refer to [11], we remove same classes that contain less than 500 images, and allocate 50 images per class for a validation split.
+refer to [11], we remove some classes that contain less than 500 images, and allocate 50 images per class for a validation split.
 Then the dataset contains 12,358,688 images from 11,221 classes. We will compare our results with [11].
 
 The image size varies in this dataset, e.g., 600 x 426 x 3, 1600 x 1200 x 3, 150 x 113 x 3, 500 x 333 x 3.
@@ -116,7 +123,7 @@ Our device that A100 GPUs are connected to the PCI switch infrastructure over x1
 The peak time to transfer this images from CPU memory to GPU memory is :
 
 $$
-\frac{ 9.18 MB / 1024 } {252 Gb/s \times 8} = 0.00028s
+\frac{ 9.18 MB / 1024 } {252 Gb/s / 8} = 0.00028s
 $$
 
 We load each batch images in pipeline. When a batch images be training, we well preload many other batch data in CPU memory. 
@@ -131,7 +138,7 @@ The same batch data load in CPU memory from disk, that takes average 0.43 second
 | ----------- |  -------------| --- | --- | --- |
 | ResNet-34 | 40.45 % [11] | | 122.35 MB | >246 h  |
 | spectral-ResNet-34-sub36|  40.74 % | 69.05 % | 122.35 MB | 90 h |
-| ResNet-50 | 42.2 % [11] | |  171.56 MB | - |
+| ResNet-50 | 42.2 % [11] | |  171.56 MB | 426 h |
 | spectral-ResNet-50-sub36 | 40.74 %  | 69.05 % | 171.56 MB | 33.5 h (8 GPUs) |
 
 
