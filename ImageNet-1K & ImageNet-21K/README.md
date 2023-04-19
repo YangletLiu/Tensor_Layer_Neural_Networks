@@ -66,6 +66,7 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 |spectral-ResNet50-sub16 | (*77.00 %) | 97.69 MBx16 | - |
 
 " * " is the target accuracy
+![img.png](../figs/TrainLossOnForAlextnet.png)
 
 Experimental results on AlexNet and VGG demonstrate the advantages of this method in model compression and training time.
 
