@@ -33,7 +33,7 @@ python train.py --model-name FC8Net --scheduler steplr -b 256 -j 8  --lr 0.001 -
 python train.py --model-name FC8Net --scheduler steplr -b 256 --lr 0.001 --trans fft --l_idx 0 --r_idx 4 --split downsample --opt adam --filename spectral-fc8l-sub4 --device 0 --geo-p 0.9
 ```
 
-![img.png](../figs/Accuracy_on_MNIST.png)
+![img.png](../figs/AccuracyOnMNIST.png)
 
 ![img.png](../figs/TrainingLossOnMNIST.png)
 ## CIFAR 10 Dataset [2]
