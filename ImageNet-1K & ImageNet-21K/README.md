@@ -51,7 +51,7 @@ lr-scheduler: cosineannealingLR with T_max as 10, and lr_min as 1e-4;
 |Spectral-VGG-16-sub4| 72.82 % (*75.00 %) | 207.82 MBx4 | 44.14 h |
 |Spectral-VGG-16-sub16| 64.24 % (*73.00 %)| 128.05 MBx16 | 26.84 h |
 |ResNet-34 [5] |73.51 % <br> (75.48 % [5]) <br> (76.1 % [6])| 83.15 MB | 43.66 h <br> (372 h for 76.1 %)|
-|spectral-ResNet34-sub4| 78.29% | 83.15 MBx4 | 281 h |
+|spectral-ResNet34-sub4| 78.29% | 83.15 MBx4 | 28.1 h |
 |spectral-ResNet34-sub16| 74.13 %| 83.15 MBx16 | 20.02 h |
 |spectral-ResNet34-sub36| 69.83 % | 83.15 MBx36 | 20.02 h |
 |ResNet-50| 77.99 % <br> (77.15 % [5]) <br> (80.3 % [7]) |97.69 MB| 43.8 h |
