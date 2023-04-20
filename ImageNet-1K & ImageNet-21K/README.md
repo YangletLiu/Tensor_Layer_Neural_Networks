@@ -140,7 +140,7 @@ The same batch data load in CPU memory from disk, that takes average 0.43 second
 | Network     | Top-1 Acc. | Top-5 Acc.| Model size | Training time |
 | ----------- |  -------------| --- | --- | --- |
 | ResNet-34 | 40.45 % [11] | | 122.35 MB | >246 h  |
-| spectral-ResNet-34-sub36|  40.74 % | 69.05 % | 122.35 MB | 90 h |
+| spectral-ResNet-34-sub36|  40.81 % | 69.05 % | 122.35 MB | 90 h |
 | ResNet-50 | 42.2 % [11] | |  171.56 MB | 426 h |
 | spectral-ResNet-50-sub36 | 40.74 %  | 69.05 % | 171.56 MB | 33.5 h (8 GPUs) |
 
