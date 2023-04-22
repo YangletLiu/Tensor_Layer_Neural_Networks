@@ -188,7 +188,7 @@ $$
     \theta_1 + \theta_2 + ... + \theta_r
 $$
 
-![img.png](figs/pytorch_ddp.png)
+![img.png](/figs/pytorch_ddp.png)
 
 通信开销在于梯度的 “All--reduce” 操作
 
