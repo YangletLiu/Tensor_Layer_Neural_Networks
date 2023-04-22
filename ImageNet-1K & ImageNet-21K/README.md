@@ -158,7 +158,7 @@ $$
     {\theta}_{new} = {\theta}_{old} - \lambda \Delta_{\theta} \sum_{B} Loss(X, y)
 $$
 
-B 为一个 batch 的数据，可以分成许多小的 batch 的集合
+B 为一个 batch 的数据，可以分成 r 个小 batch 的集合
 
 $$
     B = \bigcup_{B}^{r = 1}B_r 
@@ -170,11 +170,13 @@ $$
     {\theta}_{new} = {\theta}_{old} - \lambda \Delta_{\theta} \left [ \sum_{B_1} Loss(X, y) + \sum_{B_1} Loss(x, y) + ... + \sum_{B_r} Loss(x, y)\right ]
 $$
 
-把计算梯度的过程分到求和上, 得到分布式SGD公式为:
+把计算梯度的过程分到求和上, r 分数据对应的梯度可以在 r 张卡上并行计算。布式SGD公式为:
 
 $$
     {\theta}_{new} = {\theta}_{old} - \lambda \left [\Delta_{\theta} \sum_{B_1} Loss(X, y) + \Delta_{\theta} \sum_{B_1} Loss(x, y) + ... + \Delta_{\theta} \sum_{B_r} Loss(x, y)\right ]
 $$
+
+r 张卡上的梯度为 $$ \theta_1, \theta_2, ... , \theta_r $$, 做 “All--reduce” 每张卡上的梯度为 “\theta_1 + \theta_2 + ... +\theta_r”
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
 
@@ -198,4 +200,5 @@ You can use these weights to obtain our results：[Weight Link](https://pan.baid
 
 [10] J. Choquette et al., “NVIDIA A100 tensor core GPU: Performance and innovation,” IEEE Micro, vol. 41, no. 2, pp. 29–35, 2021.
 
-[11] Ridnik T, Ben-Baruch E, Noy A, et al. ImageNet-21K Pretraining for the Masses. Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 1).
+
+1[11] Ridnik T, Ben-Baruch E, Noy A, et al. ImageNet-21K Pretraining for the Masses. Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 1).
