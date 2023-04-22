@@ -188,6 +188,8 @@ $$
     \theta_1 + \theta_2 + ... + \theta_r
 $$
 
+![img.png](figs/pytorch_ddp.png)
+
 通信开销在于梯度的 “All--reduce” 操作
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
