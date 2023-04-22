@@ -155,7 +155,24 @@ pytorch 提供两种数据并行接口:
 一般 SGD :
 
 $$
-    {\theta}_{new} = {\theta}_{old} - \lambda \Delta_{\theta} \sum Loss(x, y)
+    {\theta}_{new} = {\theta}_{old} - \lambda \Delta_{\theta} \sum_{B} Loss(X, y)
+$$
+
+B 为一个 batch 的数据，可以分成许多小的 batch 的集合
+
+$$
+    B = \bigcup_{B}^{r = 1}B_r 
+$$
+
+SGD可以拆分成:
+
+$$
+    {\theta}_{new} = {\theta}_{old} - \lambda \Delta_{\theta} \left [ \sum_{B_1} Loss(X, y) + \sum_{B_1} Loss(x, y) + ... + \sum_{B_r} Loss(x, y)\right ]
+$$
+
+把计算梯度的过程分到求和上, 得到分布式SGD公式为:
+$$
+    {\theta}_{new} = {\theta}_{old} - \lambda \left [\Delta_{\theta} \sum_{B_1} Loss(X, y) + \Delta_{\theta} \sum_{B_1} Loss(x, y) + ... + \Delta_{\theta} \sum_{B_r} Loss(x, y)\right ]
 $$
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
