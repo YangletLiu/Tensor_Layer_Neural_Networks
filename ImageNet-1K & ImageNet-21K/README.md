@@ -176,7 +176,7 @@ $$
     {\theta}_{new} = {\theta}_{old} - \lambda \left [\Delta_{\theta} \sum_{B_1} Loss(X, y) + \Delta_{\theta} \sum_{B_1} Loss(x, y) + ... + \Delta_{\theta} \sum_{B_r} Loss(x, y)\right ]
 $$
 
-r 张卡上的梯度为 $$ \theta_1, \theta_2, ... , \theta_r $$, 做 “All--reduce” 每张卡上的梯度为 “\theta_1 + \theta_2 + ... +\theta_r”
+r 张卡上的梯度为 $ \theta_1, \theta_2, ... , \theta_r $, 做 “All--reduce” 每张卡上的梯度为 “\theta_1 + \theta_2 + ... +\theta_r”
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
 
