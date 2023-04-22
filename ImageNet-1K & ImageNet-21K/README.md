@@ -117,6 +117,8 @@ Each pixel is int type or float type, that both have 4 bytes size.
 
 For spectral-ResNet-50-sub36 experiment, we take 256 images for a batch, that the memory size for storing is :
 
+
+
 $$
 \frac{ 56 \times 56 \times 3 \times 256 \times 4} {1024 \times 1024} = 9.18 MB
 $$
@@ -144,7 +146,16 @@ The same batch data load in CPU memory from disk, that takes average 0.43 second
 | ResNet-50 | 42.2 % [11] | |  171.56 MB | 426 h |
 | spectral-ResNet-50-sub36 | 40.74 %  | 69.05 % | 171.56 MB | 33.5 h (8 GPUs) |
 
+## 并行训练
+pytorch 提供两种数据并行接口:
 
+    DataParallel : 已不推荐，采用参数服务器架构
+    DistributedDataParallel : 采用All-reduce
+
+一般 SGD ：
+$$
+    {\theta}_{new} = {\theta}_{old} - \lambda \Delta_{\theta} \sum Loss(x, y)
+$$
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
 
