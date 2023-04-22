@@ -152,7 +152,8 @@ pytorch 提供两种数据并行接口:
     DataParallel : 已不推荐，采用参数服务器架构
     DistributedDataParallel : 采用All-reduce
 
-一般 SGD ：
+一般 SGD :
+
 $$
     {\theta}_{new} = {\theta}_{old} - \lambda \Delta_{\theta} \sum Loss(x, y)
 $$
