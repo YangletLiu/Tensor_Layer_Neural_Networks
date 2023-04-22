@@ -150,7 +150,7 @@ The same batch data load in CPU memory from disk, that takes average 0.43 second
 pytorch 提供两种数据并行接口:
 
     DataParallel : 已不推荐，采用参数服务器架构
-    DistributedDataParallel : 采用All-reduce
+    DistributedDataParallel : 采用All-reduce, https://pytorch.org/docs/stable/notes/ddp.html#distributeddataparallel
 
 一般 SGD :
 
