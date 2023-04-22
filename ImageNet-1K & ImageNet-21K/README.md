@@ -176,13 +176,13 @@ $$
     {\theta}_{new} = {\theta}_{old} - \lambda \left [\Delta_{\theta} \sum_{B_1} Loss(X, y) + \Delta_{\theta} \sum_{B_1} Loss(x, y) + ... + \Delta_{\theta} \sum_{B_r} Loss(x, y)\right ]
 $$
 
-r 张卡上的梯度为 
+r 张卡上的梯度分别为 
 
 $$
 \theta_1, \theta_2, ... , \theta_r
 $$
 
-“All--reduce” 每张卡上的梯度, 之后对应的梯度为
+“All--reduce” 每张卡上的梯度, 之后每张卡上对应的梯度均为
 
 $$
 \theta_1 + \theta_2 + ... +\theta_r
