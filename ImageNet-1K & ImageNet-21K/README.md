@@ -179,15 +179,16 @@ $$
 r 张卡上的梯度分别为 
 
 $$
-\theta_1, \theta_2, ... , \theta_r
+    \theta_1, \theta_2, ... , \theta_r
 $$
 
 “All--reduce” 每张卡上的梯度, 之后每张卡上对应的梯度均为
 
 $$
-\theta_1 + \theta_2 + ... +\theta_r
+    \theta_1 + \theta_2 + ... + \theta_r
 $$
 
+通信开销在于梯度的 “All--reduce” 操作
 
 You can use these weights to obtain our results：[Weight Link](https://pan.baidu.com/s/1PxdMktuot0MF5OJE0BF0UQ?pwd=wiyq) (To be updated)
 
