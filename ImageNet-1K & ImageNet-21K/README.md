@@ -171,6 +171,7 @@ $$
 $$
 
 把计算梯度的过程分到求和上, 得到分布式SGD公式为:
+
 $$
     {\theta}_{new} = {\theta}_{old} - \lambda \left [\Delta_{\theta} \sum_{B_1} Loss(X, y) + \Delta_{\theta} \sum_{B_1} Loss(x, y) + ... + \Delta_{\theta} \sum_{B_r} Loss(x, y)\right ]
 $$
